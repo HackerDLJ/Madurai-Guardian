@@ -1,0 +1,272 @@
+{
+  "entities": {
+    "IncidentReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "IncidentReport",
+      "type": "object",
+      "description": "Represents a citizen-submitted report of an urban cleanliness issue, augmented with AI classification and status tracking.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the IncidentReport entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the user who submitted the report. (Relationship: User 1:N IncidentReport)"
+        },
+        "description": {
+          "type": "string",
+          "description": "The original description of the incident provided by the user."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The geographic latitude of the reported incident location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The geographic longitude of the reported incident location."
+        },
+        "photoUrls": {
+          "type": "array",
+          "description": "An array of URLs pointing to photo attachments of the incident.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "The timestamp when the incident report was submitted.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current resolution status of the incident report.",
+          "format": "enum"
+        },
+        "statusUpdatedAt": {
+          "type": "string",
+          "description": "The timestamp when the incident report's status was last updated.",
+          "format": "date-time"
+        },
+        "aiAugmentedDescription": {
+          "type": "string",
+          "description": "An AI-generated or enriched description of the incident, based on image analysis and initial user input."
+        },
+        "aiSuggestedCategory": {
+          "type": "string",
+          "description": "An AI-suggested category for the incident, such as 'Illegal Dumping' or 'Overflowing Bin'."
+        },
+        "isVerified": {
+          "type": "boolean",
+          "description": "Indicates whether the report has been verified by the AI and historical data checks to prevent malicious reporting."
+        },
+        "processedByAiAt": {
+          "type": "string",
+          "description": "The timestamp when the AI processing and augmentation for this report was completed.",
+          "format": "date-time"
+        },
+        "detectedWastePlasticVolumeCubicMeters": {
+          "type": "number",
+          "description": "Estimated volume of plastic waste detected by AI in cubic meters. Null or zero if not detected or quantified."
+        },
+        "detectedWastePaperVolumeCubicMeters": {
+          "type": "number",
+          "description": "Estimated volume of paper waste detected by AI in cubic meters. Null or zero if not detected or quantified."
+        },
+        "detectedWasteOrganicVolumeCubicMeters": {
+          "type": "number",
+          "description": "Estimated volume of organic waste detected by AI in cubic meters. Null or zero if not detected or quantified."
+        },
+        "detectedWasteMetalVolumeCubicMeters": {
+          "type": "number",
+          "description": "Estimated volume of metal waste detected by AI in cubic meters. Null or zero if not detected or quantified."
+        },
+        "detectedWasteEwasteVolumeCubicMeters": {
+          "type": "number",
+          "description": "Estimated volume of e-waste detected by AI in cubic meters. Null or zero if not detected or quantified."
+        },
+        "detectedWasteHazardousVolumeCubicMeters": {
+          "type": "number",
+          "description": "Estimated volume of hazardous waste detected by AI in cubic meters. Null or zero if not detected or quantified."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "description",
+        "latitude",
+        "longitude",
+        "photoUrls",
+        "submittedAt",
+        "status",
+        "isVerified"
+      ]
+    },
+    "EducationalContent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EducationalContent",
+      "type": "object",
+      "description": "Represents an article or piece of content for the Community Awareness Hub, educating users on waste management and civic responsibility.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the EducationalContent entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the educational content."
+        },
+        "content": {
+          "type": "string",
+          "description": "The full body text of the educational content."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the content, e.g., 'Waste Management Guidelines', 'Civic Responsibility Tips'.",
+          "format": "enum"
+        },
+        "publishedAt": {
+          "type": "string",
+          "description": "The timestamp when the content was published.",
+          "format": "date-time"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Optional URL to a main image or thumbnail for the content.",
+          "format": "uri"
+        },
+        "url": {
+          "type": "string",
+          "description": "Optional URL to an external source if the content is hosted elsewhere.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "category",
+        "publishedAt"
+      ]
+    },
+    "MunicipalAnnouncement": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MunicipalAnnouncement",
+      "type": "object",
+      "description": "Represents an official announcement from the Madurai Municipal Corporation regarding urban cleanliness or related civic matters.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MunicipalAnnouncement entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title or subject of the announcement."
+        },
+        "body": {
+          "type": "string",
+          "description": "The full text of the announcement."
+        },
+        "publishedAt": {
+          "type": "string",
+          "description": "The timestamp when the announcement was published.",
+          "format": "date-time"
+        },
+        "validUntil": {
+          "type": "string",
+          "description": "Optional timestamp indicating when the announcement is no longer considered current or valid.",
+          "format": "date-time"
+        },
+        "targetArea": {
+          "type": "string",
+          "description": "Optional geographical area this announcement is relevant to (e.g., 'All Madurai', 'North Zone')."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "body",
+        "publishedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/incidentReports/{incidentReportId}",
+        "definition": {
+          "entityName": "IncidentReport",
+          "schema": {
+            "$ref": "#/backend/entities/IncidentReport"
+          },
+          "description": "Private reports submitted by a specific user, visible and editable only by the owner or authorized backend functions. This path utilizes path-based ownership, where the `userId` in the path (and in the document's `userId` field) facilitates simple and robust ownership-based security rules without `get()` calls. This collection holds reports in all states, including drafts and those awaiting AI verification.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who submitted the incident report."
+            },
+            {
+              "name": "incidentReportId",
+              "description": "The unique identifier for a specific incident report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/publicIncidentReports/{incidentReportId}",
+        "definition": {
+          "entityName": "IncidentReport",
+          "schema": {
+            "$ref": "#/backend/entities/IncidentReport"
+          },
+          "description": "Publicly viewable and verified incident reports, denormalized from user-specific reports. This collection is populated by a trusted backend process only when an incident report has been fully verified (`isVerified: true`). It serves as the primary source for the interactive city map, allowing efficient public reads and lists without requiring security rules to filter by content. Write access is strictly limited to municipal staff or backend functions.",
+          "params": [
+            {
+              "name": "incidentReportId",
+              "description": "The unique identifier for a specific public incident report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/educationalContent/{contentId}",
+        "definition": {
+          "entityName": "EducationalContent",
+          "schema": {
+            "$ref": "#/backend/entities/EducationalContent"
+          },
+          "description": "Publicly accessible educational content for the Community Awareness Hub. All documents in this collection share a homogeneous security posture, allowing read-only access for all users. Write access is restricted to municipal staff or backend functions for content management.",
+          "params": [
+            {
+              "name": "contentId",
+              "description": "The unique identifier for a piece of educational content."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/municipalAnnouncements/{announcementId}",
+        "definition": {
+          "entityName": "MunicipalAnnouncement",
+          "schema": {
+            "$ref": "#/backend/entities/MunicipalAnnouncement"
+          },
+          "description": "Publicly accessible official announcements from the Madurai Municipal Corporation. All documents in this collection share a homogeneous security posture, allowing read-only access for all users. Write access is restricted to municipal staff or backend functions for announcement management.",
+          "params": [
+            {
+              "name": "announcementId",
+              "description": "The unique identifier for a municipal announcement."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable by strictly adhering to the core design principles and strategy mandates. \n\n**Authorization Independence (CRITICAL):**\n1.  **IncidentReport (Private):** User-specific reports are stored in `/users/{userId}/incidentReports/{incidentReportId}`. The `userId` is embedded in the document's path and within the document itself. This enables security rules to rely solely on `request.auth.uid == userId` for ownership verification, completely eliminating the need for expensive and complex `get()` calls to parent documents or other collections. This design facilitates atomic operations (e.g., creating a report) without breaking security rules. \n2.  **IncidentReport (Public):** Verified incident reports, intended for public display on the interactive map, are denormalized into `/publicIncidentReports/{incidentReportId}`. Each document in this collection contains its own `isVerified: true` attribute (guaranteed by backend processing). Public read access can be granted with a simple rule like `allow read: if true;`, as the backend ensures only verified reports exist here. This ensures authorization context is self-contained within each document, maintaining independence.\n3.  **EducationalContent & MunicipalAnnouncement:** These collections (`/educationalContent/{contentId}` and `/municipalAnnouncements/{announcementId}`) are designed for public, read-only access. Their security rules are straightforward (`allow read: if true;`), as there are no user-specific authorization dependencies, thus naturally achieving authorization independence.\n4.  **Global Roles (DBAC):** For managing municipal staff, the recommended approach is to use a dedicated collection like `/roles_municipalStaff/{uid}` where the existence of a document for a given `uid` grants municipal staff privileges. Authorization rules would use an `exists()` check on this specific document, which is an atomic and authorization-independent operation, avoiding hierarchical dependencies.\n\n**Clarity of Intent (Debuggability):** Collection names like `users/{userId}/incidentReports` and `publicIncidentReports` explicitly convey their intended access patterns and data ownership. Denormalized fields (e.g., `userId` in private reports, `isVerified` in public reports) make the authorization intent clear within each document.\n\n**DBAC (No Custom Claims):** User roles (specifically for municipal staff) would be stored as data in Firestore (e.g., in a `roles_municipalStaff` collection) rather than relying on custom claims. This centralizes role management within the database, aligning with Firebase best practices for DBAC.\n\n**QAPs (Rules are not Filters):**\n1.  **IncidentReport (User-Specific):** Users can efficiently query and list *their own* incident reports from `/users/{userId}/incidentReports`. The path `userId` directly matches `request.auth.uid`, ensuring that any `list` operation inherently retrieves only the user's reports without requiring rules to filter documents post-query. This maintains query performance and prevents rules from acting as filters.\n2.  **IncidentReport (Public Map View):** The `/publicIncidentReports` collection is explicitly designed for the interactive city map. Since a backend process guarantees that only `isVerified: true` reports are present, `list` operations on this collection can be publicly allowed (`allow list: if true;`). This enables highly efficient retrieval of all public incidents for map display, as the collection's structure inherently satisfies the public visibility requirement, ensuring rules do not act as filters.\n3.  **EducationalContent & MunicipalAnnouncement:** Both `/educationalContent` and `/municipalAnnouncements` are structured for public read-only access. `list` operations are permitted globally (`allow list: if true;`), allowing the Community Awareness Hub to efficiently fetch all relevant content without any filtering logic required by security rules.\n\n**Invariants:** The structure supports data integrity through explicit `userId` for ownership, `submittedAt` and `statusUpdatedAt` for timestamps, and the segregation/denormalization of `isVerified` status to maintain integrity of public vs. private data views.\n\n**Structural Segregation:** This is critically applied to `IncidentReport` data, separating reports requiring user-specific access (`/users/{userId}/incidentReports`) from those requiring public access (`/publicIncidentReports`). This ensures that each collection maintains a homogeneous security posture, simplifying rule sets significantly. `EducationalContent` and `MunicipalAnnouncement` also adhere to this, being entirely public collections."
+  }
+}
