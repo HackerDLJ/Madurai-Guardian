@@ -1,18 +1,19 @@
-
 "use client";
 
 import { useState } from "react";
-import { Camera, MapPin, Loader2, Sparkles, Send, X, Check } from "lucide-react";
+import { Camera, MapPin, Loader2, Sparkles, Send, X, Check, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { augmentReport, type ReportAugmentationOutput } from "@/ai/flows/ai-powered-report-augmentation";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useFirestore, useUser } from "@/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function NewReport() {
   const [image, setImage] = useState<string | null>(null);
@@ -23,6 +24,8 @@ export default function NewReport() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const { toast } = useToast();
   const router = useRouter();
+  const db = useFirestore();
+  const { user } = useUser();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,22 +48,49 @@ export default function NewReport() {
       if (result.suggestedCategories.length > 0) {
         setSelectedCategory(result.suggestedCategories[0]);
       }
-      toast({ title: "AI Augmentation Success", description: "Report details enriched by AI." });
+      toast({ title: "AI Analysis Complete", description: "Waste fractions identified and description enriched." });
     } catch (error) {
-      toast({ title: "AI Error", description: "Failed to augment report." });
+      toast({ title: "AI Error", description: "Failed to analyze report." });
     } finally {
       setAugmenting(false);
     }
   };
 
   const handleSubmit = async () => {
+    if (!user || !image || !selectedCategory) return;
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      toast({ title: "Report Submitted", description: "Your report has been received by the municipality." });
+    
+    try {
+      const reportData = {
+        userId: user.uid,
+        description,
+        latitude: 9.9252, // Mock GPS
+        longitude: 78.1198,
+        photoUrls: [image], // In production this would be a Storage URL
+        submittedAt: new Date().toISOString(),
+        status: "Submitted",
+        isVerified: aiResult?.isVerified ?? false,
+        aiAugmentedDescription: aiResult?.enrichedDescription ?? "",
+        aiSuggestedCategory: selectedCategory,
+        processedByAiAt: aiResult ? new Date().toISOString() : null,
+        detectedWastePlasticVolumeCubicMeters: aiResult?.wasteFractions.plastic ?? 0,
+        detectedWastePaperVolumeCubicMeters: aiResult?.wasteFractions.paper ?? 0,
+        detectedWasteOrganicVolumeCubicMeters: aiResult?.wasteFractions.organic ?? 0,
+        detectedWasteMetalVolumeCubicMeters: aiResult?.wasteFractions.metal ?? 0,
+        detectedWasteEwasteVolumeCubicMeters: aiResult?.wasteFractions.ewaste ?? 0,
+        detectedWasteHazardousVolumeCubicMeters: aiResult?.wasteFractions.hazardous ?? 0,
+        serverTimestamp: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "users", user.uid, "incidentReports"), reportData);
+      
+      toast({ title: "Report Submitted", description: "Your contribution has been recorded." });
       router.push("/status");
-    }, 1500);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Submission Failed", description: "Could not save report." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -115,17 +145,41 @@ export default function NewReport() {
           <Button 
             onClick={handleAugment} 
             disabled={augmenting}
-            className="w-full h-14 rounded-3xl bg-secondary hover:bg-secondary/90 text-white font-bold text-lg google-shadow flex gap-2"
+            className="w-full h-14 rounded-3xl bg-secondary hover:bg-secondary/90 text-white font-bold text-lg shadow-sm flex gap-2"
           >
             {augmenting ? (
               <Loader2 className="w-6 h-6 animate-spin" />
             ) : (
               <>
                 <Sparkles className="w-6 h-6" />
-                AI Smart Enlarge
+                AI Smart Identification
               </>
             )}
           </Button>
+        )}
+
+        {/* AI Results: Waste Fractions */}
+        {aiResult && (
+          <Card className="m3-card bg-primary/5 border-none p-6 space-y-4">
+            <div className="flex items-center gap-2 text-primary">
+              <BarChart3 className="w-5 h-5" />
+              <h3 className="font-bold">AI Waste Classification</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {Object.entries(aiResult.wasteFractions).map(([key, value]) => (
+                <div key={key} className="bg-white/50 rounded-2xl p-3 flex flex-col">
+                  <span className="text-[10px] font-bold uppercase text-muted-foreground">{key}</span>
+                  <span className="text-sm font-bold">{value.toFixed(2)} m³</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-primary/10">
+              <span className="text-xs font-bold text-muted-foreground">Verification Status</span>
+              <Badge className={cn("rounded-full border-none", aiResult.isVerified ? "bg-green-500 text-white" : "bg-amber-500 text-white")}>
+                {aiResult.isVerified ? "Verified" : "Check Needed"}
+              </Badge>
+            </div>
+          </Card>
         )}
 
         {/* Category Selection */}
@@ -138,7 +192,7 @@ export default function NewReport() {
                 variant={selectedCategory === cat ? "default" : "outline"}
                 className={cn(
                   "px-4 py-2 rounded-2xl cursor-pointer text-sm font-medium transition-all",
-                  selectedCategory === cat ? "google-shadow bg-primary text-white border-primary" : "hover:bg-muted"
+                  selectedCategory === cat ? "bg-primary text-white border-primary" : "hover:bg-muted"
                 )}
                 onClick={() => setSelectedCategory(cat)}
               >
@@ -153,7 +207,7 @@ export default function NewReport() {
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Description</label>
           <Textarea 
             placeholder="Tell us what's wrong..." 
-            className="rounded-[28px] p-6 min-h-[150px] bg-card border-none google-shadow focus-visible:ring-primary text-lg"
+            className="rounded-[28px] p-6 min-h-[150px] bg-card border-none shadow-sm focus-visible:ring-primary text-lg"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
@@ -162,7 +216,7 @@ export default function NewReport() {
         {/* Location (Mock) */}
         <section className="space-y-3">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Location</label>
-          <Card className="material-card border-none bg-primary/5 p-4 flex items-center gap-3">
+          <Card className="m3-card bg-primary/5 p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
               <MapPin className="w-5 h-5" />
             </div>
@@ -177,7 +231,7 @@ export default function NewReport() {
         {/* Submit */}
         <div className="pt-6">
           <Button 
-            className="w-full h-16 rounded-[32px] bg-primary hover:bg-primary/90 text-white font-bold text-xl google-shadow flex gap-3"
+            className="w-full h-16 rounded-[32px] bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-lg flex gap-3"
             onClick={handleSubmit}
             disabled={loading || !image || !selectedCategory}
           >
