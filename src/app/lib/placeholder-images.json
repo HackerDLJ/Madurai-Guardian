@@ -1,0 +1,29 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "madurai-temple",
+      "description": "Meenakshi Amman Temple Madurai",
+      "imageUrl": "https://picsum.photos/seed/madurai1/800/600",
+      "imageHint": "Madurai temple"
+    },
+    {
+      "id": "waste-management",
+      "description": "City waste management and cleaning",
+      "imageUrl": "https://picsum.photos/seed/clean1/800/600",
+      "imageHint": "waste management"
+    },
+    {
+      "id": "community-cleanup",
+      "description": "Volunteers cleaning the street",
+      "imageUrl": "https://picsum.photos/seed/cleanup2/800/600",
+      "imageHint": "community cleaning"
+    },
+    {
+      "id": "trash-overflow",
+      "description": "Overflowing trash bin on a city street",
+      "imageUrl": "https://picsum.photos/seed/trash1/800/600",
+      "imageHint": "trash overflow"
+    }
+  ]
+}
