@@ -1,16 +1,46 @@
-
 "use client";
 
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { useMemoFirebase } from "@/firebase/provider";
 import { doc } from "firebase/firestore";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Star, Medal, Store, ArrowUpRight, History } from "lucide-react";
+import { 
+  Trophy, 
+  Star, 
+  Medal, 
+  Store, 
+  ArrowUpRight, 
+  History, 
+  TrendingUp,
+  Settings,
+  Share2
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
+import { cn } from "@/lib/utils";
+
+const chartData = [
+  { name: 'Mon', points: 400 },
+  { name: 'Tue', points: 300 },
+  { name: 'Wed', points: 500 },
+  { name: 'Thu', points: 280 },
+  { name: 'Fri', points: 590 },
+  { name: 'Sat', points: 800 },
+  { name: 'Sun', points: 650 },
+];
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -23,114 +53,182 @@ export default function ProfilePage() {
 
   const { data: profile, isLoading } = useDoc(userRef);
 
-  if (isLoading) return <div className="flex justify-center p-20">Loading profile...</div>;
+  if (isLoading) return (
+    <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+      <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      <p className="text-muted-foreground font-medium">Loading your profile...</p>
+    </div>
+  );
 
-  const points = profile?.points || 0;
-  const level = profile?.level || 1;
+  const points = profile?.points || 1250; // Mock data fallback for demo
+  const level = profile?.level || 3;
   const nextLevelPoints = level * 500;
-  const progress = (points % 500) / 5;
+  const progress = ((points % 500) / 500) * 100;
 
   return (
-    <div className="space-y-6 pb-20">
-      <header className="flex flex-col items-center gap-4 pt-6">
-        <Avatar className="w-24 h-24 border-4 border-primary/20 shadow-xl">
-          <AvatarImage src={user?.photoURL || `https://picsum.photos/seed/${user?.uid}/100/100`} />
-          <AvatarFallback>{user?.displayName?.charAt(0) || "U"}</AvatarFallback>
-        </Avatar>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold font-headline">{user?.displayName || "Madurai Guardian"}</h1>
-          <Badge variant="secondary" className="bg-primary/10 text-primary border-none rounded-full mt-1">
-            Level {level} Guardian
-          </Badge>
+    <div className="space-y-8 pb-24 max-w-lg mx-auto">
+      {/* Header Section */}
+      <header className="flex flex-col items-center gap-6 pt-8 px-4">
+        <div className="relative">
+          <Avatar className="w-28 h-28 border-4 border-background shadow-2xl ring-2 ring-primary/20">
+            <AvatarImage src={user?.photoURL || `https://picsum.photos/seed/${user?.uid}/150/150`} />
+            <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
+              {user?.displayName?.charAt(0) || "M"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="absolute -bottom-2 -right-2 bg-accent text-accent-foreground w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg border-4 border-background">
+            <Trophy className="w-5 h-5" />
+          </div>
+        </div>
+        
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold font-headline tracking-tight">{user?.displayName || "Madurai Guardian"}</h1>
+          <div className="flex items-center justify-center gap-2">
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-none rounded-full px-4 py-1 font-bold">
+              Level {level} Guardian
+            </Badge>
+            <Button variant="ghost" size="icon" className="rounded-full w-8 h-8">
+              <Settings className="w-4 h-4 text-muted-foreground" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex gap-3 w-full">
+          <Button className="flex-1 rounded-[24px] bg-primary font-bold shadow-lg gap-2 h-12">
+            <Share2 className="w-4 h-4" /> Share Progress
+          </Button>
+          <Link href="/shopkeeper" className="flex-1">
+            <Button variant="outline" className="w-full rounded-[24px] border-primary text-primary font-bold h-12 gap-2">
+              <Store className="w-4 h-4" /> Shop Portal
+            </Button>
+          </Link>
         </div>
       </header>
 
-      {/* Stats Summary */}
-      <section className="grid grid-cols-2 gap-4">
-        <Card className="m3-card bg-primary text-primary-foreground p-5 space-y-2">
-          <Star className="w-6 h-6 opacity-80" />
+      {/* Stats Cards */}
+      <section className="grid grid-cols-2 gap-4 px-4">
+        <Card className="m3-card bg-primary/5 border-none p-6 flex flex-col items-start gap-2">
+          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+            <Star className="w-6 h-6 fill-current" />
+          </div>
           <div>
-            <p className="text-xs font-bold uppercase opacity-80">Clean Points</p>
-            <h3 className="text-3xl font-bold">{points}</h3>
+            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Clean Points</p>
+            <h3 className="text-3xl font-bold text-primary">{points}</h3>
           </div>
         </Card>
-        <Card className="m3-card bg-secondary text-secondary-foreground p-5 space-y-2">
-          <Trophy className="w-6 h-6 opacity-80" />
+        <Card className="m3-card bg-secondary/5 border-none p-6 flex flex-col items-start gap-2">
+          <div className="p-2 rounded-xl bg-secondary/10 text-secondary">
+            <TrendingUp className="w-6 h-6" />
+          </div>
           <div>
-            <p className="text-xs font-bold uppercase opacity-80">Ranking</p>
-            <h3 className="text-3xl font-bold">#42</h3>
+            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Global Rank</p>
+            <h3 className="text-3xl font-bold text-secondary">#142</h3>
           </div>
         </Card>
       </section>
 
-      {/* Progress to next level */}
-      <section className="space-y-3">
-        <div className="flex justify-between items-end px-1">
-          <h3 className="font-bold text-sm uppercase text-muted-foreground tracking-widest">Next Milestone</h3>
-          <span className="text-xs font-bold">{points}/{nextLevelPoints} XP</span>
+      {/* Progression Section */}
+      <section className="px-4 space-y-4">
+        <div className="flex justify-between items-end">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold font-headline">Next Milestone</h3>
+            <p className="text-xs text-muted-foreground">Keep up the good work for Level {level + 1}!</p>
+          </div>
+          <span className="text-sm font-bold text-primary">{points % 500} / 500 XP</span>
         </div>
         <Progress value={progress} className="h-3 rounded-full bg-muted" />
       </section>
 
-      {/* Shopkeeper Module Shortcut */}
-      <section>
-        <Link href="/shopkeeper">
-          <Card className="m3-card bg-accent/10 border-2 border-accent/20 p-5 flex items-center justify-between group hover:bg-accent/20 transition-all">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-accent-foreground shadow-sm">
-                <Store className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-bold">Shopkeeper Portal</h4>
-                <p className="text-xs text-muted-foreground">Manage Heritage Credits</p>
-              </div>
-            </div>
-            <ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
-          </Card>
-        </Link>
-      </section>
+      {/* Activity Tabs */}
+      <Tabs defaultValue="activity" className="px-4">
+        <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1.5 mb-6">
+          <TabsTrigger value="activity" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Activity</TabsTrigger>
+          <TabsTrigger value="badges" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Badges</TabsTrigger>
+          <TabsTrigger value="history" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">History</TabsTrigger>
+        </TabsList>
 
-      {/* Badges Collection */}
-      <section className="space-y-4">
-        <h3 className="text-xl font-bold font-headline px-1">Badges Earned</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <TabsContent value="activity" className="space-y-6">
+          <Card className="m3-card border-none bg-card shadow-sm p-4">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" /> Points Trend
+              </CardTitle>
+            </CardHeader>
+            <div className="h-48 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fontSize: 10, fill: '#888'}} 
+                  />
+                  <YAxis hide />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="points" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={4} 
+                    dot={{ r: 6, fill: 'hsl(var(--primary))', strokeWidth: 0 }} 
+                    activeDot={{ r: 8, strokeWidth: 0 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="badges" className="grid grid-cols-3 gap-6 py-4">
           {[
-            { label: "Pioneer", icon: <Medal className="w-6 h-6" />, color: "bg-blue-500" },
-            { label: "Eco Hero", icon: <Star className="w-6 h-6" />, color: "bg-green-500" },
-            { label: "Civic King", icon: <Trophy className="w-6 h-6" />, color: "bg-amber-500" }
+            { label: "Pioneer", icon: <Medal />, color: "bg-blue-500", desc: "Early adopter" },
+            { label: "Eco Hero", icon: <Star />, color: "bg-green-500", desc: "10+ Clean Deeds" },
+            { label: "Civic King", icon: <Trophy />, color: "bg-amber-500", desc: "Top 1% Citizen" },
+            { label: "Sentinel", icon: <TrendingUp />, color: "bg-purple-500", desc: "Weekly streak" },
+            { label: "Guardian", icon: <Medal />, color: "bg-red-500", desc: "AI Verified" },
+            { label: "Advocate", icon: <Star />, color: "bg-slate-500", desc: "Shared 5 guides" }
           ].map((badge) => (
-            <div key={badge.label} className="flex flex-col items-center gap-2">
-              <div className={`w-16 h-16 rounded-full ${badge.color} text-white flex items-center justify-center shadow-lg border-4 border-white`}>
+            <div key={badge.label} className="flex flex-col items-center gap-3 text-center">
+              <div className={cn("w-20 h-20 rounded-[30px] flex items-center justify-center text-white shadow-xl transition-transform hover:scale-110", badge.color)}>
                 {badge.icon}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-tight">{badge.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Recent Deeds */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2 px-1">
-          <History className="w-5 h-5 text-muted-foreground" />
-          <h3 className="text-xl font-bold font-headline">Clean Deeds</h3>
-        </div>
-        <div className="space-y-3">
-          {[
-            { title: "Trash Reported", date: "Today", pts: "+50" },
-            { title: "Source Segregation Verified", date: "Yesterday", pts: "+100" },
-            { title: "Sunday Cleanup Drive", date: "Oct 20", pts: "+250" }
-          ].map((deed, i) => (
-            <div key={i} className="flex items-center justify-between p-4 bg-card rounded-[24px] border border-border/40">
-              <div>
-                <h4 className="font-bold text-sm">{deed.title}</h4>
-                <p className="text-[10px] text-muted-foreground uppercase">{deed.date}</p>
+              <div className="space-y-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-tight">{badge.label}</p>
+                <p className="text-[8px] text-muted-foreground uppercase">{badge.desc}</p>
               </div>
-              <span className="font-bold text-primary">{deed.pts}</span>
             </div>
           ))}
-        </div>
-      </section>
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-4">
+          {[
+            { title: "Trash Reported", date: "Today, 10:24 AM", pts: "+50", loc: "Bibikulam" },
+            { title: "Source Segregation", date: "Yesterday", pts: "+100", loc: "Home" },
+            { title: "Cleanup Drive", date: "Oct 20, 2023", pts: "+250", loc: "Vaigai Bank" },
+            { title: "AI Photo Upload", date: "Oct 18, 2023", pts: "+25", loc: "Simmakkal" }
+          ].map((deed, i) => (
+            <div key={i} className="flex items-center justify-between p-5 bg-card rounded-[32px] border border-border/40 hover:shadow-md transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
+                  <History className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm leading-tight">{deed.title}</h4>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] text-muted-foreground uppercase">{deed.date}</span>
+                    <span className="text-[10px] text-muted-foreground">•</span>
+                    <span className="text-[10px] text-primary font-bold uppercase">{deed.loc}</span>
+                  </div>
+                </div>
+              </div>
+              <span className="font-bold text-primary bg-primary/10 px-3 py-1 rounded-full text-xs">{deed.pts}</span>
+            </div>
+          ))}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
