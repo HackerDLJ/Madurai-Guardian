@@ -1,51 +1,59 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 200 25% 97%;
-    --foreground: 200 50% 10%;
+    /* Google Brand Colors (Approximate HSL) */
+    --background: 210 40% 98%; /* Very light grey/white */
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 200 50% 10%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 200 50% 10%;
-    --primary: 200 60% 50%;
-    --primary-foreground: 200 25% 98%;
-    --secondary: 180 80% 35%;
-    --secondary-foreground: 180 10% 98%;
-    --muted: 200 15% 90%;
-    --muted-foreground: 200 10% 40%;
-    --accent: 180 80% 35%;
-    --accent-foreground: 180 10% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 200 20% 88%;
-    --input: 200 20% 88%;
-    --ring: 200 60% 50%;
-    --radius: 1.5rem;
+    --popover-foreground: 222 47% 11%;
+    
+    --primary: 217 89% 61%; /* Google Blue #4285F4 */
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 141 62% 43%; /* Google Green #34A853 */
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 45 97% 51%; /* Google Yellow #FBBC05 */
+    --accent-foreground: 222 47% 11%;
+    
+    --destructive: 5 81% 56%; /* Google Red #EA4335 */
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 89% 61%;
+    
+    --radius: 1.75rem; /* 28px for Material 3 Large corners */
   }
+
   .dark {
-    --background: 200 50% 5%;
-    --foreground: 200 20% 98%;
-    --card: 200 40% 10%;
-    --card-foreground: 200 20% 98%;
-    --popover: 200 40% 10%;
-    --popover-foreground: 200 20% 98%;
-    --primary: 200 60% 55%;
-    --primary-foreground: 200 10% 10%;
-    --secondary: 180 70% 45%;
-    --secondary-foreground: 180 10% 10%;
-    --muted: 200 30% 15%;
-    --muted-foreground: 200 10% 65%;
-    --accent: 180 70% 45%;
-    --accent-foreground: 180 10% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 200 30% 20%;
-    --input: 200 30% 20%;
-    --ring: 200 60% 55%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 13%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 89% 61%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 141 62% 43%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 222 47% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 45 97% 51%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 5 81% 56%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 222 47% 20%;
+    --input: 222 47% 20%;
+    --ring: 217 89% 61%;
   }
 }
 
@@ -58,14 +66,14 @@
   }
 }
 
-.google-shadow {
-  box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+.m3-card {
+  @apply rounded-[32px] border-none bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md;
 }
 
-.google-shadow-hover:hover {
-  box-shadow: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+.m3-pill-search {
+  @apply flex items-center gap-3 px-6 py-3 rounded-full bg-muted border-none shadow-sm focus-within:ring-2 focus-within:ring-primary focus-within:bg-card transition-all;
 }
 
-.material-card {
-  @apply rounded-[32px] border-none bg-card p-6 google-shadow transition-all duration-300;
+.m3-fab {
+  @apply fixed bottom-24 right-6 w-14 h-14 rounded-2xl bg-primary text-primary-foreground shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center z-50;
 }

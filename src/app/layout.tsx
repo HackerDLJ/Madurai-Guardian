@@ -6,7 +6,11 @@ import { TopBar } from '@/components/top-bar';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'Madurai Guardian',
@@ -20,9 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.className, "antialiased bg-background text-foreground flex flex-col min-h-screen")}>
+      <body className={cn(inter.variable, "font-body antialiased bg-background text-foreground flex flex-col min-h-screen")}>
         <TopBar />
-        <main className="flex-1 pb-24 pt-4 px-4 max-w-lg mx-auto w-full">
+        <main className="flex-1 pb-32 pt-2 px-4 max-w-lg mx-auto w-full">
           {children}
         </main>
         <NavBar />

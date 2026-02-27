@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Home, Map as MapIcon, Plus, ClipboardList, BookOpen } from "lucide-react";
@@ -8,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", href: "/" },
-  { icon: MapIcon, label: "City Map", href: "/map" },
+  { icon: MapIcon, label: "Map", href: "/map" },
   { icon: Plus, label: "Report", href: "/report/new", isFab: true },
   { icon: ClipboardList, label: "Status", href: "/status" },
   { icon: BookOpen, label: "Hub", href: "/hub" },
@@ -18,39 +17,44 @@ export function NavBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50">
-      <div className="bg-card/90 backdrop-blur-xl border border-white/20 rounded-[40px] google-shadow p-2 flex items-center justify-around">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-          
-          if (item.isFab) {
+    <>
+      {/* FAB - Material 3 Rounded Square Style */}
+      <Link
+        href="/report/new"
+        className="m3-fab lg:hidden"
+        title="New Report"
+      >
+        <Plus className="w-8 h-8" />
+      </Link>
+
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t border-border px-4 py-2 z-40">
+        <div className="max-w-md mx-auto flex items-center justify-between">
+          {navItems.filter(i => !i.isFab).map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="w-16 h-16 -mt-10 rounded-[28px] bg-primary flex items-center justify-center text-white google-shadow hover:google-shadow-hover active:scale-95 transition-all"
-                title={item.label}
+                className="flex flex-col items-center gap-1 min-w-[64px] group"
               >
-                <item.icon className="w-8 h-8" />
+                <div className={cn(
+                  "px-5 py-1 rounded-full transition-all duration-300",
+                  isActive ? "bg-primary/20 text-primary" : "text-muted-foreground group-hover:bg-muted"
+                )}>
+                  <item.icon className={cn("w-6 h-6", isActive && "fill-current")} />
+                </div>
+                <span className={cn(
+                  "text-[12px] font-bold tracking-tight",
+                  isActive ? "text-primary" : "text-muted-foreground"
+                )}>
+                  {item.label}
+                </span>
               </Link>
             );
-          }
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center py-2 px-4 rounded-3xl transition-all duration-300",
-                isActive ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-muted"
-              )}
-            >
-              <item.icon className={cn("w-6 h-6", isActive && "fill-current")} />
-              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+          })}
+        </div>
+      </nav>
+    </>
   );
 }
