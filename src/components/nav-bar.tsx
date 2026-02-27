@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Home, Map as MapIcon, Plus, ClipboardList, BookOpen } from "lucide-react";
+import { Home, Map as MapIcon, Plus, ClipboardList, BookOpen, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ const navItems = [
   { icon: MapIcon, label: "Map", href: "/map" },
   { icon: Plus, label: "Report", href: "/report/new", isFab: true },
   { icon: ClipboardList, label: "Status", href: "/status" },
-  { icon: BookOpen, label: "Hub", href: "/hub" },
+  { icon: Star, label: "Rewards", href: "/profile" },
 ];
 
 export function NavBar() {

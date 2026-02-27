@@ -1,16 +1,29 @@
+
 "use client";
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Users, CheckCircle2, Search, Mic } from "lucide-react";
+import { MapPin, Users, CheckCircle2, Search, Mic, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
+import { useUser, useFirestore, useDoc } from "@/firebase";
+import { useMemoFirebase } from "@/firebase/provider";
+import { doc } from "firebase/firestore";
 
 export default function Dashboard() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'madurai-temple');
+  const { user } = useUser();
+  const db = useFirestore();
+
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return doc(db, "users", user.uid);
+  }, [db, user?.uid]);
+
+  const { data: profile } = useDoc(userRef);
 
   return (
     <div className="space-y-8 pb-10">
@@ -27,9 +40,19 @@ export default function Dashboard() {
       </section>
 
       {/* Welcome Section */}
-      <section className="px-1">
-        <h2 className="text-3xl font-bold font-headline text-foreground tracking-tight">Vanakkam, Madurai!</h2>
-        <p className="text-muted-foreground mt-1 text-base">Help keep our city clean and green.</p>
+      <section className="px-1 flex justify-between items-start">
+        <div>
+          <h2 className="text-3xl font-bold font-headline text-foreground tracking-tight">Vanakkam, {user?.displayName?.split(' ')[0] || 'Madurai'}!</h2>
+          <p className="text-muted-foreground mt-1 text-base">You've earned <span className="text-primary font-bold">{profile?.points || 0}</span> Clean Points.</p>
+        </div>
+        <Link href="/profile">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all">
+              <Star className="w-6 h-6 fill-current" />
+            </div>
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-tighter">Level {profile?.level || 1}</span>
+          </div>
+        </Link>
       </section>
 
       {/* Hero Action Card */}

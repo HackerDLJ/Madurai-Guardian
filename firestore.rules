@@ -1,128 +1,30 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * FIREBASE SECURITY RULES DOCUMENTATION
-     *
-     * Core Philosophy:
-     * This ruleset implements a strict user-ownership model for private data and a public-read 
-     * model for verified civic information. It leverages path-based authorization to ensure 
-     * high performance and clear data boundaries.
-     *
-     * Data Structure:
-     * - /users/{userId}/incidentReports: Private, user-specific reports. Access is restricted 
-     *   to the authenticated owner identified by the userId in the path.
-     * - /publicIncidentReports: Verified, AI-processed reports available for public mapping.
-     * - /educationalContent & /municipalAnnouncements: Publicly readable administrative 
-     *   and educational data.
-     *
-     * Key Security Decisions:
-     * 1. Authorization Independence: Ownership is verified using the path {userId} and 
-     *    validated against internal document fields to avoid expensive get() calls.
-     * 2. Structural Segregation: Private reports are physically separated from public, 
-     *    verified reports. Only a trusted backend process or municipal staff can 
-     *    promote a report to the public collection.
-     * 3. DBAC (Database-Based Access Control): Municipal staff privileges are managed via 
-     *    a dedicated '/roles_municipalStaff' collection rather than custom claims.
-     * 4. Denormalization for Authorization: The 'userId' is stored both in the path 
-     *    and inside the document to enforce relational integrity during creation.
-     */
-
-    // --- Global Helper Functions ---
-
-    /** Checks if the request is from an authenticated user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** Checks if the authenticated user matches the provided userId. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** Checks ownership for existing documents during update/delete. */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
+    match /users/{userId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isOwner(userId);
+      
+      match /incidentReports/{incidentReportId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update, delete: if isOwner(userId);
+      }
     }
 
-    /** 
-     * Checks if the user has a municipal staff role.
-     * Relies on a document existing in the roles_municipalStaff collection.
-     */
-    function isStaff() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_municipalStaff/$(request.auth.uid));
-    }
-
-    // --- Collection Rules ---
-
-    /**
-     * @description Rules for private incident reports submitted by citizens.
-     * @path /users/{userId}/incidentReports/{incidentReportId}
-     * @allow (create) if auth.uid matches {userId} and userId in data matches path.
-     * @deny (list) if a user attempts to view reports belonging to a different userId.
-     * @principle Enforces path-based ownership and relational integrity.
-     */
-    match /users/{userId}/incidentReports/{incidentReportId} {
-      allow get, list: if isOwner(userId);
-      
-      // Prototyping: Validate only ownership and path consistency.
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      
-      // Enforce immutability of the userId on update.
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Rules for verified reports displayed on the interactive public map.
-     * @path /publicIncidentReports/{incidentReportId}
-     * @allow (get, list) for any user (public).
-     * @deny (write) for standard users; only municipal staff can modify verified public data.
-     * @principle Structural segregation of public vs. private data views.
-     */
     match /publicIncidentReports/{incidentReportId} {
-      allow get, list: if true;
-      allow create, update, delete: if isStaff();
+      allow read: if true;
+      allow write: if false; // Only backend
     }
-
-    /**
-     * @description Publicly accessible articles for the Community Awareness Hub.
-     * @path /educationalContent/{contentId}
-     * @allow (get, list) for everyone.
-     * @deny (write) for non-staff; content is managed by administrators.
-     * @principle Read-only public access with role-based write restrictions.
-     */
-    match /educationalContent/{contentId} {
-      allow get, list: if true;
-      allow create, update, delete: if isStaff();
-    }
-
-    /**
-     * @description Official announcements from the Municipal Corporation.
-     * @path /municipalAnnouncements/{announcementId}
-     * @allow (get, list) for everyone.
-     * @deny (write) for non-staff; announcements are official communications.
-     * @principle Ensures integrity of official municipal announcements.
-     */
-    match /municipalAnnouncements/{announcementId} {
-      allow get, list: if true;
-      allow create, update, delete: if isStaff();
-    }
-
-    /**
-     * @description Role mapping for municipal staff members.
-     * @path /roles_municipalStaff/{uid}
-     * @allow (get) for signed-in users to verify their own staff status.
-     * @deny (list, write) for all users; roles are managed via backend/admin.
-     * @principle Database-Based Access Control (DBAC) for administrative roles.
-     */
-    match /roles_municipalStaff/{uid} {
-      allow get: if isSignedIn();
-      allow list: if false;
-      allow create, update, delete: if false;
-    }
-
   }
 }
