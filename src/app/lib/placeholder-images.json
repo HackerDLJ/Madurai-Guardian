@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -24,6 +23,18 @@
       "description": "Overflowing trash bin on a city street",
       "imageUrl": "https://picsum.photos/seed/trash1/800/600",
       "imageHint": "trash overflow"
+    },
+    {
+      "id": "illegal-dumping",
+      "description": "Illegal dumping of waste",
+      "imageUrl": "https://picsum.photos/seed/dump1/800/600",
+      "imageHint": "illegal dumping"
+    },
+    {
+      "id": "street-sweeping",
+      "description": "Street sweeping operation",
+      "imageUrl": "https://picsum.photos/seed/sweep1/800/600",
+      "imageHint": "street sweeping"
     }
   ]
 }

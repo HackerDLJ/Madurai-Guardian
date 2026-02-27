@@ -52,7 +52,7 @@ export default function Dashboard() {
       <section>
         <div className="relative h-56 w-full rounded-[40px] overflow-hidden google-shadow">
           <Image
-            src={heroImage?.imageUrl || ""}
+            src={heroImage?.imageUrl || "https://picsum.photos/seed/madurai1/800/600"}
             alt="Madurai City"
             fill
             className="object-cover"
@@ -107,7 +107,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row h-full">
             <div className="relative w-full sm:w-1/3 h-40 sm:h-auto">
               <Image
-                src={awarenessImage?.imageUrl || ""}
+                src={awarenessImage?.imageUrl || "https://picsum.photos/seed/cleanup2/800/600"}
                 alt="Awareness"
                 fill
                 className="object-cover"
