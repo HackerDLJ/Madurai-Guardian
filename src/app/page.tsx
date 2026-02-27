@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,7 +31,7 @@ export default function Dashboard() {
       {/* Welcome Section */}
       <section className="px-1">
         <h2 className="text-3xl font-bold font-headline text-foreground">Vanakkam, Madurai!</h2>
-        <p className="text-muted-foreground mt-1">Help keep our city clean and green.</p>
+        <p className="text-muted-foreground mt-1 text-base">Help keep our city clean and green.</p>
       </section>
 
       {/* Hero Action Card */}
@@ -47,7 +48,7 @@ export default function Dashboard() {
             <h3 className="text-white text-2xl font-bold font-headline">Report an Issue</h3>
             <p className="text-white/80 text-sm mb-4">AI-assisted reporting for a cleaner city.</p>
             <Link href="/report/new">
-              <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl font-bold py-6 text-lg">
+              <Button className="w-full bg-white text-primary hover:bg-white/90 rounded-2xl font-bold py-6 text-lg shadow-xl active:scale-[0.98] transition-all">
                 New Report
               </Button>
             </Link>
@@ -57,7 +58,7 @@ export default function Dashboard() {
 
       {/* Stats Section */}
       <section className="grid grid-cols-2 gap-4 px-1">
-        <Card className="m3-card border-none bg-blue-50/50 dark:bg-blue-900/10">
+        <Card className="m3-card border-none bg-primary/5">
           <CardContent className="p-0 space-y-2">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-primary" />
@@ -66,7 +67,7 @@ export default function Dashboard() {
             <h3 className="text-2xl font-bold">1,284</h3>
           </CardContent>
         </Card>
-        <Card className="m3-card border-none bg-green-50/50 dark:bg-green-900/10">
+        <Card className="m3-card border-none bg-secondary/5">
           <CardContent className="p-0 space-y-2">
             <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center">
               <Users className="w-5 h-5 text-secondary" />
@@ -88,7 +89,7 @@ export default function Dashboard() {
             { id: 1, type: "Trash Overflow", loc: "Meenakshi Bazaar", status: "Active", color: "text-primary bg-primary/10" },
             { id: 2, type: "Illegal Dumping", loc: "Goripalayam", status: "New", color: "text-accent-foreground bg-accent/20" }
           ].map((item) => (
-            <div key={item.id} className="flex items-center gap-4 p-4 rounded-[24px] bg-card border border-border/50 hover:shadow-md transition-shadow">
+            <div key={item.id} className="flex items-center gap-4 p-4 rounded-[24px] bg-card border border-border/50 hover:shadow-md transition-shadow cursor-pointer">
               <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
                 <MapPin className="w-6 h-6" />
               </div>

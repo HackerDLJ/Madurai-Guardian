@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -42,7 +43,7 @@ export default function Notifications() {
   return (
     <div className="space-y-6">
       <header className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
+        <Button variant="ghost" size="icon" className="rounded-full hover:bg-muted" onClick={() => router.back()}>
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-2xl font-bold font-headline">Alerts</h1>
@@ -50,7 +51,7 @@ export default function Notifications() {
 
       <div className="space-y-4">
         {notifications.map((notif) => (
-          <Card key={notif.id} className={cn("material-card border-none hover:google-shadow-hover transition-all p-5 flex gap-4", notif.color)}>
+          <Card key={notif.id} className="m3-card border-none hover:shadow-md transition-all p-5 flex gap-4 bg-card">
             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white flex-shrink-0", notif.color)}>
               {notif.icon}
             </div>

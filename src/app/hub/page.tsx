@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -39,10 +40,10 @@ export default function AwarenessHub() {
     <div className="space-y-8 pb-20">
       <header className="space-y-4">
         <h1 className="text-3xl font-bold font-headline">Community Hub</h1>
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <div className="m3-pill-search">
+          <Search className="w-5 h-5 text-muted-foreground" />
           <input 
-            className="w-full h-14 pl-12 pr-6 rounded-[28px] bg-card border-none google-shadow focus:ring-2 focus:ring-primary outline-none text-lg" 
+            className="flex-1 bg-transparent border-none outline-none text-base placeholder:text-muted-foreground"
             placeholder="Search guides & news..." 
           />
         </div>
@@ -50,14 +51,14 @@ export default function AwarenessHub() {
 
       {/* Featured Video / Hero Article */}
       <section>
-        <Card className="material-card overflow-hidden p-0 border-none relative h-64 group">
+        <Card className="m3-card overflow-hidden p-0 border-none relative h-64 group">
           <Image 
-            src={volunteers?.imageUrl || ""} 
+            src={volunteers?.imageUrl || "https://picsum.photos/seed/cleanup2/800/600"} 
             alt="Volunteers" 
             fill 
             className="object-cover transition-transform group-hover:scale-105 duration-500" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/40 to-transparent flex flex-col justify-end p-8 text-white">
+          <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/40 to-transparent flex flex-col justify-end p-8 text-white">
             <Badge className="w-fit mb-3 bg-white/20 text-white border-none backdrop-blur-md">Local Spotlight</Badge>
             <h3 className="text-2xl font-bold font-headline leading-tight">Civic Heroes: Sunday Cleanup Drive at Simmakkal</h3>
             <div className="flex items-center gap-4 mt-4">
@@ -80,7 +81,7 @@ export default function AwarenessHub() {
           { label: "Community", icon: <Users />, color: "bg-orange-500" },
           { label: "Donate", icon: <Heart />, color: "bg-destructive" }
         ].map((item) => (
-          <Button key={item.label} variant="outline" className="h-24 material-card bg-card border-none hover:bg-muted justify-start gap-4 p-4 rounded-[32px]">
+          <Button key={item.label} variant="outline" className="h-24 m3-card bg-card border-none hover:bg-muted justify-start gap-4 p-4 rounded-[32px]">
             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white", item.color)}>
               {item.icon}
             </div>
@@ -94,7 +95,7 @@ export default function AwarenessHub() {
         <h3 className="text-xl font-bold font-headline">Must Reads</h3>
         <div className="space-y-4">
           {articles.map((article) => (
-            <Card key={article.id} className="material-card p-4 border-none flex gap-4 hover:google-shadow-hover transition-all">
+            <Card key={article.id} className="m3-card p-4 border-none flex gap-4 hover:shadow-md transition-all">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
                 <Image src={article.image} alt={article.title} fill className="object-cover" />
               </div>
