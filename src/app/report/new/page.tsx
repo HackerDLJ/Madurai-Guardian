@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { augmentReport, type ReportAugmentationOutput } from "@/ai/flows/ai-powered-report-augmentation";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 export default function NewReport() {
   const [image, setImage] = useState<string | null>(null);

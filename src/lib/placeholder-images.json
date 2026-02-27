@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "madurai-temple",
+      "description": "Meenakshi Amman Temple Madurai",
+      "imageUrl": "https://images.unsplash.com/photo-1696566904668-753b716e44d2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxNYWR1cmFpJTIwdGVtcGxlfGVufDB8fHx8MTc3MjE4Nzk2OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Madurai temple"
+    },
+    {
+      "id": "waste-management",
+      "description": "City waste management and cleaning",
+      "imageUrl": "https://images.unsplash.com/photo-1591193686104-fddba4d0e4d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d2FzdGUlMjBtYW5hZ2VtZW50fGVufDB8fHx8MTc3MjIyNjI1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "waste management"
+    },
+    {
+      "id": "community-cleanup",
+      "description": "Volunteers cleaning the street",
+      "imageUrl": "https://images.unsplash.com/photo-1758599668426-1cf242bb7667?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y29tbXVuaXR5JTIwY2xlYW5pbmd8ZW58MHx8fHwxNzcyMjAyMzcyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "community cleaning"
+    },
+    {
+      "id": "trash-overflow",
+      "description": "Overflowing trash bin on a city street",
+      "imageUrl": "https://images.unsplash.com/photo-1762805544291-cb128cf5ec80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx0cmFzaCUyMG92ZXJmbG93fGVufDB8fHx8MTc3MjIyNjI1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "trash overflow"
+    }
+  ]
 }
