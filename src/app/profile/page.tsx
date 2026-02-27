@@ -15,7 +15,10 @@ import {
   History, 
   TrendingUp,
   Settings,
-  Share2
+  Share2,
+  Target,
+  CheckCircle2,
+  Zap
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -42,6 +45,46 @@ const chartData = [
   { name: 'Sun', points: 650 },
 ];
 
+const achievements = [
+  {
+    id: "scout",
+    title: "Madurai Scout",
+    description: "Report 5 cleanliness issues in your ward.",
+    progress: 3,
+    total: 5,
+    icon: <Target className="w-5 h-5" />,
+    color: "bg-blue-500",
+  },
+  {
+    id: "wizard",
+    title: "Waste Wizard",
+    description: "Correctly identify 10 waste fractions using AI.",
+    progress: 8,
+    total: 10,
+    icon: <Zap className="w-5 h-5" />,
+    color: "bg-amber-500",
+  },
+  {
+    id: "guardian",
+    title: "Temple Guardian",
+    description: "Keep the Meenakshi temple zone clean for 7 days.",
+    progress: 7,
+    total: 7,
+    icon: <CheckCircle2 className="w-5 h-5" />,
+    color: "bg-green-500",
+    completed: true,
+  },
+  {
+    id: "leader",
+    title: "Community Leader",
+    description: "Organize a local cleanup drive with 5+ neighbors.",
+    progress: 1,
+    total: 5,
+    icon: <TrendingUp className="w-5 h-5" />,
+    color: "bg-purple-500",
+  }
+];
+
 export default function ProfilePage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -60,9 +103,8 @@ export default function ProfilePage() {
     </div>
   );
 
-  const points = profile?.points || 1250; // Mock data fallback for demo
+  const points = profile?.points || 1250; 
   const level = profile?.level || 3;
-  const nextLevelPoints = level * 500;
   const progress = ((points % 500) / 500) * 100;
 
   return (
@@ -141,10 +183,11 @@ export default function ProfilePage() {
 
       {/* Activity Tabs */}
       <Tabs defaultValue="activity" className="px-4">
-        <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1.5 mb-6">
-          <TabsTrigger value="activity" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Activity</TabsTrigger>
-          <TabsTrigger value="badges" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Badges</TabsTrigger>
-          <TabsTrigger value="history" className="flex-1 rounded-full text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">History</TabsTrigger>
+        <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1.5 mb-6 overflow-x-auto no-scrollbar justify-start sm:justify-center">
+          <TabsTrigger value="activity" className="flex-1 min-w-[80px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Activity</TabsTrigger>
+          <TabsTrigger value="achievements" className="flex-1 min-w-[100px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Achievements</TabsTrigger>
+          <TabsTrigger value="badges" className="flex-1 min-w-[80px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Badges</TabsTrigger>
+          <TabsTrigger value="history" className="flex-1 min-w-[80px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="activity" className="space-y-6">
@@ -180,6 +223,36 @@ export default function ProfilePage() {
               </ResponsiveContainer>
             </div>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="achievements" className="space-y-4">
+          {achievements.map((ach) => (
+            <Card key={ach.id} className="m3-card border-none bg-card shadow-sm p-5 space-y-4 transition-all hover:shadow-md">
+              <div className="flex items-center gap-4">
+                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg", ach.color)}>
+                  {ach.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-bold text-base">{ach.title}</h4>
+                    {ach.completed && (
+                      <Badge className="bg-green-500 text-white border-none rounded-full px-2 py-0.5 text-[10px] uppercase font-bold">
+                        Completed
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-snug mt-1">{ach.description}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <span>Progress</span>
+                  <span>{ach.progress} / {ach.total}</span>
+                </div>
+                <Progress value={(ach.progress / ach.total) * 100} className="h-2 bg-muted rounded-full" />
+              </div>
+            </Card>
+          ))}
         </TabsContent>
 
         <TabsContent value="badges" className="grid grid-cols-3 gap-6 py-4">
