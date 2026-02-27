@@ -1,16 +1,35 @@
 
 "use client";
 
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, MapPin, Navigation, Info } from "lucide-react";
+import { Search, Filter, MapPin, Navigation, Info, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  APIProvider, 
+  Map, 
+  AdvancedMarker, 
+  Pin, 
+  InfoWindow 
+} from "@vis.gl/react-google-maps";
+
+const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
+
+const mockIncidents = [
+  { id: 1, type: "Trash Overflow", pos: { lat: 9.919, lng: 78.115 }, severity: "Urgent", time: "2h ago" },
+  { id: 2, type: "Illegal Dumping", pos: { lat: 9.930, lng: 78.125 }, severity: "New", time: "15m ago" },
+  { id: 3, type: "Water Logging", pos: { lat: 9.922, lng: 78.105 }, severity: "In Progress", time: "1h ago" },
+];
 
 export default function CityMap() {
+  const [selectedIncident, setSelectedIncident] = useState<any>(null);
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+
   return (
-    <div className="flex flex-col gap-6 h-full pb-10">
+    <div className="flex flex-col gap-6 h-[calc(100vh-14rem)] pb-10">
       <header className="space-y-4">
         <h1 className="text-2xl font-bold font-headline">City Real-time Map</h1>
         <div className="flex gap-2">
@@ -18,68 +37,98 @@ export default function CityMap() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input 
               placeholder="Search area..." 
-              className="pl-12 rounded-3xl h-12 border-none bg-card google-shadow" 
+              className="pl-12 rounded-3xl h-12 border-none bg-card shadow-sm focus:ring-2 focus:ring-primary" 
             />
           </div>
-          <Button variant="outline" size="icon" className="w-12 h-12 rounded-3xl bg-card border-none google-shadow">
+          <Button variant="outline" size="icon" className="w-12 h-12 rounded-3xl bg-card border-none shadow-sm">
             <Filter className="w-5 h-5" />
           </Button>
         </div>
       </header>
 
-      {/* Map Mock View */}
-      <div className="relative flex-1 min-h-[500px] w-full bg-muted rounded-[40px] overflow-hidden google-shadow">
-        {/* Placeholder for map background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center" 
-          style={{ backgroundImage: "url('https://picsum.photos/seed/madurai-map/1200/800')" }}
-        />
-        <div className="absolute inset-0 bg-primary/10 mix-blend-multiply" />
+      {/* Map Integration */}
+      <div className="relative flex-1 w-full bg-muted rounded-[40px] overflow-hidden shadow-inner border-4 border-card">
+        {apiKey ? (
+          <APIProvider apiKey={apiKey}>
+            <Map
+              defaultCenter={MADURAI_CENTER}
+              defaultZoom={14}
+              mapId="madurai_guardian_map"
+              gestureHandling={'greedy'}
+              disableDefaultUI={true}
+            >
+              {mockIncidents.map((incident) => (
+                <AdvancedMarker
+                  key={incident.id}
+                  position={incident.pos}
+                  onClick={() => setSelectedIncident(incident)}
+                >
+                  <Pin 
+                    background={incident.severity === 'Urgent' ? '#EA4335' : '#4285F4'} 
+                    borderColor={'#FFFFFF'} 
+                    glyphColor={'#FFFFFF'} 
+                  />
+                </AdvancedMarker>
+              ))}
 
-        {/* Map UI Elements */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2">
-          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-primary google-shadow hover:bg-white/90">
+              {selectedIncident && (
+                <InfoWindow
+                  position={selectedIncident.pos}
+                  onCloseClick={() => setSelectedIncident(null)}
+                >
+                  <div className="p-2 max-w-[200px]">
+                    <h4 className="font-bold text-sm text-foreground">{selectedIncident.type}</h4>
+                    <p className="text-xs text-muted-foreground mb-2">{selectedIncident.time}</p>
+                    <Badge className={selectedIncident.severity === 'Urgent' ? "bg-destructive/10 text-destructive border-none" : "bg-primary/10 text-primary border-none"}>
+                      {selectedIncident.severity}
+                    </Badge>
+                  </div>
+                </InfoWindow>
+              )}
+            </Map>
+          </APIProvider>
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4 bg-muted/50">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <Layers className="w-8 h-8" />
+            </div>
+            <div>
+              <p className="font-bold text-lg">Map Initialization Required</p>
+              <p className="text-sm text-muted-foreground">Please provide a Google Maps API Key in the .env file to view the real-time Madurai dashboard.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Floating Map Controls */}
+        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-primary shadow-lg hover:bg-white/90">
             <Navigation className="w-6 h-6" />
           </Button>
-          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-secondary google-shadow hover:bg-white/90">
+          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-secondary shadow-lg hover:bg-white/90">
             <Info className="w-6 h-6" />
           </Button>
         </div>
 
-        {/* Map Markers (Mocks) */}
-        <div className="absolute top-1/4 left-1/3 group cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-destructive border-4 border-white flex items-center justify-center text-white google-shadow animate-bounce">
-            <MapPin className="w-5 h-5" />
-          </div>
-          <Card className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 p-3 w-48 hidden group-hover:block material-card rounded-2xl">
-            <h4 className="font-bold text-sm">Trash Overflow</h4>
-            <p className="text-xs text-muted-foreground">Reported 2h ago</p>
-            <Badge className="mt-2 bg-destructive/10 text-destructive border-none">Urgent</Badge>
-          </Card>
-        </div>
-
-        <div className="absolute top-1/2 right-1/4 group cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-primary border-4 border-white flex items-center justify-center text-white google-shadow">
-            <MapPin className="w-4 h-4" />
-          </div>
-        </div>
-
-        <div className="absolute bottom-1/4 left-1/2 group cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-secondary border-4 border-white flex items-center justify-center text-white google-shadow">
-            <MapPin className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* Bottom Panel Legend */}
-        <div className="absolute bottom-6 left-6 right-6">
-          <Card className="material-card p-4 rounded-[32px] bg-card/90 backdrop-blur">
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid grid-cols-3 bg-transparent p-0 h-10 gap-2">
-                <TabsTrigger value="all" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white">All</TabsTrigger>
-                <TabsTrigger value="urgent" className="rounded-full data-[state=active]:bg-destructive data-[state=active]:text-white">Urgent</TabsTrigger>
-                <TabsTrigger value="my" className="rounded-full data-[state=active]:bg-secondary data-[state=active]:text-white">My Reports</TabsTrigger>
-              </TabsList>
-            </Tabs>
+        {/* Earth Engine Overlay Info */}
+        <div className="absolute bottom-24 left-6 right-6 z-10">
+          <Card className="p-4 rounded-[32px] bg-white/90 backdrop-blur shadow-xl border-none">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-600">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase text-muted-foreground">Earth Engine Status</p>
+                  <p className="text-sm font-semibold">Satellite Analysis Ready</p>
+                </div>
+              </div>
+              <Tabs defaultValue="all" className="w-auto">
+                <TabsList className="bg-muted/50 rounded-full p-1 h-10">
+                  <TabsTrigger value="all" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-4 text-xs">Hybrid</TabsTrigger>
+                  <TabsTrigger value="infra" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-4 text-xs">Heatmap</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </Card>
         </div>
       </div>
