@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,9 +33,8 @@ import {
   Send,
   Layers,
   Settings2,
-  Info,
-  Droplets,
-  ExternalLink
+  ExternalLink,
+  Droplets
 } from "lucide-react";
 import { 
   APIProvider, 
@@ -49,7 +48,6 @@ import { fetchDrainageRealtimeData, type DrainageDataOutput } from "@/ai/flows/d
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, query, orderBy, limit } from "firebase/firestore";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
-import { RelativeTime } from "@/components/relative-time";
 import { useToast } from "@/hooks/use-toast";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
@@ -59,6 +57,7 @@ export default function DrainageMonitoringPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
+  const [mapError, setMapError] = useState<boolean>(false);
   
   // Quick Report State
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
@@ -84,7 +83,7 @@ export default function DrainageMonitoringPage() {
       const result = await fetchDrainageRealtimeData();
       setData(result);
     } catch (error) {
-      console.error("Failed to fetch drainage telemetry:", error);
+      // AI fallback handled in flow
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -131,7 +130,7 @@ export default function DrainageMonitoringPage() {
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <div className="space-y-1">
           <p className="font-bold text-lg">Initializing Resilience Core</p>
-          <p className="text-muted-foreground text-sm">Syncing Madurai UGD Infrastructure Map...</p>
+          <p className="text-muted-foreground text-sm">Syncing Madurai District UGD Infrastructure Map...</p>
         </div>
       </div>
     );
@@ -183,7 +182,7 @@ export default function DrainageMonitoringPage() {
           <Card className="m3-card border-none shadow-lg p-6 bg-primary text-primary-foreground">
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">Network Health</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">Network Health Index</p>
                 <Activity className="w-4 h-4 opacity-70" />
               </div>
               <div className="flex items-baseline gap-2">
@@ -217,7 +216,7 @@ export default function DrainageMonitoringPage() {
 
         {/* Central Map Panel */}
         <Card className="lg:col-span-6 m3-card border-none shadow-xl bg-card p-0 relative overflow-hidden min-h-[500px]">
-          {apiKey ? (
+          {apiKey && !mapError ? (
             <APIProvider apiKey={apiKey}>
               <div className="absolute inset-0">
                 <Map
@@ -296,12 +295,20 @@ export default function DrainageMonitoringPage() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <Layers className="w-8 h-8" />
               </div>
-              <div className="space-y-2 max-w-xs">
-                <p className="font-bold text-lg">Infrastructure Map Activation Required</p>
+              <div className="space-y-4 max-w-xs">
+                <p className="font-bold text-lg">Google Maps API Activation Required</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   The Google Maps JavaScript API is not yet activated for this project. 
-                  Please go to the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a> and enable <strong>Maps JavaScript API</strong> to view live drainage infrastructure.
                 </p>
+                <div className="p-4 bg-white/80 rounded-2xl border border-primary/20 text-left space-y-3 shadow-sm">
+                  <p className="text-[10px] font-bold uppercase text-primary">Steps to Fix:</p>
+                  <ol className="text-[10px] space-y-2 list-decimal list-inside text-muted-foreground">
+                    <li>Open the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
+                    <li>Select project: <code className="bg-muted px-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</code></li>
+                    <li>Search for <strong>"Maps JavaScript API"</strong></li>
+                    <li>Click the <strong>ENABLE</strong> button</li>
+                  </ol>
+                </div>
               </div>
             </div>
           )}
@@ -364,7 +371,7 @@ export default function DrainageMonitoringPage() {
                <h3 className="text-xl font-bold font-headline flex items-center gap-2">
                  <AlertCircle className="w-5 h-5 text-amber-500" /> Intervention Queue
                </h3>
-               <p className="text-xs text-muted-foreground">AI-Identified Blockages requiring immediate dispatch.</p>
+               <p className="text-xs text-muted-foreground">AI-Identified District Blockages requiring immediate dispatch.</p>
              </div>
              <div className="flex gap-3">
                 <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>

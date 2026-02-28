@@ -23,6 +23,7 @@ const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
 
 export default function CityMap() {
   const [selectedIncident, setSelectedIncident] = useState<any>(null);
+  const [mapError, setMapError] = useState<boolean>(false);
   const db = useFirestore();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
@@ -66,7 +67,7 @@ export default function CityMap() {
 
       {/* Map Integration */}
       <div className="relative flex-1 w-full bg-muted rounded-[40px] overflow-hidden shadow-inner border-4 border-card">
-        {apiKey ? (
+        {apiKey && !mapError ? (
           <APIProvider apiKey={apiKey}>
             <Map
               defaultCenter={MADURAI_CENTER}
@@ -120,12 +121,20 @@ export default function CityMap() {
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <Layers className="w-8 h-8" />
             </div>
-            <div className="space-y-3 max-w-sm">
-              <p className="font-bold text-xl">Map Initialization Required</p>
+            <div className="space-y-4 max-w-sm">
+              <p className="font-bold text-xl">Maps API Activation Required</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                The Google Maps JavaScript API is not yet activated for this project. 
-                Please ensure you have enabled the <strong>Maps JavaScript API</strong> in your <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a>.
+                The Google Maps JavaScript API is not yet activated.
               </p>
+              <div className="p-4 bg-white/90 rounded-2xl border border-primary/20 text-left space-y-3 shadow-xl">
+                <p className="text-[10px] font-bold uppercase text-primary">Action Needed:</p>
+                <ol className="text-[10px] space-y-2 list-decimal list-inside text-muted-foreground leading-relaxed">
+                  <li>Visit the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
+                  <li>Ensure project <code className="bg-muted px-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</code> is active</li>
+                  <li>Search for <strong>"Maps JavaScript API"</strong> and click <strong>ENABLE</strong></li>
+                  <li>Refresh this page once complete</li>
+                </ol>
+              </div>
             </div>
           </div>
         )}
