@@ -18,7 +18,8 @@ import {
   Cpu,
   UserCircle,
   Activity,
-  ShieldCheck
+  ShieldCheck,
+  Waves
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -43,6 +44,7 @@ export function AppSidebar() {
   const menuItems = [
     { label: "Smart Segregate", href: "/smart-segregate", icon: Cpu, badge: "AI" },
     { label: "Hygiene Control", href: "/hygiene-control", icon: Activity, badge: "Live" },
+    { label: "Drainage Monitoring", href: "/drainage-monitoring", icon: Waves, badge: "AI" },
     { label: "MCCC Dashboard", href: "/mccc-dashboard", icon: ShieldCheck, badge: "Hub" },
   ];
 
