@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -38,14 +37,14 @@ import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebas
 import { collection, serverTimestamp, query, where, orderBy, limit } from "firebase/firestore";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import Image from "next/image";
-import { formatDistanceToNow } from "date-fns";
+import { RelativeTime } from "@/components/relative-time";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
 
 const fractions = [
-  { id: 'Dry', label: 'Dry Waste', color: 'bg-blue-500', icon: <Boxes className="w-5 h-5" /> },
-  { id: 'Wet', label: 'Wet/Organic', color: 'bg-green-500', icon: <Zap className="w-5 h-5" /> },
-  { id: 'E-waste', label: 'Electronic', color: 'bg-purple-500', icon: <Cpu className="w-5 h-5" /> }
+  { id: 'Dry', label: 'Dry Waste', color: 'bg-blue-500', borderColor: 'border-blue-500', icon: <Boxes className="w-5 h-5" /> },
+  { id: 'Wet', label: 'Wet/Organic', color: 'bg-green-500', borderColor: 'border-green-500', icon: <Zap className="w-5 h-5" /> },
+  { id: 'E-waste', label: 'Electronic', color: 'bg-purple-500', borderColor: 'border-purple-500', icon: <Cpu className="w-5 h-5" /> }
 ];
 
 export default function SmartSegregatePage() {
@@ -401,7 +400,7 @@ export default function SmartSegregatePage() {
                       className={cn(
                         "flex items-center justify-between p-4 rounded-2xl transition-all border-2",
                         activeBin === f.id 
-                          ? `border-${f.id === 'Dry' ? 'primary' : f.id === 'Wet' ? 'secondary' : 'purple-500'} bg-white shadow-md scale-[1.02]` 
+                          ? cn("bg-white shadow-md scale-[1.02]", f.borderColor) 
                           : "border-transparent bg-muted/20 opacity-50"
                       )}
                     >
@@ -516,7 +515,7 @@ function ScanHistoryCard({ scan }: { scan: any }) {
         </div>
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
            <Clock className="w-3 h-3" />
-           {scan.submittedAt ? formatDistanceToNow(new Date(scan.submittedAt)) + " ago" : "Recently"}
+           {scan.submittedAt ? <RelativeTime date={scan.submittedAt} /> : "Recently"}
         </div>
         <p className="text-xs text-muted-foreground line-clamp-2 italic leading-relaxed">
           {scan.description || "Historical data log from SmartSegregate industrial core."}

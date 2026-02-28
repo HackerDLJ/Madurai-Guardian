@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -17,7 +16,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, query, orderBy } from "firebase/firestore";
-import { formatDistanceToNow } from "date-fns";
+import { RelativeTime } from "@/components/relative-time";
 import { cn } from "@/lib/utils";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
@@ -108,7 +107,7 @@ export default function CityMap() {
                         {selectedIncident.status}
                       </Badge>
                       <span className="text-[10px] text-muted-foreground font-medium">
-                        {selectedIncident.submittedAt ? formatDistanceToNow(new Date(selectedIncident.submittedAt)) + " ago" : "Just now"}
+                        {selectedIncident.submittedAt ? <RelativeTime date={selectedIncident.submittedAt} short /> : "Just now"}
                       </span>
                     </div>
                   </div>

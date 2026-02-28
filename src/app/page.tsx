@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -22,6 +21,7 @@ import Image from "next/image";
 import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from "@/firebase";
 import { doc, collection, query, orderBy, limit } from "firebase/firestore";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { RelativeTime } from "@/components/relative-time";
 import { cn } from "@/lib/utils";
 import { 
   BarChart, 
@@ -276,7 +276,9 @@ export default function Dashboard() {
                 <div className="flex-1 space-y-2">
                   <div className="flex justify-between items-start">
                     <h4 className="font-bold text-sm leading-none">Verified Reporter</h4>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{feed.submittedAt ? formatDistanceToNow(new Date(feed.submittedAt)) + " ago" : "Recently"}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                      {feed.submittedAt ? <RelativeTime date={feed.submittedAt} short /> : "Recently"}
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                     {feed.description || "Reported an urban issue. Verification pending."}
@@ -314,13 +316,4 @@ export default function Dashboard() {
       </section>
     </div>
   );
-}
-
-// Utility function for distance formatting (fallback)
-function formatDistanceToNow(date: Date) {
-  const diff = Math.floor((new Date().getTime() - date.getTime()) / 60000);
-  if (diff < 1) return "Just now";
-  if (diff < 60) return `${diff}m`;
-  if (diff < 1440) return `${Math.floor(diff / 60)}h`;
-  return `${Math.floor(diff / 1440)}d`;
 }

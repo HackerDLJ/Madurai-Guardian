@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { Clock, CheckCircle, Package, ArrowRight, MapPin, Loader2 } from "lucide
 import Image from "next/image";
 import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, query, where, orderBy } from "firebase/firestore";
-import { formatDistanceToNow } from "date-fns";
+import { RelativeTime } from "@/components/relative-time";
 import { cn } from "@/lib/utils";
 
 export default function StatusTracking() {
@@ -123,7 +122,7 @@ export default function StatusTracking() {
                         {report.aiSuggestedCategory || "Resolved Issue"}
                       </h3>
                       <p className="text-[10px] text-muted-foreground mt-1">
-                        Resolved {report.submittedAt ? formatDistanceToNow(new Date(report.submittedAt)) + " ago" : ""}
+                        Resolved {report.submittedAt ? <RelativeTime date={report.submittedAt} /> : ""}
                       </p>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-600 flex items-center justify-center">
