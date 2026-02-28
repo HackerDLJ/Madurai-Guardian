@@ -17,7 +17,8 @@ import {
   Plus, 
   Cpu,
   UserCircle,
-  Activity
+  Activity,
+  AlertCircle
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";

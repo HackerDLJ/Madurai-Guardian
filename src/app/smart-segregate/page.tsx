@@ -16,7 +16,10 @@ import {
   Camera,
   Loader2,
   Trash2,
-  XCircle
+  XCircle,
+  Monitor,
+  Smartphone,
+  Layers
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -35,14 +38,25 @@ export default function SmartSegregatePage() {
   const [activeBin, setActiveBin] = useState<string | null>(null);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [deviceInfo, setDeviceInfo] = useState({ type: "Detecting...", model: "M-SS-v2.4-RPi4" });
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    const getCameraPermission = async () => {
+    // Automated Camera Access and Device Detection
+    const initPage = async () => {
+      // Device Detection
+      const ua = navigator.userAgent;
+      let type = "Desktop Client";
+      if (/tablet|ipad|playbook|silk/i.test(ua)) type = "Tablet Node";
+      else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) type = "Mobile Edge";
+      
+      setDeviceInfo(prev => ({ ...prev, type }));
+
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         setHasCameraPermission(true);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -52,12 +66,20 @@ export default function SmartSegregatePage() {
         setHasCameraPermission(false);
         toast({
           variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this app.',
+          title: 'Camera Access Required',
+          description: 'Please enable camera permissions to use the SmartSegregate AI features.',
         });
       }
     };
-    getCameraPermission();
+
+    initPage();
+
+    return () => {
+      if (videoRef.current?.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
   }, [toast]);
 
   const handleScan = async () => {
@@ -122,7 +144,7 @@ export default function SmartSegregatePage() {
             <h1 className="text-3xl font-bold font-headline">SmartSegregate™ AI</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <RotateCw className="w-3 h-3 animate-spin text-secondary" /> 
-              Gemini-Flash Vision Core Active (1M+ Samples Trained)
+              Gemini Vision Core (1M+ Samples) • {deviceInfo.model}
             </p>
           </div>
         </div>
@@ -131,7 +153,6 @@ export default function SmartSegregatePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <section className="lg:col-span-2 space-y-6">
           <Card className="rounded-[40px] overflow-hidden border-none bg-black aspect-video relative shadow-2xl">
-            {/* Always show video tag irrespective of hasCameraPermission check to prevent race condition */}
             <video 
               ref={videoRef} 
               className="w-full h-full object-cover opacity-80" 
@@ -159,7 +180,7 @@ export default function SmartSegregatePage() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Camera Access Required</AlertTitle>
                   <AlertDescription>
-                    Please allow camera access to use the SmartSegregate AI feature. Check your browser settings.
+                    Please allow camera access to use the SmartSegregate AI feature.
                   </AlertDescription>
                 </Alert>
               </div>
@@ -173,7 +194,7 @@ export default function SmartSegregatePage() {
                 disabled={isScanning || hasCameraPermission === false}
               >
                 {isScanning ? <Loader2 className="w-6 h-6 animate-spin" /> : <Scan className="w-6 h-6" />}
-                {isScanning ? "AI Processing..." : "Identify Waste"}
+                {isScanning ? "Processing..." : "Identify Waste"}
               </Button>
             </div>
           </Card>
@@ -181,20 +202,20 @@ export default function SmartSegregatePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="m3-card p-6 flex items-center gap-4 bg-primary/5 border-none">
               <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary">
-                <Cpu className="w-6 h-6" />
+                {deviceInfo.type.includes("Mobile") ? <Smartphone className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Neural Engine</p>
-                <p className="font-bold text-sm">Gemini Multimodal Vision</p>
+                <p className="text-[10px] font-bold uppercase text-muted-foreground">Device Platform</p>
+                <p className="font-bold text-sm">{deviceInfo.type}</p>
               </div>
             </Card>
             <Card className="m3-card p-6 flex items-center gap-4 bg-secondary/5 border-none">
               <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-secondary">
-                <RotateCw className="w-6 h-6" />
+                <Layers className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Bin Status</p>
-                <p className="font-bold text-sm">{activeBin ? `Opening ${activeBin} Bin` : 'Locked / Ready'}</p>
+                <p className="text-[10px] font-bold uppercase text-muted-foreground">Design Revision</p>
+                <p className="font-bold text-sm">{deviceInfo.model}</p>
               </div>
             </Card>
           </div>
@@ -234,7 +255,7 @@ export default function SmartSegregatePage() {
                     <Progress value={processingProgress} className="h-1.5" />
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm italic">Point camera at item and tap "Identify Waste"</p>
+                  <p className="text-muted-foreground text-sm italic">Point camera at waste item</p>
                 )}
               </div>
 
@@ -270,8 +291,8 @@ export default function SmartSegregatePage() {
           <Card className="m3-card bg-[#1E1B4B] text-white p-8 border-none overflow-hidden relative">
             <Trash2 className="absolute -bottom-4 -right-4 w-24 h-24 text-white/10 -rotate-12" />
             <div className="relative z-10 space-y-4">
-              <h4 className="font-bold text-lg">Did you know?</h4>
-              <p className="text-sm text-white/70">Properly segregated waste in Madurai is transformed into green energy and organic compost for local parks.</p>
+              <h4 className="font-bold text-lg">Hardware Status</h4>
+              <p className="text-sm text-white/70">Edge Node: {deviceInfo.model} reporting via {deviceInfo.type}. All motorized units calibrated.</p>
               <Button variant="outline" className="w-full rounded-2xl border-white/20 text-white hover:bg-white/10 font-bold" asChild>
                 <a href="/credits">View Rewards</a>
               </Button>
