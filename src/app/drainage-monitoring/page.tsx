@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -33,8 +34,7 @@ import {
   Send,
   Layers,
   Settings2,
-  ExternalLink,
-  Droplets
+  ExternalLink
 } from "lucide-react";
 import { 
   APIProvider, 
@@ -57,7 +57,6 @@ export default function DrainageMonitoringPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
-  const [mapError, setMapError] = useState<boolean>(false);
   
   // Quick Report State
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
@@ -216,7 +215,7 @@ export default function DrainageMonitoringPage() {
 
         {/* Central Map Panel */}
         <Card className="lg:col-span-6 m3-card border-none shadow-xl bg-card p-0 relative overflow-hidden min-h-[500px]">
-          {apiKey && !mapError ? (
+          {apiKey ? (
             <APIProvider apiKey={apiKey}>
               <div className="absolute inset-0">
                 <Map
@@ -275,6 +274,31 @@ export default function DrainageMonitoringPage() {
                 </Map>
               </div>
 
+              {/* API Activation Guide Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center p-6 bg-muted/10 pointer-events-none z-50">
+                <Card className="p-6 rounded-[32px] bg-white/95 backdrop-blur shadow-2xl border-none max-w-xs space-y-4 pointer-events-auto">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto">
+                    <Layers className="w-6 h-6" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="font-bold text-base">Activate Maps API</p>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      The Maps JavaScript API is not enabled for project <strong>{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</strong>.
+                    </p>
+                  </div>
+                  <div className="space-y-3 pt-2">
+                    <div className="p-3 bg-muted/30 rounded-2xl space-y-2">
+                      <p className="text-[9px] font-bold uppercase text-primary tracking-widest">Enable Steps:</p>
+                      <ol className="text-[9px] space-y-1.5 list-decimal list-inside text-muted-foreground leading-snug">
+                        <li>Visit <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-2.5 h-2.5" /></a></li>
+                        <li>Find <strong>"Maps JavaScript API"</strong></li>
+                        <li>Click <strong>ENABLE</strong></li>
+                      </ol>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
               {/* Map UI Overlays */}
               <div className="absolute top-4 left-4 z-10 space-y-2">
                 <Card className="p-4 rounded-2xl bg-white/95 backdrop-blur shadow-xl border-none space-y-2">
@@ -291,25 +315,11 @@ export default function DrainageMonitoringPage() {
               </div>
             </APIProvider>
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-muted/50 backdrop-blur-sm">
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-muted/50">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <Layers className="w-8 h-8" />
               </div>
-              <div className="space-y-4 max-w-xs">
-                <p className="font-bold text-lg">Google Maps API Activation Required</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  The Google Maps JavaScript API is not yet activated for this project. 
-                </p>
-                <div className="p-4 bg-white/80 rounded-2xl border border-primary/20 text-left space-y-3 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase text-primary">Steps to Fix:</p>
-                  <ol className="text-[10px] space-y-2 list-decimal list-inside text-muted-foreground">
-                    <li>Open the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
-                    <li>Select project: <code className="bg-muted px-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</code></li>
-                    <li>Search for <strong>"Maps JavaScript API"</strong></li>
-                    <li>Click the <strong>ENABLE</strong> button</li>
-                  </ol>
-                </div>
-              </div>
+              <p className="font-bold text-lg">Maps API Required</p>
             </div>
           )}
         </Card>
