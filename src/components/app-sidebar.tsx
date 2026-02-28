@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -15,17 +14,14 @@ import {
 } from "@/components/ui/sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   LayoutDashboard, 
   BarChart3, 
   Award, 
   Leaf, 
   Plus, 
-  Settings, 
-  HelpCircle,
   AlertCircle,
-  MapPin
+  Trophy
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -36,7 +32,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const navItems = [
   { icon: LayoutDashboard, label: "Madurai at a Glance", href: "/" },
   { icon: BarChart3, label: "Cleanliness Pulse", href: "/map" },
-  { icon: Award, label: "Heritage Credits", href: "/profile" },
+  { icon: Award, label: "Heritage Credits", href: "/credits" },
+  { icon: Trophy, label: "My Profile", href: "/profile" },
   { icon: Leaf, label: "Local Impact", href: "/hub" },
 ];
 

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const topNavPills = [
   { label: "Dashboard", href: "/" },
+  { label: "Credits", href: "/credits" },
   { label: "Reports", href: "/status" },
   { label: "Map", href: "/map" },
   { label: "Profile", href: "/profile" },
