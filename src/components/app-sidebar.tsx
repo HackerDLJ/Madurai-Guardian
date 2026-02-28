@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -17,7 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
   Cpu,
-  UserCircle
+  UserCircle,
+  Activity
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -39,9 +39,9 @@ export function AppSidebar() {
 
   const { data: profile } = useDoc(userRef);
 
-  // Simplified menu items based on user request
   const menuItems = [
     { label: "Smart Segregate", href: "/smart-segregate", icon: Cpu, badge: "AI" },
+    { label: "Hygiene Control", href: "/hygiene-control", icon: Activity, badge: "Live" },
   ];
 
   return (
@@ -79,7 +79,7 @@ export function AppSidebar() {
       <SidebarContent className="px-4">
         <SidebarMenu className="gap-2">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            const isActive = pathname === item.href;
             
             return (
               <SidebarMenuItem key={item.href}>
@@ -104,7 +104,10 @@ export function AppSidebar() {
                       {item.label}
                     </span>
                     {item.badge && (
-                      <Badge className="ml-auto bg-primary/10 text-primary border-none text-[8px] px-1.5 h-4">
+                      <Badge className={cn(
+                        "ml-auto border-none text-[8px] px-1.5 h-4",
+                        item.badge === "Live" ? "bg-green-500/10 text-green-600" : "bg-primary/10 text-primary"
+                      )}>
                         {item.badge}
                       </Badge>
                     )}
