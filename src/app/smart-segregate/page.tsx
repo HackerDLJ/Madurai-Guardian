@@ -22,14 +22,19 @@ import {
   Smartphone,
   Layers,
   Info,
-  Send
+  Send,
+  History,
+  Clock
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeWaste, type SmartWasteOutput } from "@/ai/flows/smart-waste-analysis";
-import { useFirestore, useUser } from "@/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, addDoc, serverTimestamp, query, where, orderBy, limit } from "firebase/firestore";
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
 
@@ -54,6 +59,19 @@ export default function SmartSegregatePage() {
   const { toast } = useToast();
   const db = useFirestore();
   const { user } = useUser();
+
+  // Fetch Scan History (Categorized by user reports)
+  const historyQuery = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return query(
+      collection(db, "incidentReports"),
+      where("userId", "==", user.uid),
+      orderBy("submittedAt", "desc"),
+      limit(20)
+    );
+  }, [db, user?.uid]);
+
+  const { data: history, isLoading: isHistoryLoading } = useCollection(historyQuery);
 
   useEffect(() => {
     const initPage = async () => {
@@ -189,7 +207,7 @@ export default function SmartSegregatePage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20">
+    <div className="max-w-6xl mx-auto space-y-8 pb-24">
       <header className="space-y-2">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
@@ -366,19 +384,55 @@ export default function SmartSegregatePage() {
               </div>
             </div>
           </Card>
-
-          <Card className="m3-card bg-[#1E1B4B] text-white p-8 border-none overflow-hidden relative">
-            <Trash2 className="absolute -bottom-4 -right-4 w-24 h-24 text-white/10 -rotate-12" />
-            <div className="relative z-10 space-y-4">
-              <h4 className="font-bold text-lg">Hardware Status</h4>
-              <p className="text-sm text-white/70">Edge Node: {deviceInfo.model} reporting via {deviceInfo.type}. All motorized units calibrated.</p>
-              <Button variant="outline" className="w-full rounded-2xl border-white/20 text-white hover:bg-white/10 font-bold" asChild>
-                <a href="/credits">View Rewards</a>
-              </Button>
-            </div>
-          </Card>
         </section>
       </div>
+
+      {/* Scan History Section */}
+      <section className="space-y-6 pt-12">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                <History className="w-5 h-5" />
+             </div>
+             <h3 className="text-2xl font-bold font-headline">Scan History</h3>
+          </div>
+          <Badge variant="outline" className="rounded-full px-4 border-muted text-muted-foreground font-bold">
+            {history?.length || 0} Total Scans
+          </Badge>
+        </div>
+
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1 mb-8">
+            <TabsTrigger value="all" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">All Scans</TabsTrigger>
+            {fractions.map(f => (
+              <TabsTrigger key={f.id} value={f.id} className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                {f.label.split(' ')[0]}
+              </TabsTrigger>
+            ))}
+            <TabsTrigger value="Other" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Others</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="mt-0">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {history?.map((scan) => (
+                  <ScanHistoryCard key={scan.id} scan={scan} />
+                ))}
+                {!history?.length && !isHistoryLoading && <EmptyHistoryState />}
+             </div>
+          </TabsContent>
+
+          {['Dry', 'Wet', 'E-waste', 'Other'].map((category) => (
+            <TabsContent key={category} value={category} className="mt-0">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {history?.filter(s => (category === 'Other' ? !['Dry', 'Wet', 'E-waste'].includes(s.aiSuggestedCategory) : s.aiSuggestedCategory === category)).map((scan) => (
+                    <ScanHistoryCard key={scan.id} scan={scan} />
+                  ))}
+                  {!history?.filter(s => (category === 'Other' ? !['Dry', 'Wet', 'E-waste'].includes(s.aiSuggestedCategory) : s.aiSuggestedCategory === category)).length && <EmptyHistoryState />}
+               </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </section>
       
       <style jsx global>{`
         @keyframes scan {
@@ -386,6 +440,56 @@ export default function SmartSegregatePage() {
           50% { top: 100%; }
         }
       `}</style>
+    </div>
+  );
+}
+
+function ScanHistoryCard({ scan }: { scan: any }) {
+  const categoryColor = fractions.find(f => f.id === scan.aiSuggestedCategory)?.color || "bg-muted";
+  
+  return (
+    <Card className="m3-card overflow-hidden p-0 border-none group hover:shadow-xl transition-all">
+      <div className="relative h-48 w-full">
+        <Image 
+          src={scan.photoUrls?.[0] || "https://picsum.photos/seed/scan/400/300"} 
+          alt="Scan evidence" 
+          fill 
+          className="object-cover transition-transform group-hover:scale-105" 
+        />
+        <div className="absolute top-4 left-4">
+          <Badge className={cn("text-white border-none px-3 py-1 font-bold rounded-lg shadow-lg", categoryColor)}>
+            {scan.aiSuggestedCategory || "Unknown"}
+          </Badge>
+        </div>
+      </div>
+      <div className="p-5 space-y-3">
+        <div className="flex justify-between items-start">
+           <h4 className="font-bold text-base leading-tight truncate flex-1">
+             {scan.description?.split(':')?.[1]?.split('.')?.[0]?.trim() || "Scanned Item"}
+           </h4>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+           <Clock className="w-3 h-3" />
+           {scan.submittedAt ? formatDistanceToNow(new Date(scan.submittedAt)) + " ago" : "Just now"}
+        </div>
+        <p className="text-xs text-muted-foreground line-clamp-2 italic leading-relaxed">
+          {scan.description}
+        </p>
+      </div>
+    </Card>
+  );
+}
+
+function EmptyHistoryState() {
+  return (
+    <div className="col-span-full py-16 text-center space-y-4">
+      <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground/30">
+        <History className="w-10 h-10" />
+      </div>
+      <div>
+        <p className="font-bold text-lg">No scans found in this category</p>
+        <p className="text-sm text-muted-foreground">Start using the AI Segregator to build your history.</p>
+      </div>
     </div>
   );
 }
