@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -39,7 +40,7 @@ import {
 } from 'recharts';
 import { fetchWteRealtimeData, type WteDataOutput } from "@/ai/flows/wte-data-flow";
 
-const COLORS = ['#4285F4', '#34A853', '#FBBC05', '#EA4335'];
+const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--destructive))'];
 
 export default function WteOptimizationPage() {
   const [data, setData] = useState<WteDataOutput | null>(null);
@@ -94,7 +95,7 @@ export default function WteOptimizationPage() {
           <div>
             <h1 className="text-3xl font-bold font-headline tracking-tight">WtE Energy Optimization</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
-              <span className={cn("w-2 h-2 rounded-full bg-green-500", isRefreshing && "animate-pulse")} />
+              <span className={cn("w-2 h-2 rounded-full bg-secondary", isRefreshing && "animate-pulse")} />
               Madurai Smart-Grid: {data.energyOutput.streetlightsPowered.toLocaleString()} streetlights active
             </p>
           </div>
@@ -183,7 +184,7 @@ export default function WteOptimizationPage() {
           <Card className="m3-card border-none shadow-lg p-6 space-y-6 bg-card transition-all hover:shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <Gauge className="w-4 h-4 text-blue-500" /> Feedstock Composition
+                <Gauge className="w-4 h-4 text-primary" /> Feedstock Composition
               </h3>
               <Info className="w-4 h-4 text-muted-foreground/30" />
             </div>
@@ -231,7 +232,7 @@ export default function WteOptimizationPage() {
                   </div>
                   <span className={cn(
                     "text-lg font-bold",
-                    data.feedstock.moistureContent > 70 ? "text-destructive" : "text-blue-500"
+                    data.feedstock.moistureContent > 70 ? "text-destructive" : "text-primary"
                   )}>
                     {data.feedstock.moistureContent}%
                   </span>
@@ -240,7 +241,7 @@ export default function WteOptimizationPage() {
                 value={data.feedstock.moistureContent} 
                 className={cn(
                   "h-1.5",
-                  data.feedstock.moistureContent > 70 ? "bg-destructive/20" : "bg-blue-100"
+                  data.feedstock.moistureContent > 70 ? "bg-destructive/20" : "bg-primary/20"
                 )} 
                />
             </div>
@@ -252,10 +253,10 @@ export default function WteOptimizationPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Methane Production Card */}
-            <Card className="m3-card border-none shadow-lg p-8 bg-orange-50/50 space-y-8 group">
+            <Card className="m3-card border-none shadow-lg p-8 bg-accent/5 space-y-8 group">
                <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center shadow-sm">
                       <Flame className="w-6 h-6" />
                     </div>
                     <div>
@@ -282,7 +283,7 @@ export default function WteOptimizationPage() {
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">24h Forecast</p>
                     <div className="flex items-baseline gap-1.5">
-                      <p className="text-4xl font-bold text-orange-600">{(data.methaneProduction.predictedYield24h / 1000).toFixed(1)}k</p>
+                      <p className="text-4xl font-bold text-accent">{(data.methaneProduction.predictedYield24h / 1000).toFixed(1)}k</p>
                       <span className="text-sm font-bold text-muted-foreground">m³</span>
                     </div>
                   </div>
@@ -292,18 +293,18 @@ export default function WteOptimizationPage() {
                  <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={[{h: '12', v: 60}, {h: '13', v: 45}, {h: '14', v: 75}, {h: '15', v: 65}, {h: '16', v: 90}]}>
                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                     <XAxis dataKey="h" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#9ca3af'}} />
-                     <Bar dataKey="v" fill="#F97316" radius={[6, 6, 0, 0]} />
+                     <XAxis dataKey="h" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: 'hsl(var(--muted-foreground))'}} />
+                     <Bar dataKey="v" fill="hsl(var(--accent))" radius={[6, 6, 0, 0]} />
                    </BarChart>
                  </ResponsiveContainer>
                </div>
             </Card>
 
             {/* Smart Grid Integration Card */}
-            <Card className="m3-card border-none shadow-lg p-8 bg-blue-50/50 space-y-8">
+            <Card className="m3-card border-none shadow-lg p-8 bg-primary/5 space-y-8">
                <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-sm">
                       <Lightbulb className="w-6 h-6" />
                     </div>
                     <div>
@@ -312,7 +313,7 @@ export default function WteOptimizationPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-blue-200 text-blue-600 text-[10px] font-bold px-3">
+                    <Badge variant="outline" className="border-primary/20 text-primary text-[10px] font-bold px-3">
                       ONLINE
                     </Badge>
                   </div>
@@ -322,11 +323,11 @@ export default function WteOptimizationPage() {
                   <div className="flex-1 space-y-1">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Power Exported Today</p>
                     <div className="flex items-baseline gap-2">
-                      <h4 className="text-5xl font-bold text-blue-700">{data.energyOutput.kwhGenerated.toLocaleString()}</h4>
-                      <span className="text-lg font-bold text-blue-300">kWh</span>
+                      <h4 className="text-5xl font-bold text-primary">{data.energyOutput.kwhGenerated.toLocaleString()}</h4>
+                      <span className="text-lg font-bold text-primary/40">kWh</span>
                     </div>
                   </div>
-                  <div className="h-20 w-20 rounded-full border-[6px] border-blue-100 border-t-blue-600 flex items-center justify-center bg-white shadow-inner">
+                  <div className="h-20 w-20 rounded-full border-[6px] border-primary/10 border-t-primary flex items-center justify-center bg-white shadow-inner">
                      <div className="text-center">
                         <span className="text-xs font-bold block">{data.energyOutput.gridStability}%</span>
                         <span className="text-[7px] font-bold uppercase text-muted-foreground">Stability</span>
@@ -334,13 +335,13 @@ export default function WteOptimizationPage() {
                   </div>
                </div>
 
-               <div className="bg-white p-5 rounded-[24px] flex items-center gap-5 border border-blue-100 shadow-sm group hover:border-blue-300 transition-all cursor-default">
-                  <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+               <div className="bg-white p-5 rounded-[24px] flex items-center gap-5 border border-primary/10 shadow-sm group hover:border-primary/30 transition-all cursor-default">
+                  <div className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                     <ArrowUpRight className="w-6 h-6" />
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-[11px] font-bold text-blue-800">Operational Highlight</p>
-                    <p className="text-[10px] text-muted-foreground leading-tight">Actively powering {data.energyOutput.streetlightsPowered.toLocaleString()} Ward 42 streetlights.</p>
+                    <p className="text-[11px] font-bold text-primary">Operational Highlight</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">Actively powering {data.energyOutput.streetlightsPowered.toLocaleString()} Madurai streetlights.</p>
                   </div>
                </div>
             </Card>
