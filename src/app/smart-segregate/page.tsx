@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -24,7 +23,9 @@ import {
   Info,
   Send,
   History,
-  Clock
+  Clock,
+  FlaskConical,
+  Leaf
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,7 +61,6 @@ export default function SmartSegregatePage() {
   const db = useFirestore();
   const { user } = useUser();
 
-  // Fetch Scan History (Categorized by user reports)
   const historyQuery = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
     return query(
@@ -91,11 +91,6 @@ export default function SmartSegregatePage() {
       } catch (error) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Required',
-          description: 'Please enable camera permissions to use the SmartSegregate AI features.',
-        });
       }
     };
 
@@ -107,7 +102,7 @@ export default function SmartSegregatePage() {
         tracks.forEach(track => track.stop());
       }
     };
-  }, [toast]);
+  }, []);
 
   const handleScan = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -128,55 +123,37 @@ export default function SmartSegregatePage() {
         setLastImage(imageDataUri);
         
         setProcessingProgress(50);
-        
         const result = await analyzeWaste(imageDataUri);
-        
         setProcessingProgress(100);
         setDetectedItem(result);
         
         if (result.isWaste) {
           const matchedBin = fractions.find(f => f.id === result.wasteType);
-          if (matchedBin) {
-            setActiveBin(matchedBin.id);
-          } else {
-            setActiveBin(result.wasteType.includes('Recyclable') ? 'Dry' : 'Wet');
-          }
+          setActiveBin(matchedBin ? matchedBin.id : (result.wasteType.includes('Recyclable') ? 'Dry' : 'Wet'));
         }
 
         toast({
-          title: result.isWaste ? "Item Identified" : "No Waste Detected",
+          title: result.isWaste ? "Item Identified" : "Analysis Complete",
           description: result.isWaste 
-            ? `${result.itemName} detected as ${result.wasteType} waste.` 
-            : "The object identified is not classified as waste.",
+            ? `${result.itemName} detected with ${Math.round(result.confidence * 100)}% confidence.` 
+            : "No waste item detected in primary focus.",
         });
       }
     } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Scanning Failed",
-        description: "AI was unable to process the image. Please try again.",
-      });
+      toast({ variant: "destructive", title: "AI Error", description: "Industrial AI core failed to stabilize. Analysis incomplete." });
     } finally {
       setIsScanning(false);
     }
   };
 
   const handleReportToCorporation = async () => {
-    if (!user || !db || !detectedItem || !lastImage) {
-      toast({
-        variant: "destructive",
-        title: "Report Failed",
-        description: "Missing data required for reporting. Please sign in or try scanning again.",
-      });
-      return;
-    }
+    if (!user || !db || !detectedItem || !lastImage) return;
 
     setIsReporting(true);
     try {
       const reportData = {
         userId: user.uid,
-        description: `AI Smart Scan Report: ${detectedItem.itemName}. ${detectedItem.description}`,
+        description: `Industrial AI Report: ${detectedItem.itemName}. Material: ${detectedItem.materialAnalysis}. Impact: ${detectedItem.environmentalImpact}`,
         latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.01,
         longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.01,
         photoUrls: [lastImage],
@@ -184,23 +161,14 @@ export default function SmartSegregatePage() {
         status: "Submitted",
         isVerified: true,
         aiSuggestedCategory: detectedItem.wasteType,
-        pointsAwarded: 25,
+        pointsAwarded: 50,
         serverTimestamp: serverTimestamp(),
       };
 
       await addDoc(collection(db, "incidentReports"), reportData);
-
-      toast({
-        title: "Report Sent",
-        description: "Your report has been successfully submitted to the Madurai Municipal Corporation.",
-      });
+      toast({ title: "Report Sent", description: "Industrial data and imagery submitted to municipal authorities." });
     } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Submission Error",
-        description: "Failed to send report. Please try again later.",
-      });
+      toast({ variant: "destructive", title: "Submission Error", description: "Failed to send industrial report." });
     } finally {
       setIsReporting(false);
     }
@@ -214,10 +182,10 @@ export default function SmartSegregatePage() {
             <Cpu className="w-7 h-7" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold font-headline">SmartSegregate™ AI</h1>
+            <h1 className="text-3xl font-bold font-headline">SmartSegregate™ Industrial</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <RotateCw className="w-3 h-3 animate-spin text-secondary" /> 
-              Gemini Vision Core (1M+ Samples) • {deviceInfo.model}
+              Gemini Vision Ultra Core (1M+ Samples) • {deviceInfo.model}
             </p>
           </div>
         </div>
@@ -252,9 +220,7 @@ export default function SmartSegregatePage() {
                 <Alert variant="destructive" className="max-w-md bg-white/90">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Camera Access Required</AlertTitle>
-                  <AlertDescription>
-                    Please allow camera access to use the SmartSegregate AI feature.
-                  </AlertDescription>
+                  <AlertDescription>Enable camera access for real-time neural processing.</AlertDescription>
                 </Alert>
               </div>
             )}
@@ -267,7 +233,7 @@ export default function SmartSegregatePage() {
                 disabled={isScanning || hasCameraPermission === false}
               >
                 {isScanning ? <Loader2 className="w-6 h-6 animate-spin" /> : <Scan className="w-6 h-6" />}
-                {isScanning ? "Processing..." : "Identify Waste"}
+                {isScanning ? "Neural Processing..." : "Identify Waste"}
               </Button>
             </div>
           </Card>
@@ -278,7 +244,7 @@ export default function SmartSegregatePage() {
                 {deviceInfo.type.includes("Mobile") ? <Smartphone className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Device Platform</p>
+                <p className="text-[10px] font-bold uppercase text-muted-foreground">Platform Node</p>
                 <p className="font-bold text-sm">{deviceInfo.type}</p>
               </div>
             </Card>
@@ -287,7 +253,7 @@ export default function SmartSegregatePage() {
                 <Layers className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground">Design Revision</p>
+                <p className="text-[10px] font-bold uppercase text-muted-foreground">Core Model</p>
                 <p className="font-bold text-sm">{deviceInfo.model}</p>
               </div>
             </Card>
@@ -297,67 +263,74 @@ export default function SmartSegregatePage() {
         <section className="space-y-6">
           <Card className="m3-card border-none shadow-lg space-y-6 p-8">
             <h3 className="text-xl font-bold font-headline flex items-center gap-2">
-              <Scan className="w-5 h-5 text-primary" /> AI Insights
+              <FlaskConical className="w-5 h-5 text-primary" /> Neural Insights
             </h3>
             
             <div className="space-y-4">
               <div className="p-4 rounded-3xl bg-muted/30 border border-muted-foreground/10 min-h-[120px] flex flex-col justify-center text-center">
                 {detectedItem ? (
-                  <div className="space-y-3">
-                    {detectedItem.isWaste ? (
-                      <CheckCircle2 className="w-8 h-8 text-secondary mx-auto" />
-                    ) : (
-                      <XCircle className="w-8 h-8 text-destructive mx-auto" />
-                    )}
-                    <div>
-                      <p className="text-lg font-bold">{detectedItem.itemName}</p>
-                      <Badge variant="secondary" className="bg-secondary/10 text-secondary border-none">
-                        {Math.round(detectedItem.confidence * 100)}% Match
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                       <p className="text-xl font-bold">{detectedItem.itemName}</p>
+                       <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">
+                        {Math.round(detectedItem.confidence * 100)}% Conf
                       </Badge>
                     </div>
 
-                    <div className="text-xs text-left mt-4 p-4 bg-white/50 rounded-2xl border border-muted-foreground/5 space-y-3">
+                    <div className="text-xs text-left space-y-4">
                       <div className="space-y-1">
-                        <p className="font-bold flex items-center gap-1.5 text-primary">
-                          <Info className="w-3.5 h-3.5" /> Description:
+                        <p className="font-bold flex items-center gap-1.5 text-primary uppercase tracking-widest text-[10px]">
+                          <Info className="w-3.5 h-3.5" /> Technical Spec
                         </p>
-                        <p className="text-muted-foreground leading-relaxed italic">
-                          {detectedItem.description}
-                        </p>
+                        <p className="text-muted-foreground leading-relaxed italic">{detectedItem.description}</p>
+                      </div>
+
+                      <div className="p-3 bg-white/50 rounded-2xl border border-muted-foreground/5 space-y-2">
+                        <div className="space-y-1">
+                          <p className="font-bold flex items-center gap-1.5 text-secondary uppercase tracking-widest text-[10px]">
+                            <FlaskConical className="w-3.5 h-3.5" /> Material Analysis
+                          </p>
+                          <p className="text-muted-foreground">{detectedItem.materialAnalysis}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="font-bold flex items-center gap-1.5 text-secondary uppercase tracking-widest text-[10px]">
+                            <Leaf className="w-3.5 h-3.5" /> Civic Impact
+                          </p>
+                          <p className="text-muted-foreground">{detectedItem.environmentalImpact}</p>
+                        </div>
                       </div>
                       
                       {detectedItem.isWaste && (
                         <div className="pt-2 border-t border-muted/50 space-y-1">
-                          <p className="font-bold flex items-center gap-1.5 text-secondary">
-                            <Trash2 className="w-3.5 h-3.5" /> Disposal Guide:
+                          <p className="font-bold flex items-center gap-1.5 text-secondary uppercase tracking-widest text-[10px]">
+                            <Trash2 className="w-3.5 h-3.5" /> Disposal Protocol
                           </p>
                           <p className="text-muted-foreground leading-relaxed">{detectedItem.disposalMethod}</p>
                         </div>
                       )}
                     </div>
 
-                    {/* Report to Corporation Button */}
                     <Button 
                       onClick={handleReportToCorporation}
                       disabled={isReporting}
                       className="w-full mt-4 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold gap-2 py-6"
                     >
                       {isReporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                      {isReporting ? "Sending Report..." : "Report to Corporation"}
+                      {isReporting ? "Syncing Report..." : "Sync with Corporation"}
                     </Button>
                   </div>
                 ) : isScanning ? (
                   <div className="space-y-3">
-                    <p className="text-sm font-medium animate-pulse">Running Neural Inference...</p>
+                    <p className="text-sm font-bold uppercase tracking-widest animate-pulse">Running Neural Inference...</p>
                     <Progress value={processingProgress} className="h-1.5" />
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm italic">Point camera at waste item</p>
+                  <p className="text-muted-foreground text-sm italic">Focus lens on urban sample</p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-bold uppercase text-muted-foreground px-1">Bin Compartments</p>
+                <p className="text-xs font-bold uppercase text-muted-foreground px-1">Active Compartments</p>
                 <div className="space-y-2">
                   {fractions.map((f) => (
                     <div 
@@ -376,7 +349,7 @@ export default function SmartSegregatePage() {
                         <span className="font-bold text-sm">{f.label}</span>
                       </div>
                       {activeBin === f.id && (
-                        <Badge className="bg-secondary text-white border-none animate-pulse">OPEN</Badge>
+                        <Badge className="bg-secondary text-white border-none animate-pulse">ACTIVE</Badge>
                       )}
                     </div>
                   ))}
@@ -387,23 +360,22 @@ export default function SmartSegregatePage() {
         </section>
       </div>
 
-      {/* Scan History Section */}
       <section className="space-y-6 pt-12">
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
                 <History className="w-5 h-5" />
              </div>
-             <h3 className="text-2xl font-bold font-headline">Scan History</h3>
+             <h3 className="text-2xl font-bold font-headline">Neural Log History</h3>
           </div>
           <Badge variant="outline" className="rounded-full px-4 border-muted text-muted-foreground font-bold">
-            {history?.length || 0} Total Scans
+            {history?.length || 0} Samples
           </Badge>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1 mb-8">
-            <TabsTrigger value="all" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">All Scans</TabsTrigger>
+            <TabsTrigger value="all" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">All Logs</TabsTrigger>
             {fractions.map(f => (
               <TabsTrigger key={f.id} value={f.id} className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">
                 {f.label.split(' ')[0]}
@@ -465,7 +437,7 @@ function ScanHistoryCard({ scan }: { scan: any }) {
       <div className="p-5 space-y-3">
         <div className="flex justify-between items-start">
            <h4 className="font-bold text-base leading-tight truncate flex-1">
-             {scan.description?.split(':')?.[1]?.split('.')?.[0]?.trim() || "Scanned Item"}
+             {scan.description?.split(':')?.[1]?.split('.')?.[0]?.trim() || "Analyzed Sample"}
            </h4>
         </div>
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
@@ -487,8 +459,8 @@ function EmptyHistoryState() {
         <History className="w-10 h-10" />
       </div>
       <div>
-        <p className="font-bold text-lg">No scans found in this category</p>
-        <p className="text-sm text-muted-foreground">Start using the AI Segregator to build your history.</p>
+        <p className="font-bold text-lg">No log data in this category</p>
+        <p className="text-sm text-muted-foreground">Initiate neural scan to build your history log.</p>
       </div>
     </div>
   );
