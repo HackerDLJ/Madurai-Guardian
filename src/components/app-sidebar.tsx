@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -16,7 +17,11 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
   Cpu,
-  UserCircle
+  UserCircle,
+  LayoutDashboard,
+  Map as MapIcon,
+  ClipboardList,
+  Award
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -37,6 +42,15 @@ export function AppSidebar() {
   }, [db, user?.uid]);
 
   const { data: profile } = useDoc(userRef);
+
+  // Defining menu items for clear selection logic
+  const menuItems = [
+    { label: "Dashboard", href: "/", icon: LayoutDashboard },
+    { label: "Smart Segregate", href: "/smart-segregate", icon: Cpu, badge: "AI" },
+    { label: "City Map", href: "/map", icon: MapIcon },
+    { label: "My Reports", href: "/status", icon: ClipboardList },
+    { label: "Heritage Credits", href: "/credits", icon: Award },
+  ];
 
   return (
     <Sidebar className="border-r-0 bg-background/50">
@@ -71,19 +85,42 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-4">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/smart-segregate"} tooltip="AI Bin">
-              <Link href="/smart-segregate" className="group">
-                <Cpu className={cn(
-                  "w-5 h-5 transition-colors",
-                  pathname === "/smart-segregate" ? "text-primary" : "text-muted-foreground group-hover:text-primary"
-                )} />
-                <span className="font-bold">Smart Segregate</span>
-                <Badge className="ml-auto bg-primary/10 text-primary border-none text-[8px] px-1.5 h-4">AI</Badge>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+        <SidebarMenu className="gap-2">
+          {menuItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={isActive} 
+                  tooltip={item.label}
+                  className={cn(
+                    "rounded-2xl h-12 px-4 transition-all duration-300",
+                    isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                  )}
+                >
+                  <Link href={item.href} className="group flex items-center gap-3">
+                    <item.icon className={cn(
+                      "w-5 h-5 transition-colors",
+                      isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                    )} />
+                    <span className={cn(
+                      "font-bold text-sm",
+                      isActive ? "text-primary" : "text-foreground"
+                    )}>
+                      {item.label}
+                    </span>
+                    {item.badge && (
+                      <Badge className="ml-auto bg-primary/10 text-primary border-none text-[8px] px-1.5 h-4">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
 
