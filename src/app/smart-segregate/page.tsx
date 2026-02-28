@@ -122,11 +122,12 @@ export default function SmartSegregatePage() {
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
         const imageDataUri = canvasRef.current.toDataURL('image/jpeg');
-        processImage(imageDataUri);
+        await processImage(imageDataUri);
       }
     } catch (error) {
-      toast({ variant: "destructive", title: "AI Error", description: "Industrial AI core failed to stabilize." });
+      toast({ variant: "destructive", title: "AI Error", description: "Industrial AI core failed to stabilize. Please try again." });
       setIsScanning(false);
+      setProcessingProgress(0);
     }
   };
 
@@ -141,9 +142,9 @@ export default function SmartSegregatePage() {
     setProcessingProgress(10);
 
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const imageDataUri = reader.result as string;
-      processImage(imageDataUri);
+      await processImage(imageDataUri);
     };
     reader.onerror = () => {
       toast({ variant: "destructive", title: "Upload Error", description: "Failed to read the selected file." });
@@ -172,7 +173,8 @@ export default function SmartSegregatePage() {
           : "No waste item detected in primary focus.",
       });
     } catch (error) {
-      toast({ variant: "destructive", title: "AI Error", description: "Industrial AI core failed to stabilize. Analysis incomplete." });
+      console.error(error);
+      toast({ variant: "destructive", title: "AI Core Unstable", description: "Neural inference failed. Check your connection." });
     } finally {
       setIsScanning(false);
     }
@@ -279,7 +281,7 @@ export default function SmartSegregatePage() {
                 disabled={isScanning || (hasCameraPermission === false && !lastImage)}
               >
                 {isScanning ? <Loader2 className="w-6 h-6 animate-spin" /> : <Scan className="w-6 h-6" />}
-                {isScanning ? "Neural Processing..." : "Identify Waste"}
+                {isScanning ? "Stabilizing AI Core..." : "Identify Waste"}
               </Button>
               
               <Button 
@@ -385,7 +387,7 @@ export default function SmartSegregatePage() {
                   </div>
                 ) : isScanning ? (
                   <div className="space-y-3">
-                    <p className="text-sm font-bold uppercase tracking-widest animate-pulse">Running Neural Inference...</p>
+                    <p className="text-sm font-bold uppercase tracking-widest animate-pulse">Neural Core Stabilizing...</p>
                     <Progress value={processingProgress} className="h-1.5" />
                   </div>
                 ) : (
