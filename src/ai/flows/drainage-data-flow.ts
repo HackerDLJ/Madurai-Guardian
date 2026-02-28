@@ -62,20 +62,37 @@ const drainageDataFlow = ai.defineFlow(
       if (!output) throw new Error('Failed to generate Drainage Monitoring data.');
       return output;
     } catch (error: any) {
+      // Fallback for quota issues to ensure UI remains functional during prototype review
       if (error?.message?.includes('429') || error?.message?.includes('quota')) {
         return {
-          networkHealthIndex: 82,
+          networkHealthIndex: 78,
           stps: [
-            { name: "Sakkimangalam", inflow: 125, wasteLoad: 15, status: "Optimal" },
-            { name: "Avaniapuram", inflow: 98, wasteLoad: 22, status: "Optimal" }
+            { name: "Sakkimangalam", inflow: 132, wasteLoad: 18, status: "Optimal" },
+            { name: "Avaniapuram", inflow: 105, wasteLoad: 24, status: "Optimal" }
           ],
           activeBlockages: [
-            { location: "Goripalayam Junction", severity: "Medium", identifiedCause: "Silt and plastic accumulation", coordinates: { lat: 9.9312, lng: 78.1250 } }
+            { 
+              location: "Goripalayam Junction", 
+              severity: "High", 
+              identifiedCause: "Plastic bottle accumulation at siphon point", 
+              coordinates: { lat: 9.9312, lng: 78.1250 } 
+            },
+            { 
+              location: "Anna Nagar East", 
+              severity: "Medium", 
+              identifiedCause: "Construction debris and silt", 
+              coordinates: { lat: 9.9180, lng: 78.1400 } 
+            }
           ],
           floodPredictions: [
-            { zone: "Sellur", probability: 45, estimatedImpactTime: "2 hours", reasoning: "Elevated waste levels in upstream channels detected via graph models." }
+            { 
+              zone: "Sellur", 
+              probability: 55, 
+              estimatedImpactTime: "90 mins", 
+              reasoning: "High upstream waste load detected in North Masi channels." 
+            }
           ],
-          rainfallSimulation: { intensity: 5, status: "Light Showers" }
+          rainfallSimulation: { intensity: 8, status: "Moderate Rain" }
         } as DrainageDataOutput;
       }
       throw error;

@@ -16,7 +16,6 @@ import {
   RefreshCcw,
   Network,
   ArrowDownCircle,
-  Zap,
   GitBranch,
   Trash2,
   ChevronRight,
@@ -58,7 +57,7 @@ export default function DrainageMonitoringPage() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(() => loadData(true), 120000); // Poll every 2 minutes for stability
+    const interval = setInterval(() => loadData(true), 120000); // Poll every 2 minutes
     return () => clearInterval(interval);
   }, []);
 
@@ -66,7 +65,7 @@ export default function DrainageMonitoringPage() {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium">Analyzing UGD Network Graphs...</p>
+        <p className="text-muted-foreground font-medium">Synchronizing Blue-Green Resilience Engine...</p>
       </div>
     );
   }
@@ -84,7 +83,7 @@ export default function DrainageMonitoringPage() {
             <h1 className="text-3xl font-bold font-headline tracking-tight">Blue-Green Resilience</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <span className={cn("w-2 h-2 rounded-full bg-green-500", isRefreshing && "animate-pulse")} />
-              Graph-Theoretic Modeling Active
+              AI Graph-Theoretic Modeling Active
             </p>
           </div>
         </div>
@@ -94,7 +93,7 @@ export default function DrainageMonitoringPage() {
               Intensity: {data.rainfallSimulation.intensity} mm/hr
             </Badge>
             <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold tracking-tighter">
-              Simulation: {data.rainfallSimulation.status}
+              Condition: {data.rainfallSimulation.status}
             </p>
           </div>
           <Button 
@@ -115,7 +114,7 @@ export default function DrainageMonitoringPage() {
         {/* Network Health Card */}
         <Card className="m3-card border-none shadow-lg p-6 lg:col-span-3 flex flex-col justify-between bg-primary/5">
           <div className="space-y-2">
-            <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">UGD Health Index</h3>
+            <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Network Health</h3>
             <div className="flex items-end gap-2">
               <span className="text-6xl font-bold">{data.networkHealthIndex}%</span>
               <Activity className="w-6 h-6 text-primary mb-2" />
@@ -124,7 +123,7 @@ export default function DrainageMonitoringPage() {
           <div className="space-y-3">
             <Progress value={data.networkHealthIndex} className="h-2" />
             <p className="text-[10px] text-muted-foreground leading-relaxed">
-              *Live correlation: Rainfall volume vs. detected waste-induced hydraulic bottlenecks.
+              Live analysis of hydraulic pressure vs. waste load.
             </p>
           </div>
         </Card>
@@ -133,9 +132,9 @@ export default function DrainageMonitoringPage() {
         <Card className="m3-card border-none shadow-lg lg:col-span-9 p-6 space-y-6 bg-card">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-bold font-headline flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-destructive" /> AI Predictive Flood Modeling
+              <ShieldAlert className="w-5 h-5 text-destructive" /> AI Flood Forecasting
             </h3>
-            <Badge className="bg-destructive/10 text-destructive border-none text-[10px] font-bold">Risk Assessment v2.4</Badge>
+            <Badge className="bg-destructive/10 text-destructive border-none text-[10px] font-bold tracking-widest uppercase">Risk Map v2.4</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {data.floodPredictions.map((prediction, i) => (
@@ -146,7 +145,7 @@ export default function DrainageMonitoringPage() {
                     "text-[9px] font-bold border-none px-2 py-0.5",
                     prediction.probability > 70 ? "bg-destructive text-white" : "bg-amber-500 text-white"
                   )}>
-                    {prediction.probability}%
+                    {prediction.probability}% Risk
                   </Badge>
                 </div>
                 <div className="space-y-2">
@@ -169,11 +168,11 @@ export default function DrainageMonitoringPage() {
              <div className="flex justify-between items-start mb-8">
                <div className="space-y-1">
                  <h3 className="text-xl font-bold font-headline flex items-center gap-2">
-                   <GitBranch className="w-5 h-5 text-blue-400" /> Network Topology
+                   <GitBranch className="w-5 h-5 text-blue-400" /> UGD Topology
                  </h3>
-                 <p className="text-xs text-blue-300/60 uppercase tracking-widest font-bold">Real-time Node Status</p>
+                 <p className="text-xs text-blue-300/60 uppercase tracking-widest font-bold">Flow Dependency Graph</p>
                </div>
-               <Badge className="bg-blue-500/20 text-blue-400 border-blue-400/30">Active Feed</Badge>
+               <Badge className="bg-blue-500/20 text-blue-400 border-blue-400/30">Live Nodes</Badge>
              </div>
 
              <div className="flex-1 relative flex items-center justify-center">
@@ -190,45 +189,45 @@ export default function DrainageMonitoringPage() {
                   <line x1="110" y1="205" x2="170" y2="165" stroke="#4285F4" strokeWidth="1" strokeDasharray="4 2" />
                   <line x1="290" y1="205" x2="230" y2="165" stroke="#4285F4" strokeWidth="1" strokeDasharray="4 2" />
 
-                  {/* Pulsing Highlight for Blockages */}
+                  {/* Blockage Highlights */}
                   {data.activeBlockages.map((_, i) => (
-                    <circle key={i} cx={80 + (i * 240)} cy={80 + (i % 2 * 140)} r="8" fill="#EA4335" className="animate-pulse" />
+                    <circle key={i} cx={80 + (i * 240)} cy={80 + (i % 2 * 140)} r="10" fill="#EA4335" className="animate-pulse" />
                   ))}
                 </svg>
 
                 <div className="absolute inset-0 flex flex-col justify-between p-4">
                   <div className="flex justify-between">
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">North Madurai (Inflow)</div>
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">East Zone (Inflow)</div>
+                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">North Madurai</div>
+                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">East Zone</div>
                   </div>
                   <div className="flex items-center justify-center">
-                    <div className="text-[10px] bg-blue-600/20 p-4 rounded-full border border-blue-400 font-bold">CENTRAL NODE</div>
+                    <div className="text-[10px] bg-blue-600/20 p-4 rounded-full border border-blue-400 font-bold">CORE JUNCTION</div>
                   </div>
                   <div className="flex justify-between">
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">Sakkimangalam STP</div>
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">Avaniapuram STP</div>
+                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">Sakkimangalam</div>
+                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">Avaniapuram</div>
                   </div>
                 </div>
              </div>
           </div>
           <div className="absolute bottom-6 left-8 right-8 flex justify-between items-center text-[10px] font-bold text-white/40 uppercase tracking-widest">
-            <span>Graph Entropy: Low</span>
             <span>Flow Latency: 4ms</span>
+            <span>Graph Stability: High</span>
           </div>
         </Card>
 
-        {/* Correlated Waste Sources (Live from App) */}
+        {/* Correlated Waste Sources */}
         <Card className="lg:col-span-4 m3-card border-none shadow-xl p-6 bg-accent/5 space-y-6">
           <div className="space-y-1">
             <h3 className="text-lg font-bold font-headline flex items-center gap-2">
-              <Database className="w-5 h-5 text-accent" /> Correlated Source Waste
+              <Database className="w-5 h-5 text-accent" /> Source Correlation
             </h3>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Linked Citizen Reports</p>
           </div>
           
           <div className="space-y-4">
             {recentReports?.map((report) => (
-              <div key={report.id} className="bg-white p-3 rounded-2xl shadow-sm border border-border/40 flex gap-3 group cursor-default">
+              <div key={report.id} className="bg-white p-3 rounded-2xl shadow-sm border border-border/40 flex gap-3 group">
                 <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
                   <Trash2 className="w-5 h-5" />
                 </div>
@@ -242,21 +241,20 @@ export default function DrainageMonitoringPage() {
                   <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{report.description}</p>
                   <div className="flex items-center gap-1.5 mt-2">
                     <Badge className="bg-blue-500/10 text-blue-600 border-none text-[8px] font-bold uppercase py-0 px-2">Flow Contributor</Badge>
-                    <ChevronRight className="w-3 h-3 text-muted-foreground/30" />
                   </div>
                 </div>
               </div>
             ))}
             {!recentReports?.length && (
               <div className="text-center py-10">
-                <p className="text-xs text-muted-foreground italic">No correlated reports in current buffer.</p>
+                <p className="text-xs text-muted-foreground italic">No correlated reports detected.</p>
               </div>
             )}
           </div>
           
           <div className="pt-2">
              <Button variant="outline" className="w-full rounded-2xl h-10 text-[10px] font-bold uppercase border-accent text-accent hover:bg-accent hover:text-white transition-all">
-                Analyze Graph Dependency
+                Run dependency Audit
              </Button>
           </div>
         </Card>
@@ -266,7 +264,7 @@ export default function DrainageMonitoringPage() {
           {data.stps.map((stp, i) => (
             <Card key={i} className="m3-card border-none shadow-md p-6 space-y-4 bg-card group hover:shadow-lg transition-all">
               <div className="flex justify-between items-start">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                   <Waves className="w-5 h-5" />
                 </div>
                 <Badge className={cn(
@@ -276,11 +274,11 @@ export default function DrainageMonitoringPage() {
                   {stp.status}
                 </Badge>
               </div>
-              <div>
-                <h4 className="font-bold text-sm tracking-tight">{stp.name} Sewage Plant</h4>
-                <div className="mt-4 space-y-3">
+              <div className="space-y-4">
+                <h4 className="font-bold text-sm">{stp.name} STP</h4>
+                <div className="space-y-3">
                   <div className="flex justify-between text-[10px] font-bold">
-                    <span className="text-muted-foreground uppercase tracking-widest">Current Inflow</span>
+                    <span className="text-muted-foreground uppercase tracking-widest">Inflow</span>
                     <span className="text-foreground">{stp.inflow} MLD</span>
                   </div>
                   <div className="flex justify-between text-[10px] font-bold">
@@ -296,13 +294,13 @@ export default function DrainageMonitoringPage() {
           ))}
         </div>
 
-        {/* Blockage Intervention Panel */}
+        {/* Intervention Panel */}
         <section className="lg:col-span-12 space-y-6">
           <div className="flex items-center justify-between px-2">
              <h3 className="text-xl font-bold font-headline flex items-center gap-2">
-               <AlertCircle className="w-5 h-5 text-amber-500" /> Active Waste-Induced Blockages
+               <AlertCircle className="w-5 h-5 text-amber-500" /> AI-Identified Blockages
              </h3>
-             <Button className="rounded-full bg-primary text-white font-bold gap-2 px-8 py-6 shadow-lg hover:shadow-primary/20 transition-all">
+             <Button className="rounded-full bg-primary text-white font-bold gap-2 px-8 py-6 shadow-lg hover:scale-105 transition-all">
                <Navigation className="w-5 h-5" /> Dispatch Hydro-Jetting Fleet
              </Button>
           </div>
@@ -310,7 +308,7 @@ export default function DrainageMonitoringPage() {
             {data.activeBlockages.map((blockage, i) => (
               <Card key={i} className="m3-card border-none shadow-xl p-8 flex gap-8 items-center group cursor-pointer hover:bg-muted/30 transition-all bg-card">
                 <div className={cn(
-                  "w-20 h-20 rounded-[32px] flex items-center justify-center text-white shadow-lg shrink-0 transition-transform group-hover:scale-105",
+                  "w-20 h-20 rounded-[32px] flex items-center justify-center text-white shadow-lg shrink-0",
                   blockage.severity === 'Critical' ? "bg-destructive" : blockage.severity === 'High' ? "bg-amber-500" : "bg-primary"
                 )}>
                   <ArrowDownCircle className="w-10 h-10" />
@@ -332,9 +330,6 @@ export default function DrainageMonitoringPage() {
                      <span className="text-[10px] font-bold text-primary flex items-center gap-1.5 uppercase tracking-widest">
                        <Navigation className="w-4 h-4" /> {blockage.coordinates.lat.toFixed(4)}, {blockage.coordinates.lng.toFixed(4)}
                      </span>
-                     <Button variant="link" className="p-0 h-auto text-[10px] font-bold uppercase text-blue-600 hover:text-blue-800 transition-colors">
-                       View Graph Impact Matrix
-                     </Button>
                   </div>
                 </div>
               </Card>
