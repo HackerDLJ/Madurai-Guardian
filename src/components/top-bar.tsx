@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,7 +33,9 @@ export function TopBar() {
         <Link href="/profile">
           <Avatar className="w-9 h-9 border border-border shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
             <AvatarImage src={user?.photoURL || `https://picsum.photos/seed/${user?.uid}/40/40`} />
-            <AvatarFallback>{user?.displayName?.charAt(0) || "M"}</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary">
+              {user?.displayName?.charAt(0) || "M"}
+            </AvatarFallback>
           </Avatar>
         </Link>
       </div>

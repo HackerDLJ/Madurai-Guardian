@@ -11,14 +11,15 @@ import {
   Star, 
   Medal, 
   Store, 
-  ArrowUpRight, 
   History, 
   TrendingUp,
   Settings,
   Share2,
   Target,
   CheckCircle2,
-  Zap
+  Zap,
+  Award,
+  Crown
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ const achievements = [
     progress: 3,
     total: 5,
     icon: <Target className="w-5 h-5" />,
-    color: "bg-blue-500",
+    color: "bg-primary",
   },
   {
     id: "wizard",
@@ -62,7 +63,7 @@ const achievements = [
     progress: 8,
     total: 10,
     icon: <Zap className="w-5 h-5" />,
-    color: "bg-amber-500",
+    color: "bg-accent",
   },
   {
     id: "guardian",
@@ -71,17 +72,17 @@ const achievements = [
     progress: 7,
     total: 7,
     icon: <CheckCircle2 className="w-5 h-5" />,
-    color: "bg-green-500",
+    color: "bg-secondary",
     completed: true,
   },
   {
-    id: "leader",
-    title: "Community Leader",
+    id: "hero",
+    title: "Civic Hero",
     description: "Organize a local cleanup drive with 5+ neighbors.",
     progress: 1,
     total: 5,
-    icon: <TrendingUp className="w-5 h-5" />,
-    color: "bg-purple-500",
+    icon: <Crown className="w-5 h-5" />,
+    color: "bg-destructive",
   }
 ];
 
@@ -105,7 +106,7 @@ export default function ProfilePage() {
 
   const points = profile?.points || 1250; 
   const level = profile?.level || 3;
-  const progress = ((points % 500) / 500) * 100;
+  const progressValue = ((points % 500) / 500) * 100;
 
   return (
     <div className="space-y-8 pb-24 max-w-lg mx-auto">
@@ -178,54 +179,20 @@ export default function ProfilePage() {
           </div>
           <span className="text-sm font-bold text-primary">{points % 500} / 500 XP</span>
         </div>
-        <Progress value={progress} className="h-3 rounded-full bg-muted" />
+        <Progress value={progressValue} className="h-3 rounded-full bg-muted" />
       </section>
 
       {/* Activity Tabs */}
-      <Tabs defaultValue="activity" className="px-4">
+      <Tabs defaultValue="achievements" className="px-4">
         <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1.5 mb-6 overflow-x-auto no-scrollbar justify-start sm:justify-center">
-          <TabsTrigger value="activity" className="flex-1 min-w-[80px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Activity</TabsTrigger>
           <TabsTrigger value="achievements" className="flex-1 min-w-[100px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Achievements</TabsTrigger>
           <TabsTrigger value="badges" className="flex-1 min-w-[80px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Badges</TabsTrigger>
           <TabsTrigger value="history" className="flex-1 min-w-[80px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">History</TabsTrigger>
+          <TabsTrigger value="activity" className="flex-1 min-w-[80px] rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Activity</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="activity" className="space-y-6">
-          <Card className="m3-card border-none bg-card shadow-sm p-4">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-primary" /> Points Trend
-              </CardTitle>
-            </CardHeader>
-            <div className="h-48 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fontSize: 10, fill: '#888'}} 
-                  />
-                  <YAxis hide />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="points" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={4} 
-                    dot={{ r: 6, fill: 'hsl(var(--primary))', strokeWidth: 0 }} 
-                    activeDot={{ r: 8, strokeWidth: 0 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="achievements" className="space-y-4">
+          <h3 className="text-lg font-bold px-1">Milestones</h3>
           {achievements.map((ach) => (
             <Card key={ach.id} className="m3-card border-none bg-card shadow-sm p-5 space-y-4 transition-all hover:shadow-md">
               <div className="flex items-center gap-4">
@@ -260,9 +227,9 @@ export default function ProfilePage() {
             { label: "Pioneer", icon: <Medal />, color: "bg-blue-500", desc: "Early adopter" },
             { label: "Eco Hero", icon: <Star />, color: "bg-green-500", desc: "10+ Clean Deeds" },
             { label: "Civic King", icon: <Trophy />, color: "bg-amber-500", desc: "Top 1% Citizen" },
-            { label: "Sentinel", icon: <TrendingUp />, color: "bg-purple-500", desc: "Weekly streak" },
-            { label: "Guardian", icon: <Medal />, color: "bg-red-500", desc: "AI Verified" },
-            { label: "Advocate", icon: <Star />, color: "bg-slate-500", desc: "Shared 5 guides" }
+            { label: "Sentinel", icon: <Award />, color: "bg-purple-500", desc: "Weekly streak" },
+            { label: "Guardian", icon: <CheckCircle2 />, color: "bg-red-500", desc: "AI Verified" },
+            { label: "Advocate", icon: <Share2 />, color: "bg-slate-500", desc: "Shared 5 guides" }
           ].map((badge) => (
             <div key={badge.label} className="flex flex-col items-center gap-3 text-center">
               <div className={cn("w-20 h-20 rounded-[30px] flex items-center justify-center text-white shadow-xl transition-transform hover:scale-110", badge.color)}>
@@ -300,6 +267,41 @@ export default function ProfilePage() {
               <span className="font-bold text-primary bg-primary/10 px-3 py-1 rounded-full text-xs">{deed.pts}</span>
             </div>
           ))}
+        </TabsContent>
+
+        <TabsContent value="activity" className="space-y-6">
+          <Card className="m3-card border-none bg-card shadow-sm p-4">
+            <CardHeader className="p-0 mb-4">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" /> Points Trend
+              </CardTitle>
+            </CardHeader>
+            <div className="h-48 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fontSize: 10, fill: '#888'}} 
+                  />
+                  <YAxis hide />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="points" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={4} 
+                    dot={{ r: 6, fill: 'hsl(var(--primary))', strokeWidth: 0 }} 
+                    activeDot={{ r: 8, strokeWidth: 0 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
