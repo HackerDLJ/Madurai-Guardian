@@ -14,9 +14,10 @@
         "longitude": { "type": "number" },
         "photoUrls": { "type": "array", "items": { "type": "string" } },
         "submittedAt": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "format": "enum" },
+        "status": { "type": "string", "enum": ["Submitted", "Acknowledged", "In Progress", "Resolved"] },
         "isVerified": { "type": "boolean" },
-        "pointsAwarded": { "type": "number", "description": "Points granted for this clean deed." }
+        "pointsAwarded": { "type": "number", "description": "Points granted for this clean deed." },
+        "aiSuggestedCategory": { "type": "string" }
       },
       "required": ["id", "userId", "description", "latitude", "longitude", "photoUrls", "submittedAt", "status", "isVerified"]
     },
@@ -51,11 +52,11 @@
         }
       },
       {
-        "path": "/users/{userId}/incidentReports/{incidentReportId}",
+        "path": "/incidentReports/{incidentReportId}",
         "definition": {
           "entityName": "IncidentReport",
           "schema": { "$ref": "#/backend/entities/IncidentReport" },
-          "description": "Private reports submitted by a specific user."
+          "description": "Global collection of all citizen reports for the city map."
         }
       }
     ]

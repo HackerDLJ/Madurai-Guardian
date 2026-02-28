@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, MapPin, Navigation, Info, Layers } from "lucide-react";
+import { Search, Filter, MapPin, Navigation, Info, Layers, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -15,23 +15,42 @@ import {
   Pin, 
   InfoWindow 
 } from "@vis.gl/react-google-maps";
+import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy } from "firebase/firestore";
+import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
 
-const mockIncidents = [
-  { id: 1, type: "Trash Overflow", pos: { lat: 9.919, lng: 78.115 }, severity: "Urgent", time: "2h ago" },
-  { id: 2, type: "Illegal Dumping", pos: { lat: 9.930, lng: 78.125 }, severity: "New", time: "15m ago" },
-  { id: 3, type: "Water Logging", pos: { lat: 9.922, lng: 78.105 }, severity: "In Progress", time: "1h ago" },
-];
-
 export default function CityMap() {
   const [selectedIncident, setSelectedIncident] = useState<any>(null);
+  const db = useFirestore();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+
+  // Functional Map: Fetch real incidents from global collection
+  const incidentsQuery = useMemoFirebase(() => {
+    if (!db) return null;
+    return query(collection(db, "incidentReports"), orderBy("submittedAt", "desc"));
+  }, [db]);
+
+  const { data: incidents, isLoading } = useCollection(incidentsQuery);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Resolved': return '#34A853'; // Google Green
+      case 'In Progress': return '#FBBC05'; // Google Yellow
+      case 'Acknowledged': return '#4285F4'; // Google Blue
+      default: return '#EA4335'; // Google Red (Submitted)
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 h-[calc(100vh-14rem)] pb-10">
       <header className="space-y-4">
-        <h1 className="text-2xl font-bold font-headline">City Real-time Map</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold font-headline">City Real-time Map</h1>
+          {isLoading && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
+        </div>
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -57,14 +76,14 @@ export default function CityMap() {
               gestureHandling={'greedy'}
               disableDefaultUI={true}
             >
-              {mockIncidents.map((incident) => (
+              {incidents?.map((incident) => (
                 <AdvancedMarker
                   key={incident.id}
-                  position={incident.pos}
+                  position={{ lat: incident.latitude, lng: incident.longitude }}
                   onClick={() => setSelectedIncident(incident)}
                 >
                   <Pin 
-                    background={incident.severity === 'Urgent' ? '#EA4335' : '#4285F4'} 
+                    background={getStatusColor(incident.status)} 
                     borderColor={'#FFFFFF'} 
                     glyphColor={'#FFFFFF'} 
                   />
@@ -73,15 +92,25 @@ export default function CityMap() {
 
               {selectedIncident && (
                 <InfoWindow
-                  position={selectedIncident.pos}
+                  position={{ lat: selectedIncident.latitude, lng: selectedIncident.longitude }}
                   onCloseClick={() => setSelectedIncident(null)}
                 >
-                  <div className="p-2 max-w-[200px]">
-                    <h4 className="font-bold text-sm text-foreground">{selectedIncident.type}</h4>
-                    <p className="text-xs text-muted-foreground mb-2">{selectedIncident.time}</p>
-                    <Badge className={selectedIncident.severity === 'Urgent' ? "bg-destructive/10 text-destructive border-none" : "bg-primary/10 text-primary border-none"}>
-                      {selectedIncident.severity}
-                    </Badge>
+                  <div className="p-3 max-w-[220px] space-y-2">
+                    <h4 className="font-bold text-sm text-foreground">
+                      {selectedIncident.aiSuggestedCategory || "Urban Issue"}
+                    </h4>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{selectedIncident.description}</p>
+                    <div className="flex items-center justify-between pt-1">
+                      <Badge className={cn(
+                        "border-none text-[10px] font-bold px-2 py-0.5",
+                        selectedIncident.status === 'Resolved' ? "bg-green-500/10 text-green-600" : "bg-primary/10 text-primary"
+                      )}>
+                        {selectedIncident.status}
+                      </Badge>
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        {selectedIncident.submittedAt ? formatDistanceToNow(new Date(selectedIncident.submittedAt)) + " ago" : "Just now"}
+                      </span>
+                    </div>
                   </div>
                 </InfoWindow>
               )}
@@ -119,7 +148,7 @@ export default function CityMap() {
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase text-muted-foreground">Earth Engine Status</p>
-                  <p className="text-sm font-semibold">Satellite Analysis Ready</p>
+                  <p className="text-sm font-semibold">Live Analysis {incidents ? `(${incidents.length} points)` : 'Ready'}</p>
                 </div>
               </div>
               <Tabs defaultValue="all" className="w-auto">

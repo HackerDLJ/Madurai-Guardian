@@ -14,17 +14,20 @@ service cloud.firestore {
     match /users/{userId} {
       allow get, list: if isSignedIn();
       allow create, update: if isOwner(userId);
-      
-      match /incidentReports/{incidentReportId} {
-        allow get, list: if isOwner(userId);
-        allow create: if isOwner(userId) && request.resource.data.userId == userId;
-        allow update, delete: if isOwner(userId);
-      }
+    }
+
+    match /incidentReports/{incidentReportId} {
+      // Allow public to see reports for the city map
+      allow read: if true;
+      // Only signed in users can create reports
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Only owner can edit/delete their reports
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
     match /publicIncidentReports/{incidentReportId} {
       allow read: if true;
-      allow write: if false; // Only backend
+      allow write: if false; 
     }
   }
 }

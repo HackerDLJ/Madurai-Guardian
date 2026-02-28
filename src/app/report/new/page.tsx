@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -57,16 +58,16 @@ export default function NewReport() {
   };
 
   const handleSubmit = async () => {
-    if (!user || !image || !selectedCategory) return;
+    if (!user || !image || !selectedCategory || !db) return;
     setLoading(true);
     
     try {
       const reportData = {
         userId: user.uid,
         description,
-        latitude: 9.9252, // Mock GPS
-        longitude: 78.1198,
-        photoUrls: [image], // In production this would be a Storage URL
+        latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.02, // Mock GPS Variation
+        longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.02,
+        photoUrls: [image], 
         submittedAt: new Date().toISOString(),
         status: "Submitted",
         isVerified: aiResult?.isVerified ?? false,
@@ -82,9 +83,10 @@ export default function NewReport() {
         serverTimestamp: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "users", user.uid, "incidentReports"), reportData);
+      // Submit to global collection for the city map
+      await addDoc(collection(db, "incidentReports"), reportData);
       
-      toast({ title: "Report Submitted", description: "Your contribution has been recorded." });
+      toast({ title: "Report Submitted", description: "Your contribution has been added to the city map." });
       router.push("/status");
     } catch (error) {
       toast({ variant: "destructive", title: "Submission Failed", description: "Could not save report." });
@@ -93,8 +95,10 @@ export default function NewReport() {
     }
   };
 
+  const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       <header className="flex items-center gap-4">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
           <X className="w-5 h-5" />
