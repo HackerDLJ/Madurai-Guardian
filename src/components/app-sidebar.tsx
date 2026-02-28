@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -18,7 +19,7 @@ import {
   Cpu,
   UserCircle,
   Activity,
-  AlertCircle
+  ShieldCheck
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -43,6 +44,7 @@ export function AppSidebar() {
   const menuItems = [
     { label: "Smart Segregate", href: "/smart-segregate", icon: Cpu, badge: "AI" },
     { label: "Hygiene Control", href: "/hygiene-control", icon: Activity, badge: "Live" },
+    { label: "MCCC Dashboard", href: "/mccc-dashboard", icon: ShieldCheck, badge: "Hub" },
   ];
 
   return (
