@@ -20,7 +20,9 @@ import {
   Info,
   ArrowUpRight,
   ZapOff,
-  Gauge
+  Gauge,
+  CheckCircle2,
+  ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
@@ -77,6 +79,11 @@ export default function WteOptimizationPage() {
 
   if (!data) return null;
 
+  const gaugeData = [
+    { name: 'Efficiency', value: data.efficiencyIndex },
+    { name: 'Remaining', value: 100 - data.efficiencyIndex }
+  ];
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-20">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -102,7 +109,7 @@ export default function WteOptimizationPage() {
             size="sm" 
             onClick={() => loadData(true)}
             disabled={isRefreshing}
-            className="rounded-full gap-2 hover:bg-white px-4"
+            className="rounded-full gap-2 hover:bg-white px-4 h-10 border border-border/40 shadow-sm"
           >
             <RefreshCcw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
             Sync AI Predictions
@@ -114,31 +121,62 @@ export default function WteOptimizationPage() {
         
         {/* Plant Efficiency and Feedstock - LEFT COLUMN */}
         <div className="lg:col-span-4 space-y-6">
-          <Card className="m3-card border-none shadow-xl p-8 bg-[#1E1B4B] text-white relative overflow-hidden group">
-             <Zap className="absolute -top-10 -right-10 w-48 h-48 opacity-10 rotate-12 transition-transform group-hover:scale-110" />
-             <div className="space-y-8 relative z-10">
-               <div className="flex items-center justify-between">
-                 <Badge className="bg-white/20 text-white border-none text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
-                   PLANT EFFICIENCY
-                 </Badge>
-                 <Activity className="w-5 h-5 opacity-70" />
-               </div>
-               
-               <div className="space-y-2">
-                 <div className="flex items-baseline gap-2">
-                   <h2 className="text-7xl font-bold tracking-tighter">{data.efficiencyIndex}</h2>
-                   <span className="text-2xl font-bold opacity-60">%</span>
-                 </div>
-                 <p className="text-xs font-medium text-white/60">Calculated from {data.totalThroughput} daily metric tons</p>
-               </div>
+          <Card className="m3-card border-none shadow-xl p-0 bg-[#1E1B4B] text-white relative overflow-hidden group min-h-[420px] flex flex-col">
+             <div className="p-8 pb-0 space-y-2 relative z-10">
+                <div className="flex items-center justify-between">
+                  <Badge className="bg-white/20 text-white border-none text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
+                    SYSTEM EFFICIENCY
+                  </Badge>
+                  <ShieldCheck className="w-5 h-5 text-secondary" />
+                </div>
+                <h3 className="text-2xl font-bold font-headline">Operational Core</h3>
+             </div>
 
-               <div className="space-y-4">
-                 <Progress value={data.efficiencyIndex} className="h-2.5 bg-white/10" />
-                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter text-white/40">
-                   <span>Input Load</span>
-                   <span>Conversion Target 95%</span>
-                 </div>
-               </div>
+             <div className="flex-1 relative flex items-center justify-center -mt-8">
+                <div className="w-64 h-64 relative">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={gaugeData}
+                        innerRadius={80}
+                        outerRadius={100}
+                        startAngle={225}
+                        endAngle={-45}
+                        paddingAngle={0}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        <Cell fill="hsl(var(--primary))" />
+                        <Cell fill="rgba(255,255,255,0.1)" />
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-6xl font-bold tracking-tighter">{data.efficiencyIndex}%</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Load Index</span>
+                  </div>
+                </div>
+                <Zap className="absolute -top-10 -right-10 w-48 h-48 opacity-10 rotate-12 transition-transform group-hover:scale-110" />
+             </div>
+
+             <div className="p-8 pt-0 space-y-6 relative z-10">
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Total Input</p>
+                      <p className="text-xl font-bold">{data.totalThroughput} <span className="text-xs opacity-40 font-normal">t/d</span></p>
+                   </div>
+                   <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Target</p>
+                      <p className="text-xl font-bold">95 <span className="text-xs opacity-40 font-normal">%</span></p>
+                   </div>
+                </div>
+                <div className="space-y-2">
+                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
+                     <span>Throughput Optimization</span>
+                     <span>{data.efficiencyIndex >= 85 ? 'Optimized' : 'Normal'}</span>
+                   </div>
+                   <Progress value={data.efficiencyIndex} className="h-1.5 bg-white/10" />
+                </div>
              </div>
           </Card>
 
