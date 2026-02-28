@@ -100,7 +100,7 @@ export default function WteOptimizationPage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex flex-col items-end border-r border-border/50 pr-4">
+          <div className="hidden md:flex flex-col items-end border-r border-border/50 pr-4 h-10 justify-center">
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Grid Stability</span>
             <span className="text-sm font-bold text-secondary">{data.energyOutput.gridStability}% Stable</span>
           </div>
