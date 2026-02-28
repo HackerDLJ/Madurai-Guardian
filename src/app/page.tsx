@@ -15,7 +15,8 @@ import {
   TrendingUp,
   Zap,
   Filter,
-  AlertCircle
+  AlertCircle,
+  Search
 } from "lucide-react";
 import Image from "next/image";
 import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from "@/firebase";
@@ -60,6 +61,17 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Search Header for Mobile/Tablets */}
+      <header className="md:hidden space-y-4">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <input 
+            className="w-full bg-card border-none rounded-full py-4 pl-12 pr-4 text-sm shadow-sm focus:ring-2 focus:ring-primary/20 outline-none"
+            placeholder="Search wards, cleanup drives..." 
+          />
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section>
         <Card className="rounded-[40px] bg-[#FFFBEB] border-none p-10 flex flex-col md:flex-row justify-between items-center shadow-sm">
@@ -276,7 +288,6 @@ export default function Dashboard() {
               </div>
             ))}
             
-            {/* Fallback Static Mock Data */}
             {(!feeds || feeds.length === 0) && (
               <>
                 <div className="flex gap-4 group">
