@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useUser } from "@/firebase";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 const topNavPills = [
   { label: "Dashboard", href: "/" },
@@ -18,22 +19,31 @@ const topNavPills = [
 export function TopBar() {
   const { user } = useUser();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/50 backdrop-blur px-8 py-4 flex items-center justify-between">
       <div className="m3-pill-nav bg-white shadow-sm px-2">
-        {topNavPills.map((pill) => (
-          <Link
-            key={pill.href}
-            href={pill.href}
-            className={cn(
-              "m3-pill-item",
-              (pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href))) && "active"
-            )}
-          >
-            {pill.label}
-          </Link>
-        ))}
+        {topNavPills.map((pill) => {
+          const isActive = mounted && (pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href)));
+          
+          return (
+            <Link
+              key={pill.href}
+              href={pill.href}
+              className={cn(
+                "m3-pill-item",
+                isActive && "active"
+              )}
+            >
+              {pill.label}
+            </Link>
+          );
+        })}
       </div>
 
       <div className="flex items-center gap-6">
