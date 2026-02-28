@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,14 +27,15 @@ import {
   RefreshCcw,
   Network,
   ArrowDownCircle,
-  GitBranch,
-  Trash2,
   Database,
   PlusCircle,
   MapPin,
   Send,
   Layers,
-  Droplets
+  Settings2,
+  Info,
+  Droplets,
+  ExternalLink
 } from "lucide-react";
 import { 
   APIProvider, 
@@ -52,10 +53,6 @@ import { RelativeTime } from "@/components/relative-time";
 import { useToast } from "@/hooks/use-toast";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
-const STP_COORDINATES = [
-  { name: "Sakkimangalam", lat: 9.9147, lng: 78.1714 },
-  { name: "Avaniapuram", lat: 9.8821, lng: 78.1154 }
-];
 
 export default function DrainageMonitoringPage() {
   const [data, setData] = useState<DrainageDataOutput | null>(null);
@@ -74,7 +71,6 @@ export default function DrainageMonitoringPage() {
   const { toast } = useToast();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
-  // Fetch real citizen reports to show the correlation source
   const reportsQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, "incidentReports"), orderBy("submittedAt", "desc"), limit(5));
@@ -97,7 +93,7 @@ export default function DrainageMonitoringPage() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(() => loadData(true), 120000); // Poll every 2 minutes
+    const interval = setInterval(() => loadData(true), 120000);
     return () => clearInterval(interval);
   }, []);
 
@@ -108,41 +104,35 @@ export default function DrainageMonitoringPage() {
     
     const reportData = {
       userId: user.uid,
-      description: `Drainage/UGD Issue: ${reportDescription}`,
-      latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.01,
-      longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.01,
-      photoUrls: ["https://picsum.photos/seed/drainage_manual/800/600"],
+      description: `Drainage/UGD Blockage: ${reportDescription}`,
+      latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.015,
+      longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.015,
+      photoUrls: ["https://picsum.photos/seed/drainage_field/800/600"],
       submittedAt: new Date().toISOString(),
       status: "Submitted",
       isVerified: true,
       aiSuggestedCategory: "Drainage Blockage",
-      pointsAwarded: 25,
+      pointsAwarded: 50,
     };
 
-    try {
-      addDocumentNonBlocking(collection(db, "incidentReports"), reportData);
-      toast({ 
-        title: "Report Submitted", 
-        description: "Your drainage issue report has been logged successfully." 
-      });
-      setIsReportDialogOpen(false);
-      setReportDescription("");
-    } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Submission Failed", 
-        description: "Could not log the drainage issue." 
-      });
-    } finally {
-      setIsSubmittingReport(false);
-    }
+    addDocumentNonBlocking(collection(db, "incidentReports"), reportData);
+    toast({ 
+      title: "Field Report Logged", 
+      description: "Emergency teams have been notified of the blockage." 
+    });
+    setIsReportDialogOpen(false);
+    setReportDescription("");
+    setIsSubmittingReport(false);
   };
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium">Synchronizing Blue-Green Resilience Engine...</p>
+        <div className="space-y-1">
+          <p className="font-bold text-lg">Initializing Resilience Core</p>
+          <p className="text-muted-foreground text-sm">Syncing Madurai UGD Infrastructure Map...</p>
+        </div>
       </div>
     );
   }
@@ -153,24 +143,24 @@ export default function DrainageMonitoringPage() {
     <div className="max-w-7xl mx-auto space-y-8 pb-20">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
             <Network className="w-7 h-7" />
           </div>
           <div>
             <h1 className="text-3xl font-bold font-headline tracking-tight">Blue-Green Resilience</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <span className={cn("w-2 h-2 rounded-full bg-green-500", isRefreshing && "animate-pulse")} />
-              Madurai District Drainage Map Active
+              Madurai District UGD Mesh Active
             </p>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-end">
-            <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-blue-100 px-4 py-1">
+            <Badge variant="outline" className="border-primary/20 text-primary px-4 py-1.5 font-bold">
               Intensity: {data.rainfallSimulation.intensity} mm/hr
             </Badge>
             <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold tracking-tighter">
-              Condition: {data.rainfallSimulation.status}
+              Event: {data.rainfallSimulation.status}
             </p>
           </div>
           <Button 
@@ -181,85 +171,71 @@ export default function DrainageMonitoringPage() {
             className="rounded-full gap-2 hover:bg-white"
           >
             <RefreshCcw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
-            Sync AI Model
+            Sync AI
           </Button>
         </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Network Health Card */}
-        <Card className="m3-card border-none shadow-lg p-6 lg:col-span-3 flex flex-col justify-between bg-primary/5">
-          <div className="space-y-2">
-            <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Network Health</h3>
-            <div className="flex items-end gap-2">
-              <span className="text-6xl font-bold">{data.networkHealthIndex}%</span>
-              <Activity className="w-6 h-6 text-primary mb-2" />
-            </div>
-          </div>
-          <div className="space-y-3">
-            <Progress value={data.networkHealthIndex} className="h-2" />
-            <p className="text-[10px] text-muted-foreground leading-relaxed">
-              Live analysis of district-wide hydraulic pressure vs. waste load.
-            </p>
-          </div>
-        </Card>
-
-        {/* Predictive Flood Zones */}
-        <Card className="m3-card border-none shadow-lg lg:col-span-9 p-6 space-y-6 bg-card">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold font-headline flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-destructive" /> AI Flood Forecasting
-            </h3>
-            <Badge className="bg-destructive/10 text-destructive border-none text-[10px] font-bold tracking-widest uppercase">District Risk Map</Badge>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {data.floodPredictions.map((prediction, i) => (
-              <div key={i} className="bg-muted/30 rounded-[28px] p-5 space-y-3 border border-border/50 transition-all hover:bg-muted/40 group">
-                <div className="flex justify-between items-start">
-                  <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">{prediction.zone}</span>
-                  <Badge className={cn(
-                    "text-[9px] font-bold border-none px-2 py-0.5",
-                    prediction.probability > 70 ? "bg-destructive text-white" : "bg-amber-500 text-white"
-                  )}>
-                    {prediction.probability}% Risk
-                  </Badge>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <CloudRain className="w-3 h-3 text-muted-foreground" />
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">T-Minus: {prediction.estimatedImpactTime}</p>
-                  </div>
-                  <p className="text-[11px] leading-relaxed italic text-muted-foreground/80 font-medium">
-                    {prediction.reasoning}
-                  </p>
-                </div>
+        {/* Left Stats Column */}
+        <div className="lg:col-span-3 space-y-6">
+          <Card className="m3-card border-none shadow-lg p-6 bg-primary text-primary-foreground">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">Network Health</p>
+                <Activity className="w-4 h-4 opacity-70" />
               </div>
-            ))}
-          </div>
-        </Card>
+              <div className="flex items-baseline gap-2">
+                <h2 className="text-6xl font-bold">{data.networkHealthIndex}%</h2>
+                <span className="text-xs font-bold opacity-60">Status: {data.networkHealthIndex > 80 ? 'Optimal' : 'Strained'}</span>
+              </div>
+              <Progress value={data.networkHealthIndex} className="h-1.5 bg-white/20" />
+            </div>
+          </Card>
 
-        {/* Live Drainage Map */}
-        <Card className="lg:col-span-8 m3-card border-none shadow-xl bg-card p-0 relative overflow-hidden min-h-[500px]">
+          <Card className="m3-card border-none shadow-lg p-6 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Critical Nodes</h3>
+            <div className="space-y-4">
+              {data.infrastructure.map((node) => (
+                <div key={node.id} className="flex gap-3 group cursor-pointer">
+                  <div className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                    node.status === 'Operational' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600'
+                  )}>
+                    <Settings2 className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-[11px] font-bold truncate group-hover:text-primary transition-colors">{node.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{node.type} • {node.status}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Central Map Panel */}
+        <Card className="lg:col-span-6 m3-card border-none shadow-xl bg-card p-0 relative overflow-hidden min-h-[500px]">
           {apiKey ? (
             <APIProvider apiKey={apiKey}>
               <div className="absolute inset-0">
                 <Map
                   defaultCenter={MADURAI_CENTER}
                   defaultZoom={13}
-                  mapId="drainage_network_map"
+                  mapId="drainage_network_v2"
                   gestureHandling={'greedy'}
                   disableDefaultUI={true}
                 >
-                  {/* STP Markers */}
-                  {STP_COORDINATES.map((stp, i) => (
+                  {/* Infrastructure Markers */}
+                  {data.infrastructure.map((node) => (
                     <AdvancedMarker
-                      key={`stp-${i}`}
-                      position={{ lat: stp.lat, lng: stp.lng }}
-                      onClick={() => setSelectedMarker({ ...stp, type: 'STP' })}
+                      key={node.id}
+                      position={node.coordinates}
+                      onClick={() => setSelectedMarker({ ...node, category: 'Infrastructure' })}
                     >
                       <Pin 
-                        background={'#4285F4'} 
+                        background={node.status === 'Operational' ? '#34A853' : '#FBBC05'} 
                         borderColor={'#FFFFFF'} 
                         glyphColor={'#FFFFFF'} 
                       />
@@ -271,7 +247,7 @@ export default function DrainageMonitoringPage() {
                     <AdvancedMarker
                       key={`blockage-${i}`}
                       position={blockage.coordinates}
-                      onClick={() => setSelectedMarker({ ...blockage, type: 'Blockage' })}
+                      onClick={() => setSelectedMarker({ ...blockage, category: 'Blockage' })}
                     >
                       <Pin 
                         background={'#EA4335'} 
@@ -283,161 +259,127 @@ export default function DrainageMonitoringPage() {
 
                   {selectedMarker && (
                     <InfoWindow
-                      position={selectedMarker.coordinates || { lat: selectedMarker.lat, lng: selectedMarker.lng }}
+                      position={selectedMarker.coordinates}
                       onCloseClick={() => setSelectedMarker(null)}
                     >
                       <div className="p-3 max-w-[200px] space-y-2">
                         <h4 className="font-bold text-sm text-foreground">
                           {selectedMarker.name || selectedMarker.location}
                         </h4>
-                        <p className="text-xs text-muted-foreground">
-                          {selectedMarker.type === 'STP' ? 'Sewage Treatment Plant' : `Severity: ${selectedMarker.severity}`}
+                        <Badge className="text-[9px] font-bold uppercase">{selectedMarker.category}</Badge>
+                        <p className="text-[10px] text-muted-foreground">
+                          {selectedMarker.identifiedCause || `Type: ${selectedMarker.type}`}
                         </p>
-                        {selectedMarker.identifiedCause && (
-                          <p className="text-[10px] italic text-destructive font-medium mt-1">
-                            Cause: {selectedMarker.identifiedCause}
-                          </p>
-                        )}
                       </div>
                     </InfoWindow>
                   )}
                 </Map>
               </div>
 
-              {/* Floating Map Legend */}
-              <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                <Card className="p-4 rounded-2xl bg-white/90 backdrop-blur shadow-lg border-none space-y-2">
-                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Drainage Legend</h4>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500" />
-                    <span className="text-[10px] font-bold">STP Node</span>
+              {/* Map UI Overlays */}
+              <div className="absolute top-4 left-4 z-10 space-y-2">
+                <Card className="p-4 rounded-2xl bg-white/95 backdrop-blur shadow-xl border-none space-y-2">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Network Overlay</h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                    <span className="text-[10px] font-bold">Node Operational</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-destructive" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
                     <span className="text-[10px] font-bold">Waste Blockage</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-amber-500" />
-                    <span className="text-[10px] font-bold">High Flood Risk</span>
                   </div>
                 </Card>
               </div>
             </APIProvider>
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4 bg-muted/50">
-              <Layers className="w-12 h-12 text-primary/40" />
-              <div>
-                <p className="font-bold">Map Key Required</p>
-                <p className="text-xs text-muted-foreground">Provide Google Maps API Key to view live district drainage infrastructure.</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center space-y-6 bg-muted/50 backdrop-blur-sm">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <Layers className="w-8 h-8" />
+              </div>
+              <div className="space-y-2 max-w-xs">
+                <p className="font-bold text-lg">Infrastructure Map Activation Required</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  The Google Maps JavaScript API is not yet activated for this project. 
+                  Please go to the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a> and enable <strong>Maps JavaScript API</strong> to view live drainage infrastructure.
+                </p>
               </div>
             </div>
           )}
-          
-          <div className="absolute bottom-6 right-8 flex items-center gap-3 z-10">
-             <Button size="sm" variant="outline" className="rounded-full bg-white/80 backdrop-blur border-none shadow-md h-9 gap-2 text-[10px] font-bold uppercase">
-               <Layers className="w-3 h-3" /> Toggle Topology
-             </Button>
-          </div>
         </Card>
 
-        {/* Correlated Waste Sources */}
-        <Card className="lg:col-span-4 m3-card border-none shadow-xl p-6 bg-accent/5 space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold font-headline flex items-center gap-2">
-              <Database className="w-5 h-5 text-accent" /> Source Correlation
-            </h3>
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Linked Citizen Reports</p>
-          </div>
-          
-          <div className="space-y-4">
-            {recentReports?.map((report) => (
-              <div key={report.id} className="bg-white p-3 rounded-2xl shadow-sm border border-border/40 flex gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                  <Trash2 className="w-5 h-5" />
-                </div>
-                <div className="flex-1 overflow-hidden">
+        {/* Right Forecasting Column */}
+        <div className="lg:col-span-3 space-y-6">
+          <Card className="m3-card border-none shadow-lg p-6 bg-destructive/5 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-destructive">Flood Forecasting</h3>
+              <ShieldAlert className="w-4 h-4 text-destructive" />
+            </div>
+            <div className="space-y-4">
+              {data.floodPredictions.map((pred, i) => (
+                <div key={i} className="space-y-2 border-b border-destructive/10 pb-4 last:border-0 last:pb-0">
                   <div className="flex justify-between items-start">
-                    <h4 className="text-[11px] font-bold truncate pr-2">{report.aiSuggestedCategory || "Waste Point"}</h4>
-                    <span className="text-[8px] text-muted-foreground font-bold whitespace-nowrap">
-                      {report.submittedAt ? <RelativeTime date={report.submittedAt} short /> : "Recently"}
-                    </span>
+                    <span className="font-bold text-sm">{pred.zone}</span>
+                    <Badge className="bg-destructive text-white border-none text-[8px]">{pred.probability}% Risk</Badge>
                   </div>
-                  <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{report.description}</p>
-                  <div className="flex items-center gap-1.5 mt-2">
-                    <Badge className="bg-blue-500/10 text-blue-600 border-none text-[8px] font-bold uppercase py-0 px-2">Flow Contributor</Badge>
-                  </div>
+                  <p className="text-[10px] leading-relaxed text-muted-foreground italic">
+                    {pred.reasoning}
+                  </p>
+                  <p className="text-[9px] font-bold text-destructive flex items-center gap-1.5 uppercase">
+                    <CloudRain className="w-3 h-3" /> Peak in {pred.estimatedImpactTime}
+                  </p>
                 </div>
-              </div>
-            ))}
-            {!recentReports?.length && (
-              <div className="text-center py-10">
-                <p className="text-xs text-muted-foreground italic">No correlated reports detected.</p>
-              </div>
-            )}
-          </div>
-          
-          <div className="pt-2">
-             <Button variant="outline" className="w-full rounded-2xl h-10 text-[10px] font-bold uppercase border-accent text-accent hover:bg-accent hover:text-white transition-all">
-                Run dependency Audit
-             </Button>
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
 
-        {/* STP Monitoring */}
-        <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {data.stps.map((stp, i) => (
-            <Card key={i} className="m3-card border-none shadow-md p-6 space-y-4 bg-card group hover:shadow-lg transition-all">
-              <div className="flex justify-between items-start">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <Waves className="w-5 h-5" />
-                </div>
-                <Badge className={cn(
-                  "border-none text-[9px] font-bold uppercase px-3 py-1",
-                  stp.status === 'Optimal' ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"
-                )}>
-                  {stp.status}
-                </Badge>
-              </div>
-              <div className="space-y-4">
-                <h4 className="font-bold text-sm">{stp.name} STP</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-[10px] font-bold">
-                    <span className="text-muted-foreground uppercase tracking-widest">Inflow</span>
-                    <span className="text-foreground">{stp.inflow} MLD</span>
+          <Card className="m3-card border-none shadow-lg p-6 space-y-6 bg-accent/5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-accent-foreground">Correlated Sources</h3>
+              <Database className="w-4 h-4 text-accent" />
+            </div>
+            <div className="space-y-4">
+              {recentReports?.slice(0, 3).map((report) => (
+                <div key={report.id} className="flex gap-3 group bg-white/50 p-3 rounded-2xl">
+                  <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-accent shrink-0 shadow-sm">
+                    <AlertCircle className="w-4 h-4" />
                   </div>
-                  <div className="flex justify-between text-[10px] font-bold">
-                    <span className="text-muted-foreground uppercase tracking-widest">Waste Load</span>
-                    <span className={cn(stp.wasteLoad > 70 ? "text-destructive" : "text-primary")}>
-                      {stp.wasteLoad}%
-                    </span>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-[10px] font-bold truncate">{report.aiSuggestedCategory || "Waste Point"}</p>
+                    <p className="text-[8px] text-muted-foreground truncate">{report.description}</p>
+                    <div className="flex items-center gap-1.5 mt-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                       <span className="text-[7px] font-bold uppercase">Flow Contributor</span>
+                    </div>
                   </div>
-                  <Progress value={stp.wasteLoad} className="h-1.5" />
                 </div>
-              </div>
-            </Card>
-          ))}
+              ))}
+            </div>
+          </Card>
         </div>
 
-        {/* Intervention Panel */}
+        {/* Bottom Intervention Panel */}
         <section className="lg:col-span-12 space-y-6">
-          <div className="flex items-center justify-between px-2">
-             <h3 className="text-xl font-bold font-headline flex items-center gap-2">
-               <AlertCircle className="w-5 h-5 text-amber-500" /> AI-Identified Blockages
-             </h3>
-             <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+             <div className="space-y-1">
+               <h3 className="text-xl font-bold font-headline flex items-center gap-2">
+                 <AlertCircle className="w-5 h-5 text-amber-500" /> Intervention Queue
+               </h3>
+               <p className="text-xs text-muted-foreground">AI-Identified Blockages requiring immediate dispatch.</p>
+             </div>
+             <div className="flex gap-3">
                 <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="rounded-full border-primary text-primary font-bold gap-2 px-6 py-6 shadow-sm hover:bg-primary/5">
-                      <PlusCircle className="w-5 h-5" /> Report Manual Blockage
+                    <Button variant="outline" className="rounded-full h-12 border-primary text-primary font-bold gap-2 px-6 shadow-sm hover:bg-primary/5">
+                      <PlusCircle className="w-4 h-4" /> Log Manual Blockage
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px] rounded-[32px]">
                     <DialogHeader>
-                      <DialogTitle className="text-2xl font-bold font-headline">Report Drainage Issue</DialogTitle>
+                      <DialogTitle className="text-2xl font-bold font-headline">Field Observation Report</DialogTitle>
                     </DialogHeader>
                     <div className="grid gap-6 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="location" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Location Landmark</Label>
+                        <Label htmlFor="location" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Landmark / Zone</Label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                           <Input 
@@ -449,10 +391,10 @@ export default function DrainageMonitoringPage() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="description" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Detailed Description</Label>
+                        <Label htmlFor="description" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Blockage Details</Label>
                         <Textarea 
                           id="description" 
-                          placeholder="e.g., Heavy overflow near South Masi St junction..." 
+                          placeholder="e.g., Heavy PET bottle accumulation near Vaigai Gate 2..." 
                           className="rounded-2xl min-h-[120px]"
                           value={reportDescription}
                           onChange={(e) => setReportDescription(e.target.value)}
@@ -466,42 +408,38 @@ export default function DrainageMonitoringPage() {
                         className="w-full rounded-2xl h-14 bg-primary text-white font-bold gap-2 shadow-lg"
                       >
                         {isSubmittingReport ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                        Submit Field Report
+                        Dispatch to Engineers
                       </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
 
-                <Button className="rounded-full bg-primary text-white font-bold gap-2 px-8 py-6 shadow-lg hover:scale-105 transition-all">
-                  <Navigation className="w-5 h-5" /> Dispatch Hydro-Jetting Fleet
+                <Button className="rounded-full h-12 bg-primary text-white font-bold gap-2 px-8 shadow-lg hover:scale-105 transition-all">
+                  <Navigation className="w-4 h-4" /> Dispatch Jetting Fleet
                 </Button>
              </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {data.activeBlockages.map((blockage, i) => (
-              <Card key={i} className="m3-card border-none shadow-xl p-8 flex gap-8 items-center group cursor-pointer hover:bg-muted/30 transition-all bg-card">
+              <Card key={i} className="m3-card border-none shadow-xl p-6 flex gap-6 items-center bg-card group cursor-pointer hover:bg-muted/30 transition-all">
                 <div className={cn(
-                  "w-20 h-20 rounded-[32px] flex items-center justify-center text-white shadow-lg shrink-0",
+                  "w-16 h-16 rounded-[24px] flex items-center justify-center text-white shadow-lg shrink-0",
                   blockage.severity === 'Critical' ? "bg-destructive" : blockage.severity === 'High' ? "bg-amber-500" : "bg-primary"
                 )}>
-                  <ArrowDownCircle className="w-10 h-10" />
+                  <ArrowDownCircle className="w-8 h-8" />
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-1 overflow-hidden">
                   <div className="flex justify-between items-start">
-                    <h4 className="font-bold text-xl tracking-tight">{blockage.location}</h4>
-                    <Badge variant="outline" className={cn(
-                      "text-[10px] font-bold uppercase px-3",
-                      blockage.severity === 'Critical' && "border-destructive text-destructive"
-                    )}>
-                      {blockage.severity}
-                    </Badge>
+                    <h4 className="font-bold text-sm truncate">{blockage.location}</h4>
+                    <Badge variant="outline" className="text-[8px] px-1.5 h-4 border-muted-foreground/20">{blockage.severity}</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    <span className="font-bold text-foreground">AI Cause:</span> {blockage.identifiedCause}
+                  <p className="text-[10px] text-muted-foreground line-clamp-2">
+                    {blockage.identifiedCause}
                   </p>
-                  <div className="flex items-center gap-6 pt-3">
-                     <span className="text-[10px] font-bold text-primary flex items-center gap-1.5 uppercase tracking-widest">
-                       <Navigation className="w-4 h-4" /> {blockage.coordinates.lat.toFixed(4)}, {blockage.coordinates.lng.toFixed(4)}
+                  <div className="flex items-center gap-4 pt-2">
+                     <span className="text-[8px] font-bold text-primary uppercase tracking-widest flex items-center gap-1">
+                       <Navigation className="w-3 h-3" /> Track Fleet
                      </span>
                   </div>
                 </div>

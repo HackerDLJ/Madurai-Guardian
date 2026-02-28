@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, MapPin, Navigation, Info, Layers, Loader2 } from "lucide-react";
+import { Search, Filter, MapPin, Navigation, Info, Layers, Loader2, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -116,23 +116,26 @@ export default function CityMap() {
             </Map>
           </APIProvider>
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4 bg-muted/50">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-6 bg-muted/50 backdrop-blur-sm">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <Layers className="w-8 h-8" />
             </div>
-            <div>
-              <p className="font-bold text-lg">Map Initialization Required</p>
-              <p className="text-sm text-muted-foreground">Please provide a Google Maps API Key in the .env file to view the real-time Madurai dashboard.</p>
+            <div className="space-y-3 max-w-sm">
+              <p className="font-bold text-xl">Map Initialization Required</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The Google Maps JavaScript API is not yet activated for this project. 
+                Please ensure you have enabled the <strong>Maps JavaScript API</strong> in your <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a>.
+              </p>
             </div>
           </div>
         )}
 
         {/* Floating Map Controls */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-primary shadow-lg hover:bg-white/90">
+          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-primary shadow-lg hover:bg-white/90 border-none">
             <Navigation className="w-6 h-6" />
           </Button>
-          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-secondary shadow-lg hover:bg-white/90">
+          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-secondary shadow-lg hover:bg-white/90 border-none">
             <Info className="w-6 h-6" />
           </Button>
         </div>
