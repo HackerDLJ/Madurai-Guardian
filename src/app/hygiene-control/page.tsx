@@ -49,7 +49,7 @@ export default function HygieneControlPage() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(() => loadData(true), 30000); // Sync every 30 seconds
+    const interval = setInterval(() => loadData(true), 120000); // Sync every 2 minutes for stability
     return () => clearInterval(interval);
   }, []);
 

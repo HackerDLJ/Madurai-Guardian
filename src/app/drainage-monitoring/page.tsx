@@ -58,7 +58,7 @@ export default function DrainageMonitoringPage() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(() => loadData(true), 45000); // Polling every 45s
+    const interval = setInterval(() => loadData(true), 120000); // Poll every 2 minutes for stability
     return () => clearInterval(interval);
   }, []);
 

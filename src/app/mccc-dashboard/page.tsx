@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -52,7 +51,7 @@ export default function MCCCDashboard() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(() => loadData(true), 60000); // Auto-refresh every minute
+    const interval = setInterval(() => loadData(true), 180000); // Auto-refresh every 3 minutes for stability
     return () => clearInterval(interval);
   }, []);
 
