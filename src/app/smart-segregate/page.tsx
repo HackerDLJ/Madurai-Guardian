@@ -92,7 +92,6 @@ export default function SmartSegregatePage() {
           videoRef.current.srcObject = stream;
         }
       } catch (error) {
-        console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
       }
     };
@@ -126,7 +125,7 @@ export default function SmartSegregatePage() {
         await processImage(imageDataUri);
       }
     } catch (error) {
-      toast({ variant: "destructive", title: "AI Error", description: "Industrial AI core failed to stabilize. Please try again." });
+      toast({ variant: "destructive", title: "AI Error", description: "Inference failed." });
       setIsScanning(false);
       setProcessingProgress(0);
     }
@@ -147,10 +146,6 @@ export default function SmartSegregatePage() {
       const imageDataUri = reader.result as string;
       await processImage(imageDataUri);
     };
-    reader.onerror = () => {
-      toast({ variant: "destructive", title: "Upload Error", description: "Failed to read the selected file." });
-      setIsScanning(false);
-    };
     reader.readAsDataURL(file);
   };
 
@@ -170,12 +165,11 @@ export default function SmartSegregatePage() {
       toast({
         title: result.isWaste ? "Item Identified" : "Analysis Complete",
         description: result.isWaste 
-          ? `${result.itemName} detected with ${Math.round(result.confidence * 100)}% confidence.` 
-          : "No waste item detected in primary focus.",
+          ? `${result.itemName} detected.` 
+          : "No waste item detected.",
       });
     } catch (error) {
-      console.error(error);
-      toast({ variant: "destructive", title: "AI Core Unstable", description: "Neural inference failed. Check your connection." });
+      toast({ variant: "destructive", title: "AI Error", description: "Neural inference failed." });
     } finally {
       setIsScanning(false);
     }
@@ -196,11 +190,10 @@ export default function SmartSegregatePage() {
       isVerified: true,
       aiSuggestedCategory: detectedItem.wasteType,
       pointsAwarded: 50,
-      serverTimestamp: serverTimestamp(),
     };
 
     addDocumentNonBlocking(collection(db, "incidentReports"), reportData);
-    toast({ title: "Report Syncing", description: "Industrial data and imagery being submitted to municipal authorities." });
+    toast({ title: "Report Submitted", description: "Data synced with corporation." });
     setIsReporting(false);
   };
 
@@ -215,7 +208,7 @@ export default function SmartSegregatePage() {
             <h1 className="text-3xl font-bold font-headline">SmartSegregate™ Industrial</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <RotateCw className="w-3 h-3 animate-spin text-secondary" /> 
-              Gemini Vision Ultra Core Active • {deviceInfo.model}
+              Gemini Vision Ultra Core Active
             </p>
           </div>
         </div>
@@ -230,7 +223,7 @@ export default function SmartSegregatePage() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="absolute top-4 right-4 bg-black/50 text-white rounded-full hover:bg-black/70"
+                  className="absolute top-4 right-4 bg-black/50 text-white rounded-full hover:bg-black/70 z-30"
                   onClick={() => { setLastImage(null); setDetectedItem(null); setActiveBin(null); }}
                 >
                   <XCircle className="w-6 h-6" />
@@ -247,7 +240,7 @@ export default function SmartSegregatePage() {
             )}
             <canvas ref={canvasRef} className="hidden" />
             
-            <div className="absolute inset-0 border-[40px] border-black/20 pointer-events-none">
+            <div className="absolute inset-0 border-[40px] border-black/20 pointer-events-none z-10">
               <div className="w-full h-full border-2 border-white/10 rounded-[20px] relative">
                 {isScanning && (
                   <div className="absolute inset-x-0 h-1 bg-primary shadow-[0_0_15px_rgba(66,133,244,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
@@ -260,16 +253,16 @@ export default function SmartSegregatePage() {
             </div>
 
             {hasCameraPermission === false && !lastImage && (
-              <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-6">
+              <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-6 z-20">
                 <Alert variant="destructive" className="max-w-md bg-white/90 shadow-xl">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Camera Access Required</AlertTitle>
+                  <AlertTitle>Camera Required</AlertTitle>
                   <AlertDescription>Enable camera access or upload a photo manually.</AlertDescription>
                 </Alert>
               </div>
             )}
 
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-30">
               <Button 
                 size="lg" 
                 className="rounded-full h-14 px-8 bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl gap-3"
@@ -277,7 +270,7 @@ export default function SmartSegregatePage() {
                 disabled={isScanning || (hasCameraPermission === false && !lastImage)}
               >
                 {isScanning ? <Loader2 className="w-6 h-6 animate-spin" /> : <Scan className="w-6 h-6" />}
-                {isScanning ? "Stabilizing AI Core..." : "Identify Waste"}
+                {isScanning ? "Processing..." : "Identify"}
               </Button>
               
               <Button 
@@ -288,7 +281,7 @@ export default function SmartSegregatePage() {
                 disabled={isScanning}
               >
                 <Upload className="w-6 h-6" />
-                Upload Photo
+                Upload
               </Button>
               <input 
                 type="file" 
@@ -378,21 +371,21 @@ export default function SmartSegregatePage() {
                       className="w-full mt-4 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold gap-2 py-6 shadow-md"
                     >
                       {isReporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                      {isReporting ? "Syncing..." : "Sync with Corporation"}
+                      {isReporting ? "Syncing..." : "Report to Corporation"}
                     </Button>
                   </div>
                 ) : isScanning ? (
                   <div className="space-y-3">
-                    <p className="text-sm font-bold uppercase tracking-widest animate-pulse">Neural Core Stabilizing...</p>
+                    <p className="text-sm font-bold uppercase tracking-widest animate-pulse">Analyzing...</p>
                     <Progress value={processingProgress} className="h-1.5" />
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm italic">Focus lens on urban sample or upload a photo</p>
+                  <p className="text-muted-foreground text-sm italic">Scan a sample to begin</p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <p className="text-xs font-bold uppercase text-muted-foreground px-1">Active Compartments</p>
+                <p className="text-xs font-bold uppercase text-muted-foreground px-1">Target Bin</p>
                 <div className="space-y-2">
                   {fractions.map((f) => (
                     <div 
@@ -428,22 +421,18 @@ export default function SmartSegregatePage() {
              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent shadow-inner">
                 <History className="w-5 h-5" />
              </div>
-             <h3 className="text-2xl font-bold font-headline">Neural Log History</h3>
+             <h3 className="text-2xl font-bold font-headline">Scan History</h3>
           </div>
-          <Badge variant="outline" className="rounded-full px-4 border-muted text-muted-foreground font-bold">
-            {history?.length || 0} Samples
-          </Badge>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1 mb-8 shadow-inner overflow-x-auto no-scrollbar">
-            <TabsTrigger value="all" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">All Logs</TabsTrigger>
+            <TabsTrigger value="all" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">All</TabsTrigger>
             {fractions.map(f => (
               <TabsTrigger key={f.id} value={f.id} className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                {f.label.split(' ')[0]}
+                {f.label}
               </TabsTrigger>
             ))}
-            <TabsTrigger value="Other" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Others</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-0">
@@ -455,13 +444,13 @@ export default function SmartSegregatePage() {
              </div>
           </TabsContent>
 
-          {['Dry', 'Wet', 'E-waste', 'Other'].map((category) => (
+          {['Dry', 'Wet', 'E-waste'].map((category) => (
             <TabsContent key={category} value={category} className="mt-0">
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {history?.filter(s => (category === 'Other' ? !['Dry', 'Wet', 'E-waste'].includes(s.aiSuggestedCategory) : s.aiSuggestedCategory === category)).map((scan) => (
+                  {history?.filter(s => s.aiSuggestedCategory === category).map((scan) => (
                     <ScanHistoryCard key={scan.id} scan={scan} />
                   ))}
-                  {!history?.filter(s => (category === 'Other' ? !['Dry', 'Wet', 'E-waste'].includes(s.aiSuggestedCategory) : s.aiSuggestedCategory === category)).length && <EmptyHistoryState />}
+                  {!history?.filter(s => s.aiSuggestedCategory === category).length && <EmptyHistoryState />}
                </div>
             </TabsContent>
           ))}
@@ -481,15 +470,12 @@ export default function SmartSegregatePage() {
 function ScanHistoryCard({ scan }: { scan: any }) {
   const categoryColor = fractions.find(f => f.id === scan.aiSuggestedCategory)?.color || "bg-muted";
   
-  // Robust parsing of the AI-augmented description
-  let itemName = "Analyzed Sample";
+  let itemName = "Waste Sample";
   if (scan.description?.includes("Industrial AI Report:")) {
     const parts = scan.description.split("Industrial AI Report:");
     if (parts[1]) {
       itemName = parts[1].split(".")[0]?.trim() || itemName;
     }
-  } else if (scan.aiSuggestedCategory) {
-    itemName = `${scan.aiSuggestedCategory} Discovery`;
   }
 
   return (
@@ -501,25 +487,20 @@ function ScanHistoryCard({ scan }: { scan: any }) {
           fill 
           className="object-cover transition-transform group-hover:scale-105" 
         />
-        <div className="absolute top-4 left-4">
+        <div className="absolute top-4 left-4 z-10">
           <Badge className={cn("text-white border-none px-3 py-1 font-bold rounded-lg shadow-lg", categoryColor)}>
             {scan.aiSuggestedCategory || "Verified"}
           </Badge>
         </div>
       </div>
       <div className="p-5 space-y-3">
-        <div className="flex justify-between items-start">
-           <h4 className="font-bold text-base leading-tight truncate flex-1 text-foreground">
-             {itemName}
-           </h4>
-        </div>
+        <h4 className="font-bold text-base leading-tight truncate text-foreground">
+          {itemName}
+        </h4>
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
            <Clock className="w-3 h-3" />
            {scan.submittedAt ? <RelativeTime date={scan.submittedAt} /> : "Recently"}
         </div>
-        <p className="text-xs text-muted-foreground line-clamp-2 italic leading-relaxed">
-          {scan.description || "Historical data log from SmartSegregate industrial core."}
-        </p>
       </div>
     </Card>
   );
@@ -532,8 +513,8 @@ function EmptyHistoryState() {
         <History className="w-10 h-10" />
       </div>
       <div>
-        <p className="font-bold text-lg">No data available</p>
-        <p className="text-sm text-muted-foreground">Initiate a neural scan to build your civic history log.</p>
+        <p className="font-bold text-lg">No scans yet</p>
+        <p className="text-sm text-muted-foreground">Start scanning to build your history log.</p>
       </div>
     </div>
   );

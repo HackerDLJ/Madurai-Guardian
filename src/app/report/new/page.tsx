@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -45,7 +44,6 @@ export default function NewReport() {
           videoRef.current.srcObject = stream;
         }
       } catch (error) {
-        console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
       }
     };
@@ -108,19 +106,17 @@ export default function NewReport() {
       isVerified: aiResult?.isVerified ?? false,
       aiAugmentedDescription: aiResult?.enrichedDescription ?? "",
       aiSuggestedCategory: selectedCategory,
-      processedByAiAt: aiResult ? new Date().toISOString() : null,
       detectedWastePlasticVolumeCubicMeters: aiResult?.wasteFractions.plastic ?? 0,
       detectedWastePaperVolumeCubicMeters: aiResult?.wasteFractions.paper ?? 0,
       detectedWasteOrganicVolumeCubicMeters: aiResult?.wasteFractions.organic ?? 0,
       detectedWasteMetalVolumeCubicMeters: aiResult?.wasteFractions.metal ?? 0,
       detectedWasteEwasteVolumeCubicMeters: aiResult?.wasteFractions.ewaste ?? 0,
       detectedWasteHazardousVolumeCubicMeters: aiResult?.wasteFractions.hazardous ?? 0,
-      serverTimestamp: serverTimestamp(),
     };
 
     addDocumentNonBlocking(collection(db, "incidentReports"), reportData);
     
-    toast({ title: "Report Initiated", description: "Your contribution is being synchronized with the city map." });
+    toast({ title: "Report Submitted", description: "Your contribution is being synced with the city map." });
     router.push("/status");
   };
 
@@ -143,7 +139,7 @@ export default function NewReport() {
                 <Button 
                   variant="destructive" 
                   size="icon" 
-                  className="absolute top-4 right-4 rounded-full shadow-lg"
+                  className="absolute top-4 right-4 rounded-full shadow-lg z-30"
                   onClick={() => { setImage(null); setAiResult(null); }}
                 >
                   <X className="w-4 h-4" />
@@ -161,7 +157,7 @@ export default function NewReport() {
                 <canvas ref={canvasRef} className="hidden" />
                 
                 {hasCameraPermission === false && (
-                   <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-4">
+                   <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-4 z-20">
                       <Alert variant="destructive" className="bg-white/90">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Camera Required</AlertTitle>

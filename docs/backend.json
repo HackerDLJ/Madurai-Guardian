@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "IncidentReport": {
@@ -17,7 +16,14 @@
         "status": { "type": "string", "enum": ["Submitted", "Acknowledged", "In Progress", "Resolved"] },
         "isVerified": { "type": "boolean" },
         "pointsAwarded": { "type": "number", "description": "Points granted for this clean deed." },
-        "aiSuggestedCategory": { "type": "string" }
+        "aiSuggestedCategory": { "type": "string" },
+        "aiAugmentedDescription": { "type": "string" },
+        "detectedWastePlasticVolumeCubicMeters": { "type": "number" },
+        "detectedWastePaperVolumeCubicMeters": { "type": "number" },
+        "detectedWasteOrganicVolumeCubicMeters": { "type": "number" },
+        "detectedWasteMetalVolumeCubicMeters": { "type": "number" },
+        "detectedWasteEwasteVolumeCubicMeters": { "type": "number" },
+        "detectedWasteHazardousVolumeCubicMeters": { "type": "number" }
       },
       "required": ["id", "userId", "description", "latitude", "longitude", "photoUrls", "submittedAt", "status", "isVerified"]
     },
