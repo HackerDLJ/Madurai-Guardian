@@ -5,23 +5,35 @@ import {
   Sidebar, 
   SidebarContent, 
   SidebarHeader, 
-  SidebarFooter
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
 } from "@/components/ui/sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
-  AlertCircle
+  AlertCircle,
+  Cpu,
+  Home,
+  Map as MapIcon,
+  ClipboardList,
+  UserCircle
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
 import { useMemoFirebase } from "@/firebase/provider";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
   const { user } = useUser();
   const db = useFirestore();
+  const pathname = usePathname();
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -46,11 +58,11 @@ export function AppSidebar() {
           <Avatar className="w-12 h-12 rounded-2xl bg-primary/10 text-primary">
             <AvatarImage src={user?.photoURL || ""} />
             <AvatarFallback className="rounded-2xl">
-               <AlertCircle className="w-6 h-6" />
+               <UserCircle className="w-6 h-6" />
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 overflow-hidden">
-            <h4 className="font-bold text-sm truncate">{user?.displayName || profile?.displayName || "Ward 42 Admin"}</h4>
+            <h4 className="font-bold text-sm truncate">{user?.displayName || profile?.displayName || "Guardian"}</h4>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">South Madurai Zone</p>
           </div>
         </Card>
@@ -62,8 +74,48 @@ export function AppSidebar() {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
-        {/* Navigation items removed as per user request */}
+      <SidebarContent className="px-4">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/"} tooltip="Home">
+              <Link href="/">
+                <Home className="w-5 h-5" />
+                <span className="font-bold">Home</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/map"} tooltip="Map">
+              <Link href="/map">
+                <MapIcon className="w-5 h-5" />
+                <span className="font-bold">City Map</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/status"} tooltip="Reports">
+              <Link href="/status">
+                <ClipboardList className="w-5 h-5" />
+                <span className="font-bold">My Reports</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/smart-segregate"} tooltip="AI Bin">
+              <Link href="/smart-segregate" className="group">
+                <Cpu className={cn(
+                  "w-5 h-5 transition-colors",
+                  pathname === "/smart-segregate" ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                )} />
+                <span className="font-bold">Smart Segregate</span>
+                <Badge className="ml-auto bg-primary/10 text-primary border-none text-[8px] px-1.5 h-4">AI</Badge>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarContent>
 
       <SidebarFooter className="p-6 mt-auto">
