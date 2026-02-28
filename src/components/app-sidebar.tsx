@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -19,7 +18,8 @@ import {
   Cpu,
   UserCircle,
   Activity,
-  ShieldCheck
+  ShieldCheck,
+  Network
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -44,6 +44,7 @@ export function AppSidebar() {
   const menuItems = [
     { label: "Smart Segregate", href: "/smart-segregate", icon: Cpu, badge: "AI" },
     { label: "Hygiene Control", href: "/hygiene-control", icon: Activity, badge: "Live" },
+    { label: "Drainage Monitoring", href: "/drainage-monitoring", icon: Network, badge: "Risk" },
     { label: "MCCC Dashboard", href: "/mccc-dashboard", icon: ShieldCheck, badge: "Hub" },
   ];
 
@@ -109,7 +110,9 @@ export function AppSidebar() {
                     {item.badge && (
                       <Badge className={cn(
                         "ml-auto border-none text-[8px] px-1.5 h-4",
-                        item.badge === "Live" ? "bg-green-500/10 text-green-600" : "bg-primary/10 text-primary"
+                        item.badge === "Live" ? "bg-green-500/10 text-green-600" : 
+                        item.badge === "Risk" ? "bg-blue-500/10 text-blue-600" :
+                        "bg-primary/10 text-primary"
                       )}>
                         {item.badge}
                       </Badge>
