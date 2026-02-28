@@ -5,37 +5,19 @@ import {
   Sidebar, 
   SidebarContent, 
   SidebarHeader, 
-  SidebarMenu, 
-  SidebarMenuItem, 
-  SidebarMenuButton, 
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarFooter
 } from "@/components/ui/sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  LayoutDashboard, 
-  BarChart3, 
-  Award, 
-  Leaf, 
   Plus, 
-  AlertCircle,
-  Trophy
+  AlertCircle
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
 import { useMemoFirebase } from "@/firebase/provider";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-const navItems = [
-  { icon: LayoutDashboard, label: "Madurai at a Glance", href: "/" },
-  { icon: BarChart3, label: "Cleanliness Pulse", href: "/map" },
-  { icon: Award, label: "Heritage Credits", href: "/credits" },
-  { icon: Trophy, label: "My Profile", href: "/profile" },
-  { icon: Leaf, label: "Local Impact", href: "/hub" },
-];
 
 export function AppSidebar() {
   const { user } = useUser();
@@ -68,7 +50,7 @@ export function AppSidebar() {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 overflow-hidden">
-            <h4 className="font-bold text-sm truncate">{user?.displayName || "Ward 42 Admin"}</h4>
+            <h4 className="font-bold text-sm truncate">{user?.displayName || profile?.displayName || "Ward 42 Admin"}</h4>
             <p className="text-[10px] text-muted-foreground uppercase font-semibold">South Madurai Zone</p>
           </div>
         </Card>
@@ -81,22 +63,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-2 px-4">
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild className="rounded-2xl h-12 hover:bg-white/80 data-[active=true]:bg-primary/10 data-[active=true]:text-primary px-4">
-                    <Link href={item.href}>
-                      <item.icon className="w-5 h-5 mr-3" />
-                      <span className="font-semibold text-sm">{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Navigation items removed as per user request */}
       </SidebarContent>
 
       <SidebarFooter className="p-6 mt-auto">
