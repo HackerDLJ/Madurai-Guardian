@@ -1,14 +1,36 @@
-
 "use client";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Store, Award, Percent, Info, MapPin, ChevronRight, Sparkles } from "lucide-react";
+import { Store, Award, Percent, Info, MapPin, ChevronRight, Sparkles, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
 
 export default function ShopkeeperPortal() {
+  const { user, isUserLoading } = useUser();
+  const db = useFirestore();
+
+  const userRef = useMemoFirebase(() => {
+    if (!db || !user?.uid) return null;
+    return doc(db, "users", user.uid);
+  }, [db, user?.uid]);
+
+  const { data: profile, isLoading: isProfileLoading } = useDoc(userRef);
+
+  if (isUserLoading || isProfileLoading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const credits = profile?.heritageCredits || 0;
+  const progressToGold = Math.min((credits / 2000) * 100, 100);
+
   return (
     <div className="space-y-8 pb-20">
       <header className="space-y-2">
@@ -26,13 +48,13 @@ export default function ShopkeeperPortal() {
               <span className="text-xs font-bold uppercase tracking-widest">Heritage Credits</span>
             </div>
             <div>
-              <h3 className="text-4xl font-bold">1,450</h3>
+              <h3 className="text-4xl font-bold">{credits.toLocaleString()}</h3>
               <p className="text-sm opacity-80 mt-1">Next Tier: Gold Heritage Member</p>
             </div>
-            <Progress value={65} className="h-2 bg-white/20" />
+            <Progress value={progressToGold} className="h-2 bg-white/20" />
             <div className="flex justify-between text-[10px] font-bold uppercase">
               <span>Member</span>
-              <span>Gold (+550)</span>
+              <span>Gold (2,000)</span>
             </div>
           </div>
         </Card>
@@ -78,7 +100,7 @@ export default function ShopkeeperPortal() {
           </div>
           <div className="p-5 flex items-center justify-between">
             <div>
-              <h4 className="font-bold">Annapoorna Silks</h4>
+              <h4 className="font-bold">{profile?.displayName || "Local Establishment"}</h4>
               <p className="text-xs text-muted-foreground">Bibikulam Main Rd, Madurai</p>
             </div>
             <Button size="sm" variant="outline" className="rounded-full font-bold">Manage</Button>

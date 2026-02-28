@@ -13,7 +13,8 @@ import {
   Info, 
   ArrowRight,
   Zap,
-  Leaf
+  Leaf,
+  Loader2
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -79,7 +80,7 @@ const rewards = [
 ];
 
 export default function HeritageCreditsPage() {
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const db = useFirestore();
 
   const userRef = useMemoFirebase(() => {
@@ -87,8 +88,18 @@ export default function HeritageCreditsPage() {
     return doc(db, "users", user.uid);
   }, [db, user?.uid]);
 
-  const { data: profile } = useDoc(userRef);
-  const credits = profile?.heritageCredits || 1450;
+  const { data: profile, isLoading: isProfileLoading } = useDoc(userRef);
+
+  if (isUserLoading || isProfileLoading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const credits = profile?.heritageCredits || 0;
+  const progressValue = Math.min((credits / 2500) * 100, 100);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
@@ -107,7 +118,7 @@ export default function HeritageCreditsPage() {
           <div className="relative z-10 space-y-6">
             <div className="flex items-center gap-3">
               <Badge className="bg-white/20 text-white border-none px-4 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest">
-                Member Status
+                {profile?.isShopkeeper ? "Shopkeeper Account" : "Citizen Account"}
               </Badge>
               <div className="flex items-center gap-1.5 text-white/60 text-xs font-semibold">
                 <CheckCircle2 className="w-3 h-3 text-green-400" /> Verified Guardian
@@ -117,15 +128,15 @@ export default function HeritageCreditsPage() {
             <div className="flex flex-col md:flex-row md:items-end gap-8">
               <div className="space-y-1">
                 <p className="text-sm font-bold text-white/60 uppercase tracking-widest">Available Balance</p>
-                <h2 className="text-6xl font-bold tracking-tight">{credits} <span className="text-xl text-white/40">Credits</span></h2>
+                <h2 className="text-6xl font-bold tracking-tight">{credits.toLocaleString()} <span className="text-xl text-white/40">Credits</span></h2>
               </div>
               
               <div className="flex-1 space-y-3 pb-2">
                 <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-                  <span className="text-white/60">Level Progress</span>
-                  <span className="text-white">65% to Gold Tier</span>
+                  <span className="text-white/60">Progress to Next Tier</span>
+                  <span className="text-white">{Math.round(progressValue)}%</span>
                 </div>
-                <Progress value={65} className="h-2 bg-white/10" />
+                <Progress value={progressValue} className="h-2 bg-white/10" />
               </div>
             </div>
           </div>
@@ -182,13 +193,18 @@ export default function HeritageCreditsPage() {
                 <p className="text-sm text-secondary font-bold">{reward.benefit}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="h-1.5 flex-1 bg-secondary/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-secondary w-1/2" />
+                    <div className="h-full bg-secondary" style={{ width: `${Math.min((credits / parseInt(reward.requirement.replace(/[^0-9]/g, ''))) * 100, 100)}%` }} />
                   </div>
                   <span className="text-[10px] font-bold text-muted-foreground">{reward.requirement}</span>
                 </div>
               </div>
-              <Button size="sm" variant="outline" className="rounded-full border-secondary text-secondary font-bold px-6">
-                Unlock
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="rounded-full border-secondary text-secondary font-bold px-6"
+                disabled={credits < parseInt(reward.requirement.replace(/[^0-9]/g, ''))}
+              >
+                {credits >= parseInt(reward.requirement.replace(/[^0-9]/g, '')) ? "Unlock" : "Locked"}
               </Button>
             </Card>
           ))}
@@ -202,7 +218,9 @@ export default function HeritageCreditsPage() {
           <p className="text-muted-foreground">Start by reporting an issue or verifying your shop frontage.</p>
         </div>
         <div className="flex gap-4">
-          <Button className="rounded-full px-8 py-6 font-bold text-lg bg-primary">Start Reporting</Button>
+          <Button className="rounded-full px-8 py-6 font-bold text-lg bg-primary" asChild>
+            <a href="/report/new">Start Reporting</a>
+          </Button>
           <Button variant="outline" className="rounded-full px-8 py-6 font-bold text-lg">Contact Admin</Button>
         </div>
       </Card>

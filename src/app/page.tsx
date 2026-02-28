@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -58,6 +57,10 @@ export default function Dashboard() {
   }, [db]);
 
   const { data: feeds } = useCollection(feedsQuery);
+
+  const points = profile?.points || 0;
+  const hCredits = profile?.heritageCredits || 0;
+  const level = profile?.level || 1;
 
   return (
     <div className="space-y-8">
@@ -150,7 +153,7 @@ export default function Dashboard() {
             <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
               <Award className="w-5 h-5" />
             </div>
-            <Badge className="bg-primary/10 text-primary border-none font-bold text-[10px]">Level 4</Badge>
+            <Badge className="bg-primary/10 text-primary border-none font-bold text-[10px]">Level {level}</Badge>
           </div>
           <div>
             <h3 className="font-bold text-lg">Heritage Credits</h3>
@@ -161,7 +164,7 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={[{ value: 450 }, { value: 50 }]}
+                    data={[{ value: points % 500 || 1 }, { value: 500 - (points % 500) }]}
                     innerRadius={30}
                     outerRadius={38}
                     startAngle={90}
@@ -174,17 +177,17 @@ export default function Dashboard() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-bold">450</span>
+                <span className="text-xs font-bold">{hCredits}</span>
                 <span className="text-[6px] text-muted-foreground font-bold uppercase">PTS</span>
               </div>
             </div>
             <div className="space-y-1 flex-1">
-              <p className="text-[10px] font-bold text-foreground">Next Reward</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">Free Temple Entry Pass</p>
+              <p className="text-[10px] font-bold text-foreground">Points Balance</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">{points} Clean Points</p>
               <div className="h-1.5 w-full bg-muted rounded-full mt-2 overflow-hidden">
-                <div className="h-full bg-primary rounded-full w-[85%]" />
+                <div className="h-full bg-primary rounded-full" style={{ width: `${(points % 500) / 500 * 100}%` }} />
               </div>
-              <p className="text-[8px] text-right text-muted-foreground pt-1">50 pts to go</p>
+              <p className="text-[8px] text-right text-muted-foreground pt-1">{500 - (points % 500)} XP to level {level + 1}</p>
             </div>
           </div>
         </Card>
@@ -306,21 +309,6 @@ export default function Dashboard() {
                       <Badge variant="secondary" className="bg-secondary/10 text-secondary border-none text-[8px] font-bold rounded-lg px-2">Completed</Badge>
                       <Badge className="bg-primary/10 text-primary border-none text-[8px] font-bold rounded-lg px-2">+500 Credits</Badge>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 group border-t border-muted/30 pt-6">
-                  <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                    <TrendingUp className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-sm leading-none">City Corporation</h4>
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase">1d ago</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      New waste segregation bins installed in Ward 42. Please follow color codes.
-                    </p>
                   </div>
                 </div>
               </>

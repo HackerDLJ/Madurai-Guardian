@@ -3,7 +3,7 @@
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { useMemoFirebase } from "@/firebase/provider";
 import { doc } from "firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   Zap,
   Award,
-  Crown
+  Crown,
+  Loader2
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -87,7 +88,7 @@ const achievements = [
 ];
 
 export default function ProfilePage() {
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const db = useFirestore();
 
   const userRef = useMemoFirebase(() => {
@@ -95,18 +96,19 @@ export default function ProfilePage() {
     return doc(db, "users", user.uid);
   }, [db, user?.uid]);
 
-  const { data: profile, isLoading } = useDoc(userRef);
+  const { data: profile, isLoading: isProfileLoading } = useDoc(userRef);
 
-  if (isLoading) return (
+  if (isUserLoading || isProfileLoading) return (
     <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-      <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      <Loader2 className="w-12 h-12 animate-spin text-primary" />
       <p className="text-muted-foreground font-medium">Loading your profile...</p>
     </div>
   );
 
-  const points = profile?.points || 1250; 
-  const level = profile?.level || 3;
+  const points = profile?.points || 0; 
+  const level = profile?.level || 1;
   const progressValue = ((points % 500) / 500) * 100;
+  const badges = profile?.badges || [];
 
   return (
     <div className="space-y-8 pb-24 max-w-lg mx-auto">
@@ -125,7 +127,7 @@ export default function ProfilePage() {
         </div>
         
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold font-headline tracking-tight">{user?.displayName || "Madurai Guardian"}</h1>
+          <h1 className="text-3xl font-bold font-headline tracking-tight">{user?.displayName || profile?.displayName || "Madurai Guardian"}</h1>
           <div className="flex items-center justify-center gap-2">
             <Badge variant="secondary" className="bg-primary/10 text-primary border-none rounded-full px-4 py-1 font-bold">
               Level {level} Guardian
@@ -140,11 +142,13 @@ export default function ProfilePage() {
           <Button className="flex-1 rounded-[24px] bg-primary font-bold shadow-lg gap-2 h-12">
             <Share2 className="w-4 h-4" /> Share Progress
           </Button>
-          <Link href="/shopkeeper" className="flex-1">
-            <Button variant="outline" className="w-full rounded-[24px] border-primary text-primary font-bold h-12 gap-2">
-              <Store className="w-4 h-4" /> Shop Portal
-            </Button>
-          </Link>
+          {profile?.isShopkeeper && (
+            <Link href="/shopkeeper" className="flex-1">
+              <Button variant="outline" className="w-full rounded-[24px] border-primary text-primary font-bold h-12 gap-2">
+                <Store className="w-4 h-4" /> Shop Portal
+              </Button>
+            </Link>
+          )}
         </div>
       </header>
 
@@ -156,7 +160,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Clean Points</p>
-            <h3 className="text-3xl font-bold text-primary">{points}</h3>
+            <h3 className="text-3xl font-bold text-primary">{points.toLocaleString()}</h3>
           </div>
         </Card>
         <Card className="m3-card bg-secondary/5 border-none p-6 flex flex-col items-start gap-2">
@@ -164,8 +168,8 @@ export default function ProfilePage() {
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Global Rank</p>
-            <h3 className="text-3xl font-bold text-secondary">#142</h3>
+            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Heritage Credits</p>
+            <h3 className="text-3xl font-bold text-secondary">{profile?.heritageCredits?.toLocaleString() || 0}</h3>
           </div>
         </Card>
       </section>
@@ -223,32 +227,27 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="badges" className="grid grid-cols-3 gap-6 py-4">
-          {[
-            { label: "Pioneer", icon: <Medal />, color: "bg-blue-500", desc: "Early adopter" },
-            { label: "Eco Hero", icon: <Star />, color: "bg-green-500", desc: "10+ Clean Deeds" },
-            { label: "Civic King", icon: <Trophy />, color: "bg-amber-500", desc: "Top 1% Citizen" },
-            { label: "Sentinel", icon: <Award />, color: "bg-purple-500", desc: "Weekly streak" },
-            { label: "Guardian", icon: <CheckCircle2 />, color: "bg-red-500", desc: "AI Verified" },
-            { label: "Advocate", icon: <Share2 />, color: "bg-slate-500", desc: "Shared 5 guides" }
-          ].map((badge) => (
-            <div key={badge.label} className="flex flex-col items-center gap-3 text-center">
-              <div className={cn("w-20 h-20 rounded-[30px] flex items-center justify-center text-white shadow-xl transition-transform hover:scale-110", badge.color)}>
-                {badge.icon}
+          {badges.length > 0 ? badges.map((badgeId) => (
+            <div key={badgeId} className="flex flex-col items-center gap-3 text-center">
+              <div className="w-20 h-20 rounded-[30px] flex items-center justify-center text-white shadow-xl transition-transform hover:scale-110 bg-primary">
+                <Medal className="w-10 h-10" />
               </div>
               <div className="space-y-0.5">
-                <p className="text-[10px] font-bold uppercase tracking-tight">{badge.label}</p>
-                <p className="text-[8px] text-muted-foreground uppercase">{badge.desc}</p>
+                <p className="text-[10px] font-bold uppercase tracking-tight">{badgeId}</p>
+                <p className="text-[8px] text-muted-foreground uppercase">AI Verified Badge</p>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-3 text-center py-10 text-muted-foreground italic text-sm">
+              No badges earned yet. Start reporting to earn them!
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
           {[
             { title: "Trash Reported", date: "Today, 10:24 AM", pts: "+50", loc: "Bibikulam" },
             { title: "Source Segregation", date: "Yesterday", pts: "+100", loc: "Home" },
-            { title: "Cleanup Drive", date: "Oct 20, 2023", pts: "+250", loc: "Vaigai Bank" },
-            { title: "AI Photo Upload", date: "Oct 18, 2023", pts: "+25", loc: "Simmakkal" }
           ].map((deed, i) => (
             <div key={i} className="flex items-center justify-between p-5 bg-card rounded-[32px] border border-border/40 hover:shadow-md transition-all">
               <div className="flex items-center gap-4">
