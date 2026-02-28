@@ -1,40 +1,64 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Menu } from "lucide-react";
+import { Search, Bell, Settings } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/firebase";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const topNavPills = [
+  { label: "Dashboard", href: "/" },
+  { label: "Reports", href: "/status" },
+  { label: "Map", href: "/map" },
+  { label: "Profile", href: "/profile" },
+];
 
 export function TopBar() {
   const { user } = useUser();
+  const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 flex items-center justify-between border-none">
-      <div className="flex items-center gap-3">
-        <button className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground">
-          <Menu className="w-6 h-6" />
-        </button>
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current">
-              <path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold font-headline tracking-tight text-foreground leading-none hidden sm:block">
-            Madurai Guardian
-          </h1>
-        </Link>
+    <header className="sticky top-0 z-40 w-full bg-background/50 backdrop-blur px-8 py-4 flex items-center justify-between">
+      <div className="m3-pill-nav bg-white shadow-sm px-2">
+        {topNavPills.map((pill) => (
+          <Link
+            key={pill.href}
+            href={pill.href}
+            className={cn(
+              "m3-pill-item",
+              (pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href))) && "active"
+            )}
+          >
+            {pill.label}
+          </Link>
+        ))}
       </div>
 
-      <div className="flex items-center gap-2">
-        <button className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground sm:hidden">
-          <Search className="w-6 h-6" />
-        </button>
+      <div className="flex items-center gap-6">
+        <div className="relative w-80">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input 
+            className="w-full bg-white border-none rounded-full py-2.5 pl-12 pr-4 text-sm shadow-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+            placeholder="Search wards, alerts..." 
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button className="p-2.5 rounded-full hover:bg-white text-muted-foreground transition-all relative">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-destructive rounded-full border-2 border-background" />
+          </button>
+          <button className="p-2.5 rounded-full hover:bg-white text-muted-foreground transition-all">
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
+
         <Link href="/profile">
-          <Avatar className="w-9 h-9 border border-border shadow-sm cursor-pointer hover:opacity-90 transition-opacity">
-            <AvatarImage src={user?.photoURL || `https://picsum.photos/seed/${user?.uid}/40/40`} />
-            <AvatarFallback className="bg-primary/10 text-primary">
-              {user?.displayName?.charAt(0) || "M"}
+          <Avatar className="w-10 h-10 border-2 border-white shadow-sm hover:scale-105 transition-all">
+            <AvatarImage src={user?.photoURL || ""} />
+            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+              {user?.displayName?.charAt(0) || "W"}
             </AvatarFallback>
           </Avatar>
         </Link>

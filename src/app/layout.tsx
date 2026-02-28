@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import './globals.css';
-import { NavBar } from '@/components/nav-bar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
 import { TopBar } from '@/components/top-bar';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
@@ -25,13 +26,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(roboto.variable, "font-body antialiased bg-background text-foreground flex flex-col min-h-screen")}>
+      <body className={cn(roboto.variable, "font-body antialiased bg-background text-foreground min-h-screen")}>
         <FirebaseClientProvider>
-          <TopBar />
-          <main className="flex-1 pb-32 pt-2 px-4 max-w-lg mx-auto w-full">
-            {children}
-          </main>
-          <NavBar />
+          <SidebarProvider defaultOpen={true}>
+            <AppSidebar />
+            <SidebarInset className="flex flex-col bg-background">
+              <TopBar />
+              <main className="flex-1 px-8 pb-12 pt-4">
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
           <Toaster />
         </FirebaseClientProvider>
       </body>
