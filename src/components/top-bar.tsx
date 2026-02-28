@@ -30,8 +30,9 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-40 w-full bg-background/50 backdrop-blur px-8 py-4 flex items-center justify-between">
       <div className="m3-pill-nav bg-white shadow-sm px-2 min-h-[44px] flex items-center">
-        {mounted && topNavPills.map((pill) => {
-          const isActive = pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href));
+        {topNavPills.map((pill) => {
+          // Calculate active state consistently on client after mounting
+          const isActive = mounted && (pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href)));
           
           return (
             <Link

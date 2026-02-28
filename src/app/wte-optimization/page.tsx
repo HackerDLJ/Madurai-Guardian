@@ -71,7 +71,7 @@ export default function WteOptimizationPage() {
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
         <div className="space-y-1">
-          <p className="font-bold text-lg">Calibrating Anaerobic Digestion Core</p>
+          <p className="font-bold text-lg text-foreground">Calibrating Anaerobic Digestion Core</p>
           <p className="text-muted-foreground text-sm">Analyzing current feedstock throughput for Madurai Central WtE Plant...</p>
         </div>
       </div>
@@ -93,10 +93,10 @@ export default function WteOptimizationPage() {
             <Factory className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold font-headline tracking-tight">WtE Energy Optimization</h1>
+            <h1 className="text-3xl font-bold font-headline tracking-tight text-foreground">WtE Energy Optimization</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <span className={cn("w-2 h-2 rounded-full bg-secondary", isRefreshing && "animate-pulse")} />
-              Madurai Smart-Grid: {data.energyOutput.streetlightsPowered.toLocaleString()} streetlights active
+              Madurai Smart-Grid: <span className="text-foreground font-bold">{data.energyOutput.streetlightsPowered.toLocaleString()}</span> streetlights active
             </p>
           </div>
         </div>
@@ -122,15 +122,15 @@ export default function WteOptimizationPage() {
         
         {/* Plant Efficiency and Feedstock - LEFT COLUMN */}
         <div className="lg:col-span-4 space-y-6">
-          <Card className="m3-card border-none shadow-xl p-0 bg-[#1E1B4B] text-white relative overflow-hidden group min-h-[420px] flex flex-col">
+          <Card className="m3-card border-none shadow-xl p-0 bg-slate-950 text-slate-50 relative overflow-hidden group min-h-[420px] flex flex-col">
              <div className="p-8 pb-0 space-y-2 relative z-10">
                 <div className="flex items-center justify-between">
-                  <Badge className="bg-white/20 text-white border-none text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
+                  <Badge className="bg-white/10 text-white border-none text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
                     SYSTEM EFFICIENCY
                   </Badge>
                   <ShieldCheck className="w-5 h-5 text-secondary" />
                 </div>
-                <h3 className="text-2xl font-bold font-headline">Operational Core</h3>
+                <h3 className="text-2xl font-bold font-headline text-slate-50">Operational Core</h3>
              </div>
 
              <div className="flex-1 relative flex items-center justify-center -mt-8">
@@ -148,31 +148,31 @@ export default function WteOptimizationPage() {
                         stroke="none"
                       >
                         <Cell fill="hsl(var(--primary))" />
-                        <Cell fill="rgba(255,255,255,0.1)" />
+                        <Cell fill="rgba(255,255,255,0.05)" />
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-6xl font-bold tracking-tighter text-white">{data.efficiencyIndex}%</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Load Index</span>
+                    <span className="text-6xl font-bold tracking-tighter text-slate-50">{data.efficiencyIndex}%</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Load Index</span>
                   </div>
                 </div>
-                <Zap className="absolute -top-10 -right-10 w-48 h-48 opacity-10 rotate-12 transition-transform group-hover:scale-110" />
+                <Zap className="absolute -top-10 -right-10 w-48 h-48 opacity-5 rotate-12 transition-transform group-hover:scale-110" />
              </div>
 
              <div className="p-8 pt-0 space-y-6 relative z-10">
                 <div className="grid grid-cols-2 gap-4">
                    <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Total Input</p>
-                      <p className="text-xl font-bold text-white">{data.totalThroughput} <span className="text-xs opacity-40 font-normal">t/d</span></p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Input</p>
+                      <p className="text-xl font-bold text-slate-50">{data.totalThroughput} <span className="text-xs opacity-40 font-normal">t/d</span></p>
                    </div>
                    <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
-                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Target</p>
-                      <p className="text-xl font-bold text-white">95 <span className="text-xs opacity-40 font-normal">%</span></p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target</p>
+                      <p className="text-xl font-bold text-slate-50">95 <span className="text-xs opacity-40 font-normal">%</span></p>
                    </div>
                 </div>
                 <div className="space-y-2">
-                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
+                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                      <span>Throughput Optimization</span>
                      <span className="text-secondary">{data.efficiencyIndex >= 85 ? 'Optimized' : 'Normal'}</span>
                    </div>
@@ -348,7 +348,7 @@ export default function WteOptimizationPage() {
           </div>
 
           {/* AI Optimization Insights */}
-          <Card className="m3-card border-none shadow-2xl bg-[#0F172A] text-white p-10 relative overflow-hidden">
+          <Card className="m3-card border-none shadow-2xl bg-slate-900 text-slate-50 p-10 relative overflow-hidden">
              <BrainCircuit className="absolute -bottom-16 -right-16 w-80 h-80 text-white/5 pointer-events-none" />
              
              <div className="relative z-10 space-y-10">
