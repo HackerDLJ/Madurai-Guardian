@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -14,7 +15,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useFirestore, useUser } from "@/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, serverTimestamp } from "firebase/firestore";
+import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
 
@@ -95,37 +97,31 @@ export default function NewReport() {
     if (!user || !image || !selectedCategory || !db) return;
     setLoading(true);
     
-    try {
-      const reportData = {
-        userId: user.uid,
-        description,
-        latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.02,
-        longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.02,
-        photoUrls: [image], 
-        submittedAt: new Date().toISOString(),
-        status: "Submitted",
-        isVerified: aiResult?.isVerified ?? false,
-        aiAugmentedDescription: aiResult?.enrichedDescription ?? "",
-        aiSuggestedCategory: selectedCategory,
-        processedByAiAt: aiResult ? new Date().toISOString() : null,
-        detectedWastePlasticVolumeCubicMeters: aiResult?.wasteFractions.plastic ?? 0,
-        detectedWastePaperVolumeCubicMeters: aiResult?.wasteFractions.paper ?? 0,
-        detectedWasteOrganicVolumeCubicMeters: aiResult?.wasteFractions.organic ?? 0,
-        detectedWasteMetalVolumeCubicMeters: aiResult?.wasteFractions.metal ?? 0,
-        detectedWasteEwasteVolumeCubicMeters: aiResult?.wasteFractions.ewaste ?? 0,
-        detectedWasteHazardousVolumeCubicMeters: aiResult?.wasteFractions.hazardous ?? 0,
-        serverTimestamp: serverTimestamp(),
-      };
+    const reportData = {
+      userId: user.uid,
+      description,
+      latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.02,
+      longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.02,
+      photoUrls: [image], 
+      submittedAt: new Date().toISOString(),
+      status: "Submitted",
+      isVerified: aiResult?.isVerified ?? false,
+      aiAugmentedDescription: aiResult?.enrichedDescription ?? "",
+      aiSuggestedCategory: selectedCategory,
+      processedByAiAt: aiResult ? new Date().toISOString() : null,
+      detectedWastePlasticVolumeCubicMeters: aiResult?.wasteFractions.plastic ?? 0,
+      detectedWastePaperVolumeCubicMeters: aiResult?.wasteFractions.paper ?? 0,
+      detectedWasteOrganicVolumeCubicMeters: aiResult?.wasteFractions.organic ?? 0,
+      detectedWasteMetalVolumeCubicMeters: aiResult?.wasteFractions.metal ?? 0,
+      detectedWasteEwasteVolumeCubicMeters: aiResult?.wasteFractions.ewaste ?? 0,
+      detectedWasteHazardousVolumeCubicMeters: aiResult?.wasteFractions.hazardous ?? 0,
+      serverTimestamp: serverTimestamp(),
+    };
 
-      await addDoc(collection(db, "incidentReports"), reportData);
-      
-      toast({ title: "Report Submitted", description: "Your contribution has been added to the city map." });
-      router.push("/status");
-    } catch (error) {
-      toast({ variant: "destructive", title: "Submission Failed", description: "Could not save report." });
-    } finally {
-      setLoading(false);
-    }
+    addDocumentNonBlocking(collection(db, "incidentReports"), reportData);
+    
+    toast({ title: "Report Initiated", description: "Your contribution is being synchronized with the city map." });
+    router.push("/status");
   };
 
   return (
@@ -138,10 +134,9 @@ export default function NewReport() {
       </header>
 
       <div className="space-y-6">
-        {/* Photo Capture Section - Made smaller with aspect-video and max-height */}
         <section className="space-y-3">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Evidence Photo</label>
-          <div className="relative w-full aspect-video max-h-[320px] rounded-[32px] border-4 border-dashed border-muted flex flex-col items-center justify-center overflow-hidden bg-card hover:border-primary/50 transition-colors group mx-auto">
+          <div className="relative w-full aspect-video max-h-[320px] rounded-[32px] border-4 border-dashed border-muted flex flex-col items-center justify-center overflow-hidden bg-card hover:border-primary/50 transition-colors group mx-auto shadow-inner">
             {image ? (
               <>
                 <Image src={image} alt="Report evidence" fill className="object-cover" />
@@ -181,7 +176,7 @@ export default function NewReport() {
                   <Button 
                     onClick={capturePhoto} 
                     disabled={hasCameraPermission === false}
-                    className="w-14 h-14 rounded-full bg-white text-primary border-4 border-primary hover:bg-muted"
+                    className="w-14 h-14 rounded-full bg-white text-primary border-4 border-primary hover:bg-muted shadow-lg"
                   >
                     <Camera className="w-7 h-7" />
                   </Button>
@@ -246,7 +241,7 @@ export default function NewReport() {
                 variant={selectedCategory === cat ? "default" : "outline"}
                 className={cn(
                   "px-4 py-2 rounded-2xl cursor-pointer text-sm font-medium transition-all",
-                  selectedCategory === cat ? "bg-primary text-white border-primary" : "hover:bg-muted"
+                  selectedCategory === cat ? "bg-primary text-white border-primary shadow-md" : "hover:bg-muted"
                 )}
                 onClick={() => setSelectedCategory(cat)}
               >

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -34,7 +35,8 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeWaste, type SmartWasteOutput } from "@/ai/flows/smart-waste-analysis";
 import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, addDoc, serverTimestamp, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, serverTimestamp, query, where, orderBy, limit } from "firebase/firestore";
+import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 
@@ -184,42 +186,37 @@ export default function SmartSegregatePage() {
     if (!user || !db || !detectedItem || !lastImage) return;
 
     setIsReporting(true);
-    try {
-      const reportData = {
-        userId: user.uid,
-        description: `Industrial AI Report: ${detectedItem.itemName}. Material: ${detectedItem.materialAnalysis}. Impact: ${detectedItem.environmentalImpact}`,
-        latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.01,
-        longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.01,
-        photoUrls: [lastImage],
-        submittedAt: new Date().toISOString(),
-        status: "Submitted",
-        isVerified: true,
-        aiSuggestedCategory: detectedItem.wasteType,
-        pointsAwarded: 50,
-        serverTimestamp: serverTimestamp(),
-      };
+    const reportData = {
+      userId: user.uid,
+      description: `Industrial AI Report: ${detectedItem.itemName}. Material: ${detectedItem.materialAnalysis}. Impact: ${detectedItem.environmentalImpact}`,
+      latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.01,
+      longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.01,
+      photoUrls: [lastImage],
+      submittedAt: new Date().toISOString(),
+      status: "Submitted",
+      isVerified: true,
+      aiSuggestedCategory: detectedItem.wasteType,
+      pointsAwarded: 50,
+      serverTimestamp: serverTimestamp(),
+    };
 
-      await addDoc(collection(db, "incidentReports"), reportData);
-      toast({ title: "Report Sent", description: "Industrial data and imagery submitted to municipal authorities." });
-    } catch (error) {
-      toast({ variant: "destructive", title: "Submission Error", description: "Failed to send industrial report." });
-    } finally {
-      setIsReporting(false);
-    }
+    addDocumentNonBlocking(collection(db, "incidentReports"), reportData);
+    toast({ title: "Report Syncing", description: "Industrial data and imagery being submitted to municipal authorities." });
+    setIsReporting(false);
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-24">
       <header className="space-y-2">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
             <Cpu className="w-7 h-7" />
           </div>
           <div>
             <h1 className="text-3xl font-bold font-headline">SmartSegregate™ Industrial</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <RotateCw className="w-3 h-3 animate-spin text-secondary" /> 
-              Gemini Vision Ultra Core (1M+ Samples) • {deviceInfo.model}
+              Gemini Vision Ultra Core Active • {deviceInfo.model}
             </p>
           </div>
         </div>
@@ -265,7 +262,7 @@ export default function SmartSegregatePage() {
 
             {hasCameraPermission === false && !lastImage && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-6">
-                <Alert variant="destructive" className="max-w-md bg-white/90">
+                <Alert variant="destructive" className="max-w-md bg-white/90 shadow-xl">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Camera Access Required</AlertTitle>
                   <AlertDescription>Enable camera access or upload a photo manually.</AlertDescription>
@@ -305,7 +302,7 @@ export default function SmartSegregatePage() {
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="m3-card p-6 flex items-center gap-4 bg-primary/5 border-none">
+            <Card className="m3-card p-6 flex items-center gap-4 bg-primary/5 border-none shadow-sm">
               <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary">
                 {deviceInfo.type.includes("Mobile") ? <Smartphone className="w-6 h-6" /> : <Monitor className="w-6 h-6" />}
               </div>
@@ -314,7 +311,7 @@ export default function SmartSegregatePage() {
                 <p className="font-bold text-sm">{deviceInfo.type}</p>
               </div>
             </Card>
-            <Card className="m3-card p-6 flex items-center gap-4 bg-secondary/5 border-none">
+            <Card className="m3-card p-6 flex items-center gap-4 bg-secondary/5 border-none shadow-sm">
               <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-secondary">
                 <Layers className="w-6 h-6" />
               </div>
@@ -327,7 +324,7 @@ export default function SmartSegregatePage() {
         </section>
 
         <section className="space-y-6">
-          <Card className="m3-card border-none shadow-lg space-y-6 p-8">
+          <Card className="m3-card border-none shadow-lg space-y-6 p-8 bg-card">
             <h3 className="text-xl font-bold font-headline flex items-center gap-2">
               <FlaskConical className="w-5 h-5 text-primary" /> Neural Insights
             </h3>
@@ -379,10 +376,10 @@ export default function SmartSegregatePage() {
                     <Button 
                       onClick={handleReportToCorporation}
                       disabled={isReporting}
-                      className="w-full mt-4 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold gap-2 py-6"
+                      className="w-full mt-4 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold gap-2 py-6 shadow-md"
                     >
                       {isReporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                      {isReporting ? "Syncing Report..." : "Sync with Corporation"}
+                      {isReporting ? "Syncing..." : "Sync with Corporation"}
                     </Button>
                   </div>
                 ) : isScanning ? (
@@ -429,7 +426,7 @@ export default function SmartSegregatePage() {
       <section className="space-y-6 pt-12">
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+             <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent shadow-inner">
                 <History className="w-5 h-5" />
              </div>
              <h3 className="text-2xl font-bold font-headline">Neural Log History</h3>
@@ -440,7 +437,7 @@ export default function SmartSegregatePage() {
         </div>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1 mb-8">
+          <TabsList className="w-full h-14 bg-muted/50 rounded-[28px] p-1 mb-8 shadow-inner overflow-x-auto no-scrollbar">
             <TabsTrigger value="all" className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">All Logs</TabsTrigger>
             {fractions.map(f => (
               <TabsTrigger key={f.id} value={f.id} className="flex-1 rounded-full text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">
@@ -485,8 +482,19 @@ export default function SmartSegregatePage() {
 function ScanHistoryCard({ scan }: { scan: any }) {
   const categoryColor = fractions.find(f => f.id === scan.aiSuggestedCategory)?.color || "bg-muted";
   
+  // Robust parsing of the AI-augmented description
+  let itemName = "Analyzed Sample";
+  if (scan.description?.includes("Industrial AI Report:")) {
+    const parts = scan.description.split("Industrial AI Report:");
+    if (parts[1]) {
+      itemName = parts[1].split(".")[0]?.trim() || itemName;
+    }
+  } else if (scan.aiSuggestedCategory) {
+    itemName = `${scan.aiSuggestedCategory} Discovery`;
+  }
+
   return (
-    <Card className="m3-card overflow-hidden p-0 border-none group hover:shadow-xl transition-all">
+    <Card className="m3-card overflow-hidden p-0 border-none group hover:shadow-xl transition-all bg-card">
       <div className="relative h-48 w-full">
         <Image 
           src={scan.photoUrls?.[0] || "https://picsum.photos/seed/scan/400/300"} 
@@ -496,22 +504,22 @@ function ScanHistoryCard({ scan }: { scan: any }) {
         />
         <div className="absolute top-4 left-4">
           <Badge className={cn("text-white border-none px-3 py-1 font-bold rounded-lg shadow-lg", categoryColor)}>
-            {scan.aiSuggestedCategory || "Unknown"}
+            {scan.aiSuggestedCategory || "Verified"}
           </Badge>
         </div>
       </div>
       <div className="p-5 space-y-3">
         <div className="flex justify-between items-start">
-           <h4 className="font-bold text-base leading-tight truncate flex-1">
-             {scan.description?.split(':')?.[1]?.split('.')?.[0]?.trim() || "Analyzed Sample"}
+           <h4 className="font-bold text-base leading-tight truncate flex-1 text-foreground">
+             {itemName}
            </h4>
         </div>
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
            <Clock className="w-3 h-3" />
-           {scan.submittedAt ? formatDistanceToNow(new Date(scan.submittedAt)) + " ago" : "Just now"}
+           {scan.submittedAt ? formatDistanceToNow(new Date(scan.submittedAt)) + " ago" : "Recently"}
         </div>
         <p className="text-xs text-muted-foreground line-clamp-2 italic leading-relaxed">
-          {scan.description}
+          {scan.description || "Historical data log from SmartSegregate industrial core."}
         </p>
       </div>
     </Card>
@@ -521,12 +529,12 @@ function ScanHistoryCard({ scan }: { scan: any }) {
 function EmptyHistoryState() {
   return (
     <div className="col-span-full py-16 text-center space-y-4">
-      <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground/30">
+      <div className="w-20 h-20 rounded-[32px] bg-muted flex items-center justify-center mx-auto text-muted-foreground/30 shadow-inner">
         <History className="w-10 h-10" />
       </div>
       <div>
-        <p className="font-bold text-lg">No log data in this category</p>
-        <p className="text-sm text-muted-foreground">Initiate neural scan to build your history log.</p>
+        <p className="font-bold text-lg">No data available</p>
+        <p className="text-sm text-muted-foreground">Initiate a neural scan to build your civic history log.</p>
       </div>
     </div>
   );

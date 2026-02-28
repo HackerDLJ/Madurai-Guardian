@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import {
 import Image from "next/image";
 import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from "@/firebase";
 import { doc, collection, query, orderBy, limit } from "firebase/firestore";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
 import { 
   BarChart, 
@@ -43,6 +45,7 @@ const efficiencyData = [
 export default function Dashboard() {
   const { user } = useUser();
   const db = useFirestore();
+  const mapImg = PlaceHolderImages.find(img => img.id === 'city-map-bg');
 
   const userRef = useMemoFirebase(() => {
     if (!db || !user?.uid) return null;
@@ -78,7 +81,7 @@ export default function Dashboard() {
         <Card className="rounded-[40px] bg-[#FFFBEB] border-none p-10 flex flex-col md:flex-row justify-between items-center shadow-sm">
           <div className="space-y-6 max-w-2xl">
             <div className="flex items-center gap-4">
-              <Badge className="bg-[#FEF3C7] text-[#92400E] border-none px-4 py-1.5 rounded-full font-bold text-xs">LIVE STATUS</Badge>
+              <Badge className="bg-[#FEF3C7] text-[#92400E] border-none px-4 py-1.5 rounded-full font-bold text-xs uppercase tracking-widest">LIVE STATUS</Badge>
               <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold">
                 <Clock className="w-3 h-3" /> Updated 5m ago
               </div>
@@ -90,7 +93,7 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          <div className="flex flex-col items-center gap-4 bg-white/40 p-8 rounded-[48px] mt-8 md:mt-0">
+          <div className="flex flex-col items-center gap-4 bg-white/40 p-8 rounded-[48px] mt-8 md:mt-0 shadow-inner">
             <div className="relative w-32 h-32">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -117,9 +120,9 @@ export default function Dashboard() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="m3-card space-y-4">
+        <Card className="m3-card space-y-4 bg-card shadow-sm border-none">
           <div className="flex justify-between items-start">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
               <BarChart3 className="w-5 h-5" />
             </div>
             <Badge className="bg-secondary/10 text-secondary border-none font-bold text-[10px]">+5%</Badge>
@@ -135,7 +138,7 @@ export default function Dashboard() {
                   {efficiencyData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={entry.value > 90 ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.1)'} 
+                      fill={entry.value > 80 ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.1)'} 
                     />
                   ))}
                 </Bar>
@@ -144,12 +147,12 @@ export default function Dashboard() {
           </div>
         </Card>
 
-        <Card className="m3-card space-y-4">
+        <Card className="m3-card space-y-4 bg-card shadow-sm border-none">
           <div className="flex justify-between items-start">
-            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent shadow-sm">
               <Award className="w-5 h-5" />
             </div>
-            <Badge className="bg-primary/10 text-primary border-none font-bold text-[10px]">Level {level}</Badge>
+            <Badge className="bg-primary/10 text-primary border-none font-bold text-[10px] uppercase">Level {level}</Badge>
           </div>
           <div>
             <h3 className="font-bold text-lg">Heritage Credits</h3>
@@ -178,8 +181,8 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="space-y-1 flex-1">
-              <p className="text-[10px] font-bold text-foreground">Points Balance</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">{points} Clean Points</p>
+              <p className="text-[10px] font-bold text-foreground uppercase tracking-widest">Points Balance</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">{points} Total Clean Points</p>
               <div className="h-1.5 w-full bg-muted rounded-full mt-2 overflow-hidden">
                 <div className="h-full bg-primary rounded-full" style={{ width: `${(points % 500) / 500 * 100}%` }} />
               </div>
@@ -188,9 +191,9 @@ export default function Dashboard() {
           </div>
         </Card>
 
-        <Card className="m3-card space-y-4">
+        <Card className="m3-card space-y-4 bg-card shadow-sm border-none">
           <div className="flex justify-between items-start">
-            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shadow-sm">
               <Leaf className="w-5 h-5" />
             </div>
             <Badge className="bg-secondary/10 text-secondary border-none font-bold text-[10px]">+150kg</Badge>
@@ -205,17 +208,17 @@ export default function Dashboard() {
               <span className="text-lg font-bold text-muted-foreground">tons</span>
             </div>
             <div className="flex gap-2">
-              <div className="flex-1 bg-muted/30 p-3 rounded-2xl flex flex-col gap-1">
+              <div className="flex-1 bg-muted/30 p-3 rounded-2xl flex flex-col gap-1 border border-muted/20">
                 <div className="flex items-center gap-1.5 text-primary">
                   <Zap className="w-3 h-3" />
-                  <span className="text-[10px] font-bold uppercase">Energy</span>
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">Energy</span>
                 </div>
                 <span className="font-bold text-sm">120 kWh</span>
               </div>
-              <div className="flex-1 bg-muted/30 p-3 rounded-2xl flex flex-col gap-1">
+              <div className="flex-1 bg-muted/30 p-3 rounded-2xl flex flex-col gap-1 border border-muted/20">
                  <div className="flex items-center gap-1.5 text-secondary">
                   <Leaf className="w-3 h-3" />
-                  <span className="text-[10px] font-bold uppercase">Compost</span>
+                  <span className="text-[10px] font-bold uppercase tracking-tighter">Compost</span>
                 </div>
                 <span className="font-bold text-sm">850 kg</span>
               </div>
@@ -225,17 +228,17 @@ export default function Dashboard() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
-        <Card className="m3-card p-0 overflow-hidden flex flex-col">
-          <div className="p-6 flex justify-between items-center bg-white z-10">
+        <Card className="m3-card p-0 overflow-hidden flex flex-col border-none shadow-lg">
+          <div className="p-6 flex justify-between items-center bg-white z-10 shadow-sm">
             <h3 className="font-bold text-lg">Live Cleanliness Map</h3>
             <div className="flex bg-muted/50 p-1 rounded-xl">
-               <Button size="sm" variant="ghost" className="h-8 rounded-lg text-[10px] font-bold">Heatmap</Button>
+               <Button size="sm" variant="ghost" className="h-8 rounded-lg text-[10px] font-bold hover:bg-white">Heatmap</Button>
                <Button size="sm" variant="default" className="h-8 rounded-lg text-[10px] font-bold shadow-none bg-primary text-white hover:bg-primary/90">Bins</Button>
             </div>
           </div>
           <div className="flex-1 relative bg-muted/20 min-h-[400px]">
             <Image 
-              src="https://picsum.photos/seed/map42/800/600" 
+              src={mapImg?.imageUrl || "https://picsum.photos/seed/map42/800/600"} 
               alt="Map Background" 
               fill 
               className="object-cover opacity-60"
@@ -254,7 +257,7 @@ export default function Dashboard() {
           </div>
         </Card>
 
-        <Card className="m3-card flex flex-col">
+        <Card className="m3-card flex flex-col border-none shadow-lg bg-card">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-lg">Community Feed</h3>
             <Button variant="link" className="text-primary font-bold text-xs p-0 h-auto gap-2">
@@ -264,7 +267,7 @@ export default function Dashboard() {
           <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar">
             {feeds?.map((feed) => (
               <div key={feed.id} className="flex gap-4 group">
-                <Avatar className="w-12 h-12 rounded-2xl bg-muted ring-2 ring-transparent group-hover:ring-primary/20 transition-all">
+                <Avatar className="w-12 h-12 rounded-2xl bg-muted ring-2 ring-transparent group-hover:ring-primary/20 transition-all shadow-sm">
                   <AvatarImage src={`https://picsum.photos/seed/${feed.userId}/100/100`} />
                   <AvatarFallback className="rounded-2xl">
                     <Users className="w-5 h-5 text-muted-foreground" />
@@ -272,15 +275,15 @@ export default function Dashboard() {
                 </Avatar>
                 <div className="flex-1 space-y-2">
                   <div className="flex justify-between items-start">
-                    <h4 className="font-bold text-sm leading-none">Reporter</h4>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase">2h ago</span>
+                    <h4 className="font-bold text-sm leading-none">Verified Reporter</h4>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">{feed.submittedAt ? formatDistanceToNow(new Date(feed.submittedAt)) + " ago" : "Recently"}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                     {feed.description || "Reported an urban issue. Verification pending."}
                   </p>
                   <div className="flex gap-2">
-                    <Badge variant="secondary" className="bg-[#FEF3C7] text-[#92400E] border-none text-[8px] font-bold rounded-lg px-2">{feed.status}</Badge>
-                    <Badge variant="outline" className="text-[8px] font-bold rounded-lg px-2 border-muted">#{feed.aiSuggestedCategory || 'Urban'}</Badge>
+                    <Badge variant="secondary" className="bg-[#FEF3C7] text-[#92400E] border-none text-[8px] font-bold rounded-lg px-2 shadow-sm">{feed.status}</Badge>
+                    <Badge variant="outline" className="text-[8px] font-bold rounded-lg px-2 border-muted shadow-sm">#{feed.aiSuggestedCategory || 'Urban'}</Badge>
                   </div>
                 </div>
               </div>
@@ -288,20 +291,20 @@ export default function Dashboard() {
             
             {(!feeds || feeds.length === 0) && (
               <div className="flex gap-4 group">
-                <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary ring-2 ring-transparent group-hover:ring-secondary/20 transition-all">
+                <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary ring-2 ring-transparent group-hover:ring-secondary/20 transition-all shadow-sm">
                   <Users className="w-5 h-5" />
                 </div>
                 <div className="flex-1 space-y-2">
                   <div className="flex justify-between items-start">
                     <h4 className="font-bold text-sm leading-none">Green Madurai NGO</h4>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase">5h ago</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">Live Feed</span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Organized a cleanup drive at Vaigai River bank. 45 volunteers participated.
                   </p>
                   <div className="flex gap-2">
                     <Badge variant="secondary" className="bg-secondary/10 text-secondary border-none text-[8px] font-bold rounded-lg px-2">Completed</Badge>
-                    <Badge className="bg-primary/10 text-primary border-none text-[8px] font-bold rounded-lg px-2">+500 Credits</Badge>
+                    <Badge className="bg-primary/10 text-primary border-none text-[8px] font-bold rounded-lg px-2 shadow-sm">+500 Credits</Badge>
                   </div>
                 </div>
               </div>
@@ -311,4 +314,13 @@ export default function Dashboard() {
       </section>
     </div>
   );
+}
+
+// Utility function for distance formatting (fallback)
+function formatDistanceToNow(date: Date) {
+  const diff = Math.floor((new Date().getTime() - date.getTime()) / 60000);
+  if (diff < 1) return "Just now";
+  if (diff < 60) return `${diff}m`;
+  if (diff < 1440) return `${Math.floor(diff / 60)}h`;
+  return `${Math.floor(diff / 1440)}d`;
 }

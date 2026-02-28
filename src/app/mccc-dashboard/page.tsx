@@ -1,7 +1,9 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -86,7 +88,7 @@ export default function MCCCDashboard() {
             size="sm" 
             onClick={() => loadData(true)}
             disabled={isRefreshing}
-            className="rounded-full gap-2"
+            className="rounded-full gap-2 hover:bg-white"
           >
             <RefreshCcw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
             Refresh
@@ -103,7 +105,7 @@ export default function MCCCDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* 1. Health Department */}
-        <Card className="m3-card border-none shadow-lg p-6 space-y-6">
+        <Card className="m3-card border-none shadow-lg p-6 space-y-6 bg-card">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2 text-primary">
               <Users className="w-5 h-5" />
@@ -123,7 +125,7 @@ export default function MCCCDashboard() {
             <div className="pt-2">
               <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2">Collection Logs</p>
               <div className="flex justify-between text-sm">
-                <span>Completed</span>
+                <span className="text-muted-foreground">Completed</span>
                 <span className="font-bold">{data.health.completedWards} / {data.health.totalWards} Wards</span>
               </div>
             </div>
@@ -131,7 +133,7 @@ export default function MCCCDashboard() {
         </Card>
 
         {/* 2. Engineering Department */}
-        <Card className="m3-card border-none shadow-lg p-6 space-y-6">
+        <Card className="m3-card border-none shadow-lg p-6 space-y-6 bg-card">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2 text-secondary">
               <Truck className="w-5 h-5" />
@@ -150,12 +152,12 @@ export default function MCCCDashboard() {
             </ResponsiveContainer>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-muted/30 p-3 rounded-2xl">
+            <div className="bg-muted/30 p-3 rounded-2xl border border-muted/20">
               <Fuel className="w-4 h-4 text-amber-500 mb-1" />
               <p className="text-[10px] font-bold text-muted-foreground">Fuel Consumed</p>
               <p className="text-sm font-bold">{data.engineering.fuelConsumedLiters} L</p>
             </div>
-            <div className="bg-muted/30 p-3 rounded-2xl">
+            <div className="bg-muted/30 p-3 rounded-2xl border border-muted/20">
               <Navigation className="w-4 h-4 text-blue-500 mb-1" />
               <p className="text-[10px] font-bold text-muted-foreground">GPS Uptime</p>
               <p className="text-sm font-bold">{data.engineering.gpsUptimePercent}%</p>
@@ -164,7 +166,7 @@ export default function MCCCDashboard() {
         </Card>
 
         {/* 3. PWD/WRO */}
-        <Card className="m3-card border-none shadow-lg p-6 space-y-6">
+        <Card className="m3-card border-none shadow-lg p-6 space-y-6 bg-card">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2 text-blue-600">
               <Waves className="w-5 h-5" />
@@ -173,37 +175,37 @@ export default function MCCCDashboard() {
             <Badge variant="outline" className="border-blue-200 text-blue-600 text-[10px]">1,314 Tanks</Badge>
           </div>
           <div className="space-y-4">
-            <div className="bg-blue-50 p-4 rounded-3xl border border-blue-100">
+            <div className="bg-blue-50 p-4 rounded-3xl border border-blue-100 shadow-sm">
               <div className="flex items-center gap-3 mb-2">
                 <Droplets className="w-5 h-5 text-blue-500" />
                 <span className="font-bold text-sm text-blue-700">Vaigai River Level</span>
               </div>
               <p className="text-2xl font-bold text-blue-900">{data.pwd.vaigaiLevelFeet} <span className="text-xs font-normal">ft</span></p>
-              <p className="text-[10px] text-blue-600 mt-1 font-bold">Warning at {data.pwd.warningLevelFeet} ft</p>
+              <p className="text-[10px] text-blue-600 mt-1 font-bold uppercase tracking-tighter">Warning Threshold at {data.pwd.warningLevelFeet} ft</p>
             </div>
             <div className="flex justify-between items-center text-xs">
-              <span className="text-muted-foreground">Tank Storage Avg.</span>
-              <span className="font-bold">{data.pwd.tankStorageAvgPercent}% Capacity</span>
+              <span className="text-muted-foreground font-medium">Tank Storage Average</span>
+              <span className="font-bold text-blue-700">{data.pwd.tankStorageAvgPercent}% Capacity</span>
             </div>
             <Progress value={data.pwd.tankStorageAvgPercent} className="h-1.5 bg-blue-100" />
           </div>
         </Card>
 
         {/* 4. Disaster Management */}
-        <Card className="m3-card border-none shadow-lg p-6 space-y-6">
+        <Card className="m3-card border-none shadow-lg p-6 space-y-6 bg-card">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2 text-amber-600">
               <CloudRain className="w-5 h-5" />
               <h3 className="font-bold">Disaster Mgmt.</h3>
             </div>
-            <Badge className="bg-amber-100 text-amber-700 border-none text-[10px]">{data.disaster.stations.length} Stations</Badge>
+            <Badge className="bg-amber-100 text-amber-700 border-none text-[10px] font-bold">{data.disaster.stations.length} Gauge Stations</Badge>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground">Avg. Rainfall (24h)</p>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Avg. Rainfall (24h)</p>
               <AlertTriangle className={cn("w-4 h-4", data.disaster.avgRainfallMm > 10 ? "text-destructive" : "text-amber-500")} />
             </div>
-            <h4 className="text-3xl font-bold">{data.disaster.avgRainfallMm} <span className="text-sm text-muted-foreground">mm</span></h4>
+            <h4 className="text-3xl font-bold">{data.disaster.avgRainfallMm} <span className="text-sm text-muted-foreground font-medium">mm</span></h4>
             <div className="h-24 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.disaster.stations}>
@@ -219,39 +221,39 @@ export default function MCCCDashboard() {
         </Card>
 
         {/* 5. Citizen Reports (Madurai Guardian) */}
-        <Card className="m3-card border-none shadow-lg lg:col-span-2 p-6 space-y-6">
+        <Card className="m3-card border-none shadow-lg lg:col-span-2 p-6 space-y-6 bg-card">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2 text-primary">
               <MessageSquare className="w-5 h-5" />
               <h3 className="font-bold">Citizen Verified Reports</h3>
             </div>
-            <Badge variant="default" className="bg-primary text-white text-[10px]">App Real-time</Badge>
+            <Badge variant="default" className="bg-primary text-white text-[10px] font-bold">App Real-time Feed</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div className="p-4 rounded-3xl bg-accent/5 border border-accent/10">
-                <p className="text-[10px] font-bold text-accent uppercase mb-1">Total Reports (Daily)</p>
+              <div className="p-4 rounded-[28px] bg-accent/5 border border-accent/10 shadow-sm">
+                <p className="text-[10px] font-bold text-accent uppercase mb-1 tracking-widest">Daily Report Volume</p>
                 <div className="flex items-end gap-2">
                   <span className="text-4xl font-bold">{data.citizens.totalReportsDaily}</span>
                   <span className={cn("text-xs font-bold mb-1", data.citizens.trendPercent >= 0 ? "text-green-600" : "text-destructive")}>
-                    {data.citizens.trendPercent >= 0 ? "+" : ""}{data.citizens.trendPercent}% vs avg
+                    {data.citizens.trendPercent >= 0 ? "+" : ""}{data.citizens.trendPercent}% vs Weekly Average
                   </span>
                 </div>
               </div>
-              <div className="p-4 rounded-3xl bg-secondary/5 border border-secondary/10">
-                <p className="text-[10px] font-bold text-secondary uppercase mb-1">Resolution Rate</p>
+              <div className="p-4 rounded-[28px] bg-secondary/5 border border-secondary/10 shadow-sm">
+                <p className="text-[10px] font-bold text-secondary uppercase mb-1 tracking-widest">Resolution Efficiency</p>
                 <div className="flex items-end gap-2">
                   <span className="text-4xl font-bold">{data.citizens.resolutionRatePercent}%</span>
-                  <span className="text-xs text-muted-foreground font-bold mb-1">Avg 4.2h</span>
+                  <span className="text-xs text-muted-foreground font-bold mb-1">Avg Lead Time: 4.2h</span>
                 </div>
               </div>
             </div>
-            <div className="bg-muted/20 rounded-3xl p-4 flex flex-col justify-center gap-3">
+            <div className="bg-muted/20 rounded-[32px] p-6 flex flex-col justify-center gap-4 shadow-inner">
               {data.citizens.recentLogs.map((log) => (
-                <div key={log.id} className="flex items-center gap-3 text-sm">
-                  <div className={cn("w-2 h-2 rounded-full", log.color === 'destructive' ? 'bg-destructive' : log.color === 'secondary' ? 'bg-secondary' : 'bg-primary')} />
-                  <span className="flex-1">{log.issue} ({log.zone})</span>
-                  <span className="font-bold text-[10px] uppercase">{log.status}</span>
+                <div key={log.id} className="flex items-center gap-4 text-sm group cursor-default">
+                  <div className={cn("w-2 h-2 rounded-full shrink-0", log.color === 'destructive' ? 'bg-destructive' : log.color === 'secondary' ? 'bg-secondary' : 'bg-primary')} />
+                  <span className="flex-1 text-muted-foreground group-hover:text-foreground transition-colors">{log.issue} <span className="opacity-50">• {log.zone}</span></span>
+                  <Badge variant="outline" className="font-bold text-[9px] uppercase border-muted-foreground/20">{log.status}</Badge>
                 </div>
               ))}
             </div>
@@ -261,11 +263,4 @@ export default function MCCCDashboard() {
       </div>
     </div>
   );
-}
-
-function Button({ className, variant, size, ...props }: any) {
-  return <button className={cn("inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50", 
-    variant === 'ghost' ? 'hover:bg-accent hover:text-accent-foreground' : '',
-    size === 'sm' ? 'h-8 px-3 text-xs' : 'h-10 px-4 py-2',
-    className)} {...props} />;
 }

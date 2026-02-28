@@ -34,16 +34,16 @@ const articles = [
 ];
 
 export default function AwarenessHub() {
-  const volunteers = PlaceHolderImages.find(img => img.id === 'community-cleanup');
+  const featured = PlaceHolderImages.find(img => img.id === 'hub-feature');
 
   return (
     <div className="space-y-8 pb-20">
       <header className="space-y-4">
         <h1 className="text-3xl font-bold font-headline">Community Hub</h1>
-        <div className="m3-pill-search">
-          <Search className="w-5 h-5 text-muted-foreground" />
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input 
-            className="flex-1 bg-transparent border-none outline-none text-base placeholder:text-muted-foreground"
+            className="w-full bg-card border-none rounded-full py-4 pl-12 pr-4 text-base shadow-sm focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground"
             placeholder="Search guides & news..." 
           />
         </div>
@@ -51,10 +51,10 @@ export default function AwarenessHub() {
 
       {/* Featured Video / Hero Article */}
       <section>
-        <Card className="m3-card overflow-hidden p-0 border-none relative h-64 group">
+        <Card className="m3-card overflow-hidden p-0 border-none relative h-64 group shadow-xl">
           <Image 
-            src={volunteers?.imageUrl || "https://picsum.photos/seed/cleanup2/800/600"} 
-            alt="Volunteers" 
+            src={featured?.imageUrl || "https://picsum.photos/seed/hubhero/800/600"} 
+            alt="Local Feature" 
             fill 
             className="object-cover transition-transform group-hover:scale-105 duration-500" 
           />
@@ -62,10 +62,10 @@ export default function AwarenessHub() {
             <Badge className="w-fit mb-3 bg-white/20 text-white border-none backdrop-blur-md">Local Spotlight</Badge>
             <h3 className="text-2xl font-bold font-headline leading-tight">Civic Heroes: Sunday Cleanup Drive at Simmakkal</h3>
             <div className="flex items-center gap-4 mt-4">
-              <Button size="sm" className="rounded-full bg-white text-secondary hover:bg-white/90 font-bold gap-2">
+              <Button size="sm" className="rounded-full bg-white text-secondary hover:bg-white/90 font-bold gap-2 shadow-md">
                 <Play className="w-4 h-4 fill-current" /> Watch Video
               </Button>
-              <div className="flex items-center gap-1 text-white/80 text-sm">
+              <div className="flex items-center gap-1.5 text-white/80 text-sm font-medium">
                 <Users className="w-4 h-4" /> 24 Volunteers
               </div>
             </div>
@@ -81,11 +81,11 @@ export default function AwarenessHub() {
           { label: "Community", icon: <Users />, color: "bg-orange-500" },
           { label: "Donate", icon: <Heart />, color: "bg-destructive" }
         ].map((item) => (
-          <Button key={item.label} variant="outline" className="h-24 m3-card bg-card border-none hover:bg-muted justify-start gap-4 p-4 rounded-[32px]">
-            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white", item.color)}>
+          <Button key={item.label} variant="outline" className="h-24 m3-card bg-card border-none hover:bg-muted justify-start gap-4 p-4 rounded-[32px] shadow-sm">
+            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md", item.color)}>
               {item.icon}
             </div>
-            <span className="font-bold">{item.label}</span>
+            <span className="font-bold text-base">{item.label}</span>
           </Button>
         ))}
       </section>
@@ -95,16 +95,16 @@ export default function AwarenessHub() {
         <h3 className="text-xl font-bold font-headline">Must Reads</h3>
         <div className="space-y-4">
           {articles.map((article) => (
-            <Card key={article.id} className="m3-card p-4 border-none flex gap-4 hover:shadow-md transition-all">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
+            <Card key={article.id} className="m3-card p-4 border-none flex gap-4 hover:shadow-md transition-all bg-card">
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
                 <Image src={article.image} alt={article.title} fill className="object-cover" />
               </div>
               <div className="flex-1 flex flex-col justify-between py-1">
                 <div>
-                  <Badge variant="secondary" className="bg-primary/10 text-primary border-none rounded-full px-2 py-0.5 text-[10px] uppercase font-bold">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border-none rounded-full px-2 py-0.5 text-[10px] uppercase font-bold tracking-widest">
                     {article.category}
                   </Badge>
-                  <h4 className="font-bold text-base leading-snug mt-1">{article.title}</h4>
+                  <h4 className="font-bold text-base leading-snug mt-1 group-hover:text-primary transition-colors">{article.title}</h4>
                 </div>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{article.readTime} Read</p>
               </div>
