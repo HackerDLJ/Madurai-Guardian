@@ -129,7 +129,7 @@ export default function NewReport() {
   };
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="max-w-2xl mx-auto space-y-6 pb-10">
       <header className="flex items-center gap-4">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
           <X className="w-5 h-5" />
@@ -138,10 +138,10 @@ export default function NewReport() {
       </header>
 
       <div className="space-y-6">
-        {/* Photo Capture Section */}
+        {/* Photo Capture Section - Made smaller with aspect-video and max-height */}
         <section className="space-y-3">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Evidence Photo</label>
-          <div className="relative w-full aspect-square rounded-[40px] border-4 border-dashed border-muted flex flex-col items-center justify-center overflow-hidden bg-card hover:border-primary/50 transition-colors group">
+          <div className="relative w-full aspect-video max-h-[320px] rounded-[32px] border-4 border-dashed border-muted flex flex-col items-center justify-center overflow-hidden bg-card hover:border-primary/50 transition-colors group mx-auto">
             {image ? (
               <>
                 <Image src={image} alt="Report evidence" fill className="object-cover" />
@@ -177,26 +177,25 @@ export default function NewReport() {
                    </div>
                 )}
 
-                <div className="relative z-10 flex flex-col items-center gap-4">
+                <div className="relative z-10 flex flex-col items-center gap-2">
                   <Button 
                     onClick={capturePhoto} 
                     disabled={hasCameraPermission === false}
-                    className="w-16 h-16 rounded-full bg-white text-primary border-4 border-primary hover:bg-muted"
+                    className="w-14 h-14 rounded-full bg-white text-primary border-4 border-primary hover:bg-muted"
                   >
-                    <Camera className="w-8 h-8" />
+                    <Camera className="w-7 h-7" />
                   </Button>
                   <div className="text-center">
-                    <p className="font-bold text-sm">Snap the Issue</p>
-                    <p className="text-[10px] text-muted-foreground">or click below to upload</p>
-                  </div>
-                  <div className="relative">
-                    <Button variant="outline" size="sm" className="rounded-full">Upload File</Button>
-                    <Input 
-                      type="file" 
-                      accept="image/*" 
-                      className="absolute inset-0 opacity-0 cursor-pointer" 
-                      onChange={handleImageUpload} 
-                    />
+                    <p className="font-bold text-xs">Snap the Issue</p>
+                    <div className="relative inline-block mt-1">
+                      <Button variant="outline" size="sm" className="rounded-full h-7 text-[10px] px-3">Upload File</Button>
+                      <Input 
+                        type="file" 
+                        accept="image/*" 
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                        onChange={handleImageUpload} 
+                      />
+                    </div>
                   </div>
                 </div>
               </>
@@ -261,7 +260,7 @@ export default function NewReport() {
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Description</label>
           <Textarea 
             placeholder="Tell us what's wrong..." 
-            className="rounded-[28px] p-6 min-h-[150px] bg-card border-none shadow-sm focus-visible:ring-primary text-lg"
+            className="rounded-[28px] p-6 min-h-[120px] bg-card border-none shadow-sm focus-visible:ring-primary text-lg"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
