@@ -17,11 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
   Cpu,
-  UserCircle,
-  LayoutDashboard,
-  Map as MapIcon,
-  ClipboardList,
-  Award
+  UserCircle
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -43,13 +39,9 @@ export function AppSidebar() {
 
   const { data: profile } = useDoc(userRef);
 
-  // Defining menu items for clear selection logic
+  // Simplified menu items based on user request
   const menuItems = [
-    { label: "Dashboard", href: "/", icon: LayoutDashboard },
     { label: "Smart Segregate", href: "/smart-segregate", icon: Cpu, badge: "AI" },
-    { label: "City Map", href: "/map", icon: MapIcon },
-    { label: "My Reports", href: "/status", icon: ClipboardList },
-    { label: "Heritage Credits", href: "/credits", icon: Award },
   ];
 
   return (
