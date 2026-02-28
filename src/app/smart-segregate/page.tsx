@@ -25,7 +25,8 @@ import {
   History,
   Clock,
   FlaskConical,
-  Leaf
+  Leaf,
+  Upload
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -57,6 +58,7 @@ export default function SmartSegregatePage() {
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const db = useFirestore();
   const { user } = useUser();
@@ -120,25 +122,55 @@ export default function SmartSegregatePage() {
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
         const imageDataUri = canvasRef.current.toDataURL('image/jpeg');
-        setLastImage(imageDataUri);
-        
-        setProcessingProgress(50);
-        const result = await analyzeWaste(imageDataUri);
-        setProcessingProgress(100);
-        setDetectedItem(result);
-        
-        if (result.isWaste) {
-          const matchedBin = fractions.find(f => f.id === result.wasteType);
-          setActiveBin(matchedBin ? matchedBin.id : (result.wasteType.includes('Recyclable') ? 'Dry' : 'Wet'));
-        }
-
-        toast({
-          title: result.isWaste ? "Item Identified" : "Analysis Complete",
-          description: result.isWaste 
-            ? `${result.itemName} detected with ${Math.round(result.confidence * 100)}% confidence.` 
-            : "No waste item detected in primary focus.",
-        });
+        processImage(imageDataUri);
       }
+    } catch (error) {
+      toast({ variant: "destructive", title: "AI Error", description: "Industrial AI core failed to stabilize." });
+      setIsScanning(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    setDetectedItem(null);
+    setLastImage(null);
+    setActiveBin(null);
+    setProcessingProgress(10);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const imageDataUri = reader.result as string;
+      processImage(imageDataUri);
+    };
+    reader.onerror = () => {
+      toast({ variant: "destructive", title: "Upload Error", description: "Failed to read the selected file." });
+      setIsScanning(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const processImage = async (imageDataUri: string) => {
+    setLastImage(imageDataUri);
+    setProcessingProgress(50);
+    try {
+      const result = await analyzeWaste(imageDataUri);
+      setProcessingProgress(100);
+      setDetectedItem(result);
+      
+      if (result.isWaste) {
+        const matchedBin = fractions.find(f => f.id === result.wasteType);
+        setActiveBin(matchedBin ? matchedBin.id : (result.wasteType.includes('Recyclable') ? 'Dry' : 'Wet'));
+      }
+
+      toast({
+        title: result.isWaste ? "Item Identified" : "Analysis Complete",
+        description: result.isWaste 
+          ? `${result.itemName} detected with ${Math.round(result.confidence * 100)}% confidence.` 
+          : "No waste item detected in primary focus.",
+      });
     } catch (error) {
       toast({ variant: "destructive", title: "AI Error", description: "Industrial AI core failed to stabilize. Analysis incomplete." });
     } finally {
@@ -194,13 +226,27 @@ export default function SmartSegregatePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <section className="lg:col-span-2 space-y-6">
           <Card className="rounded-[40px] overflow-hidden border-none bg-black aspect-video relative shadow-2xl">
-            <video 
-              ref={videoRef} 
-              className="w-full h-full object-cover opacity-80" 
-              autoPlay 
-              muted 
-              playsInline 
-            />
+            {lastImage && !isScanning ? (
+              <div className="absolute inset-0 z-20 bg-black">
+                <Image src={lastImage} alt="Captured waste" fill className="object-contain" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute top-4 right-4 bg-black/50 text-white rounded-full hover:bg-black/70"
+                  onClick={() => { setLastImage(null); setDetectedItem(null); setActiveBin(null); }}
+                >
+                  <XCircle className="w-6 h-6" />
+                </Button>
+              </div>
+            ) : (
+              <video 
+                ref={videoRef} 
+                className="w-full h-full object-cover opacity-80" 
+                autoPlay 
+                muted 
+                playsInline 
+              />
+            )}
             <canvas ref={canvasRef} className="hidden" />
             
             <div className="absolute inset-0 border-[40px] border-black/20 pointer-events-none">
@@ -215,26 +261,44 @@ export default function SmartSegregatePage() {
               </div>
             </div>
 
-            {hasCameraPermission === false && (
+            {hasCameraPermission === false && !lastImage && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-6">
                 <Alert variant="destructive" className="max-w-md bg-white/90">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Camera Access Required</AlertTitle>
-                  <AlertDescription>Enable camera access for real-time neural processing.</AlertDescription>
+                  <AlertDescription>Enable camera access or upload a photo manually.</AlertDescription>
                 </Alert>
               </div>
             )}
 
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4">
               <Button 
                 size="lg" 
-                className="rounded-full h-14 px-10 bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl gap-3"
+                className="rounded-full h-14 px-8 bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl gap-3"
                 onClick={handleScan}
-                disabled={isScanning || hasCameraPermission === false}
+                disabled={isScanning || (hasCameraPermission === false && !lastImage)}
               >
                 {isScanning ? <Loader2 className="w-6 h-6 animate-spin" /> : <Scan className="w-6 h-6" />}
                 {isScanning ? "Neural Processing..." : "Identify Waste"}
               </Button>
+              
+              <Button 
+                size="lg" 
+                variant="secondary"
+                className="rounded-full h-14 px-8 bg-white hover:bg-muted text-primary font-bold text-lg shadow-xl gap-3"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isScanning}
+              >
+                <Upload className="w-6 h-6" />
+                Upload Photo
+              </Button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                accept="image/*" 
+                className="hidden" 
+              />
             </div>
           </Card>
 
@@ -325,7 +389,7 @@ export default function SmartSegregatePage() {
                     <Progress value={processingProgress} className="h-1.5" />
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm italic">Focus lens on urban sample</p>
+                  <p className="text-muted-foreground text-sm italic">Focus lens on urban sample or upload a photo</p>
                 )}
               </div>
 
