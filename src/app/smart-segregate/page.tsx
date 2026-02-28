@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -20,12 +21,17 @@ import {
   Monitor,
   Smartphone,
   Layers,
-  Info
+  Info,
+  Send
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeWaste, type SmartWasteOutput } from "@/ai/flows/smart-waste-analysis";
+import { useFirestore, useUser } from "@/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
+const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
 
 const fractions = [
   { id: 'Dry', label: 'Dry Waste', color: 'bg-blue-500', icon: <Boxes className="w-5 h-5" /> },
@@ -35,7 +41,9 @@ const fractions = [
 
 export default function SmartSegregatePage() {
   const [isScanning, setIsScanning] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
   const [detectedItem, setDetectedItem] = useState<SmartWasteOutput | null>(null);
+  const [lastImage, setLastImage] = useState<string | null>(null);
   const [activeBin, setActiveBin] = useState<string | null>(null);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -44,6 +52,8 @@ export default function SmartSegregatePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
+  const db = useFirestore();
+  const { user } = useUser();
 
   useEffect(() => {
     const initPage = async () => {
@@ -86,6 +96,7 @@ export default function SmartSegregatePage() {
 
     setIsScanning(true);
     setDetectedItem(null);
+    setLastImage(null);
     setActiveBin(null);
     setProcessingProgress(20);
 
@@ -96,6 +107,7 @@ export default function SmartSegregatePage() {
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
         const imageDataUri = canvasRef.current.toDataURL('image/jpeg');
+        setLastImage(imageDataUri);
         
         setProcessingProgress(50);
         
@@ -129,6 +141,50 @@ export default function SmartSegregatePage() {
       });
     } finally {
       setIsScanning(false);
+    }
+  };
+
+  const handleReportToCorporation = async () => {
+    if (!user || !db || !detectedItem || !lastImage) {
+      toast({
+        variant: "destructive",
+        title: "Report Failed",
+        description: "Missing data required for reporting. Please sign in or try scanning again.",
+      });
+      return;
+    }
+
+    setIsReporting(true);
+    try {
+      const reportData = {
+        userId: user.uid,
+        description: `AI Smart Scan Report: ${detectedItem.itemName}. ${detectedItem.description}`,
+        latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.01,
+        longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.01,
+        photoUrls: [lastImage],
+        submittedAt: new Date().toISOString(),
+        status: "Submitted",
+        isVerified: true,
+        aiSuggestedCategory: detectedItem.wasteType,
+        pointsAwarded: 25,
+        serverTimestamp: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "incidentReports"), reportData);
+
+      toast({
+        title: "Report Sent",
+        description: "Your report has been successfully submitted to the Madurai Municipal Corporation.",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Submission Error",
+        description: "Failed to send report. Please try again later.",
+      });
+    } finally {
+      setIsReporting(false);
     }
   };
 
@@ -261,6 +317,16 @@ export default function SmartSegregatePage() {
                         </div>
                       )}
                     </div>
+
+                    {/* Report to Corporation Button */}
+                    <Button 
+                      onClick={handleReportToCorporation}
+                      disabled={isReporting}
+                      className="w-full mt-4 rounded-2xl bg-secondary hover:bg-secondary/90 text-white font-bold gap-2 py-6"
+                    >
+                      {isReporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                      {isReporting ? "Sending Report..." : "Report to Corporation"}
+                    </Button>
                   </div>
                 ) : isScanning ? (
                   <div className="space-y-3">
