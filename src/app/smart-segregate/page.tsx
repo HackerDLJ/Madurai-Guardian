@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { 
   Cpu, 
   Scan, 
@@ -49,10 +50,15 @@ export default function SmartSegregatePage() {
       } catch (error) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this app.',
+        });
       }
     };
     getCameraPermission();
-  }, []);
+  }, [toast]);
 
   const handleScan = async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -63,7 +69,6 @@ export default function SmartSegregatePage() {
     setProcessingProgress(20);
 
     try {
-      // Capture frame
       const context = canvasRef.current.getContext('2d');
       if (context) {
         canvasRef.current.width = videoRef.current.videoWidth;
@@ -78,13 +83,11 @@ export default function SmartSegregatePage() {
         setProcessingProgress(100);
         setDetectedItem(result);
         
-        // Map AI result to our UI bins
         if (result.isWaste) {
           const matchedBin = fractions.find(f => f.id === result.wasteType);
           if (matchedBin) {
             setActiveBin(matchedBin.id);
           } else {
-            // Fallback for general dry/wet if specific mismatch
             setActiveBin(result.wasteType.includes('Recyclable') ? 'Dry' : 'Wet');
           }
         }
@@ -128,6 +131,7 @@ export default function SmartSegregatePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <section className="lg:col-span-2 space-y-6">
           <Card className="rounded-[40px] overflow-hidden border-none bg-black aspect-video relative shadow-2xl">
+            {/* Always show video tag irrespective of hasCameraPermission check to prevent race condition */}
             <video 
               ref={videoRef} 
               className="w-full h-full object-cover opacity-80" 
@@ -149,12 +153,15 @@ export default function SmartSegregatePage() {
               </div>
             </div>
 
-            {!(hasCameraPermission) && (
-              <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm">
-                <div className="text-center space-y-4 p-8">
-                  <Camera className="w-12 h-12 text-muted-foreground mx-auto" />
-                  <p className="text-white font-medium">Camera access required for AI scanning</p>
-                </div>
+            {hasCameraPermission === false && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-6">
+                <Alert variant="destructive" className="max-w-md bg-white/90">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Camera Access Required</AlertTitle>
+                  <AlertDescription>
+                    Please allow camera access to use the SmartSegregate AI feature. Check your browser settings.
+                  </AlertDescription>
+                </Alert>
               </div>
             )}
 
@@ -163,7 +170,7 @@ export default function SmartSegregatePage() {
                 size="lg" 
                 className="rounded-full h-14 px-10 bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl gap-3"
                 onClick={handleScan}
-                disabled={isScanning || !hasCameraPermission}
+                disabled={isScanning || hasCameraPermission === false}
               >
                 {isScanning ? <Loader2 className="w-6 h-6 animate-spin" /> : <Scan className="w-6 h-6" />}
                 {isScanning ? "AI Processing..." : "Identify Waste"}

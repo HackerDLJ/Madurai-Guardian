@@ -64,7 +64,6 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Search Header for Mobile/Tablets */}
       <header className="md:hidden space-y-4">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -75,7 +74,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section>
         <Card className="rounded-[40px] bg-[#FFFBEB] border-none p-10 flex flex-col md:flex-row justify-between items-center shadow-sm">
           <div className="space-y-6 max-w-2xl">
@@ -114,12 +112,10 @@ export default function Dashboard() {
                 <span className="text-[10px] font-bold text-muted-foreground">%</span>
               </div>
             </div>
-            <Button variant="link" className="text-primary font-bold text-xs p-0 h-auto">View Analytics</Button>
           </div>
         </Card>
       </section>
 
-      {/* Stats Cards Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="m3-card space-y-4">
           <div className="flex justify-between items-start">
@@ -228,7 +224,6 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      {/* Map and Feed Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
         <Card className="m3-card p-0 overflow-hidden flex flex-col">
           <div className="p-6 flex justify-between items-center bg-white z-10">
@@ -267,7 +262,7 @@ export default function Dashboard() {
             </Button>
           </div>
           <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar">
-            {feeds?.map((feed, i) => (
+            {feeds?.map((feed) => (
               <div key={feed.id} className="flex gap-4 group">
                 <Avatar className="w-12 h-12 rounded-2xl bg-muted ring-2 ring-transparent group-hover:ring-primary/20 transition-all">
                   <AvatarImage src={`https://picsum.photos/seed/${feed.userId}/100/100`} />
@@ -292,26 +287,24 @@ export default function Dashboard() {
             ))}
             
             {(!feeds || feeds.length === 0) && (
-              <>
-                <div className="flex gap-4 group">
-                  <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary ring-2 ring-transparent group-hover:ring-secondary/20 transition-all">
-                    <Users className="w-5 h-5" />
+              <div className="flex gap-4 group">
+                <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary ring-2 ring-transparent group-hover:ring-secondary/20 transition-all">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-bold text-sm leading-none">Green Madurai NGO</h4>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">5h ago</span>
                   </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-sm leading-none">Green Madurai NGO</h4>
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase">5h ago</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Organized a cleanup drive at Vaigai River bank. 45 volunteers participated.
-                    </p>
-                    <div className="flex gap-2">
-                      <Badge variant="secondary" className="bg-secondary/10 text-secondary border-none text-[8px] font-bold rounded-lg px-2">Completed</Badge>
-                      <Badge className="bg-primary/10 text-primary border-none text-[8px] font-bold rounded-lg px-2">+500 Credits</Badge>
-                    </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Organized a cleanup drive at Vaigai River bank. 45 volunteers participated.
+                  </p>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary" className="bg-secondary/10 text-secondary border-none text-[8px] font-bold rounded-lg px-2">Completed</Badge>
+                    <Badge className="bg-primary/10 text-primary border-none text-[8px] font-bold rounded-lg px-2">+500 Credits</Badge>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </Card>

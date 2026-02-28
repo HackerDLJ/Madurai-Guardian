@@ -1,13 +1,13 @@
-
 "use client";
 
-import { useState } from "react";
-import { Camera, MapPin, Loader2, Sparkles, Send, X, Check, BarChart3 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Camera, MapPin, Loader2, Sparkles, Send, X, Check, BarChart3, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { augmentReport, type ReportAugmentationOutput } from "@/ai/flows/ai-powered-report-augmentation";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { useFirestore, useUser } from "@/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
+const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
+
 export default function NewReport() {
   const [image, setImage] = useState<string | null>(null);
   const [description, setDescription] = useState("");
@@ -23,10 +25,42 @@ export default function NewReport() {
   const [augmenting, setAugmenting] = useState(false);
   const [aiResult, setAiResult] = useState<ReportAugmentationOutput | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const router = useRouter();
   const db = useFirestore();
   const { user } = useUser();
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+      }
+    };
+    getCameraPermission();
+  }, []);
+
+  const capturePhoto = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const context = canvasRef.current.getContext('2d');
+    if (context) {
+      canvasRef.current.width = videoRef.current.videoWidth;
+      canvasRef.current.height = videoRef.current.videoHeight;
+      context.drawImage(videoRef.current, 0, 0);
+      const dataUri = canvasRef.current.toDataURL('image/jpeg');
+      setImage(dataUri);
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,7 +99,7 @@ export default function NewReport() {
       const reportData = {
         userId: user.uid,
         description,
-        latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.02, // Mock GPS Variation
+        latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.02,
         longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.02,
         photoUrls: [image], 
         submittedAt: new Date().toISOString(),
@@ -83,7 +117,6 @@ export default function NewReport() {
         serverTimestamp: serverTimestamp(),
       };
 
-      // Submit to global collection for the city map
       await addDoc(collection(db, "incidentReports"), reportData);
       
       toast({ title: "Report Submitted", description: "Your contribution has been added to the city map." });
@@ -95,8 +128,6 @@ export default function NewReport() {
     }
   };
 
-  const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
-
   return (
     <div className="space-y-6 pb-10">
       <header className="flex items-center gap-4">
@@ -107,7 +138,7 @@ export default function NewReport() {
       </header>
 
       <div className="space-y-6">
-        {/* Photo Upload */}
+        {/* Photo Capture Section */}
         <section className="space-y-3">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Evidence Photo</label>
           <div className="relative w-full aspect-square rounded-[40px] border-4 border-dashed border-muted flex flex-col items-center justify-center overflow-hidden bg-card hover:border-primary/50 transition-colors group">
@@ -117,34 +148,62 @@ export default function NewReport() {
                 <Button 
                   variant="destructive" 
                   size="icon" 
-                  className="absolute top-4 right-4 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                  className="absolute top-4 right-4 rounded-full shadow-lg"
                   onClick={() => { setImage(null); setAiResult(null); }}
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </>
             ) : (
-              <div className="text-center p-8 space-y-4">
-                <div className="w-20 h-20 rounded-[30px] bg-primary/10 flex items-center justify-center mx-auto text-primary">
-                  <Camera className="w-10 h-10" />
-                </div>
-                <div>
-                  <p className="font-bold text-lg">Snap the Issue</p>
-                  <p className="text-sm text-muted-foreground">Take a clear photo of the area</p>
-                </div>
-                <Input 
-                  type="file" 
-                  accept="image/*" 
-                  className="absolute inset-0 opacity-0 cursor-pointer" 
-                  onChange={handleImageUpload} 
+              <>
+                <video 
+                  ref={videoRef} 
+                  className="absolute inset-0 w-full h-full object-cover" 
+                  autoPlay 
+                  muted 
+                  playsInline 
                 />
-                <Button className="rounded-2xl pointer-events-none">Open Camera</Button>
-              </div>
+                <canvas ref={canvasRef} className="hidden" />
+                
+                {hasCameraPermission === false && (
+                   <div className="absolute inset-0 flex items-center justify-center bg-muted/10 backdrop-blur-sm p-4">
+                      <Alert variant="destructive" className="bg-white/90">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Camera Required</AlertTitle>
+                        <AlertDescription>
+                          Please enable camera access or upload a photo manually.
+                        </AlertDescription>
+                      </Alert>
+                   </div>
+                )}
+
+                <div className="relative z-10 flex flex-col items-center gap-4">
+                  <Button 
+                    onClick={capturePhoto} 
+                    disabled={hasCameraPermission === false}
+                    className="w-16 h-16 rounded-full bg-white text-primary border-4 border-primary hover:bg-muted"
+                  >
+                    <Camera className="w-8 h-8" />
+                  </Button>
+                  <div className="text-center">
+                    <p className="font-bold text-sm">Snap the Issue</p>
+                    <p className="text-[10px] text-muted-foreground">or click below to upload</p>
+                  </div>
+                  <div className="relative">
+                    <Button variant="outline" size="sm" className="rounded-full">Upload File</Button>
+                    <Input 
+                      type="file" 
+                      accept="image/*" 
+                      className="absolute inset-0 opacity-0 cursor-pointer" 
+                      onChange={handleImageUpload} 
+                    />
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </section>
 
-        {/* AI Augmentation Button */}
         {image && !aiResult && (
           <Button 
             onClick={handleAugment} 
@@ -162,7 +221,6 @@ export default function NewReport() {
           </Button>
         )}
 
-        {/* AI Results: Waste Fractions */}
         {aiResult && (
           <Card className="m3-card bg-primary/5 border-none p-6 space-y-4">
             <div className="flex items-center gap-2 text-primary">
@@ -177,16 +235,9 @@ export default function NewReport() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-between items-center pt-2 border-t border-primary/10">
-              <span className="text-xs font-bold text-muted-foreground">Verification Status</span>
-              <Badge className={cn("rounded-full border-none", aiResult.isVerified ? "bg-green-500 text-white" : "bg-amber-500 text-white")}>
-                {aiResult.isVerified ? "Verified" : "Check Needed"}
-              </Badge>
-            </div>
           </Card>
         )}
 
-        {/* Category Selection */}
         <section className="space-y-3">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Issue Category</label>
           <div className="flex flex-wrap gap-2">
@@ -206,7 +257,6 @@ export default function NewReport() {
           </div>
         </section>
 
-        {/* Description */}
         <section className="space-y-3">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Description</label>
           <Textarea 
@@ -217,7 +267,6 @@ export default function NewReport() {
           />
         </section>
 
-        {/* Location (Mock) */}
         <section className="space-y-3">
           <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">Location</label>
           <Card className="m3-card bg-primary/5 p-4 flex items-center gap-3">
@@ -228,11 +277,9 @@ export default function NewReport() {
               <p className="font-bold">Automated Location</p>
               <p className="text-sm text-muted-foreground">Meenakshi Amman Temple St, Madurai</p>
             </div>
-            <Button variant="ghost" className="text-primary font-bold">Edit</Button>
           </Card>
         </section>
 
-        {/* Submit */}
         <div className="pt-6">
           <Button 
             className="w-full h-16 rounded-[32px] bg-primary hover:bg-primary/90 text-white font-bold text-xl shadow-lg flex gap-3"
