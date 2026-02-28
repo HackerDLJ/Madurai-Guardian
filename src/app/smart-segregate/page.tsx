@@ -19,7 +19,8 @@ import {
   XCircle,
   Monitor,
   Smartphone,
-  Layers
+  Layers,
+  Info
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -45,9 +46,7 @@ export default function SmartSegregatePage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Automated Camera Access and Device Detection
     const initPage = async () => {
-      // Device Detection
       const ua = navigator.userAgent;
       let type = "Desktop Client";
       if (/tablet|ipad|playbook|silk/i.test(ua)) type = "Tablet Node";
@@ -242,12 +241,26 @@ export default function SmartSegregatePage() {
                         {Math.round(detectedItem.confidence * 100)}% Match
                       </Badge>
                     </div>
-                    {detectedItem.isWaste && (
-                      <div className="text-xs text-left mt-4 p-3 bg-white/50 rounded-xl border border-muted-foreground/5">
-                        <p className="font-bold mb-1">Disposal Guide:</p>
-                        <p className="text-muted-foreground leading-relaxed">{detectedItem.disposalMethod}</p>
+
+                    <div className="text-xs text-left mt-4 p-4 bg-white/50 rounded-2xl border border-muted-foreground/5 space-y-3">
+                      <div className="space-y-1">
+                        <p className="font-bold flex items-center gap-1.5 text-primary">
+                          <Info className="w-3.5 h-3.5" /> Description:
+                        </p>
+                        <p className="text-muted-foreground leading-relaxed italic">
+                          {detectedItem.description}
+                        </p>
                       </div>
-                    )}
+                      
+                      {detectedItem.isWaste && (
+                        <div className="pt-2 border-t border-muted/50 space-y-1">
+                          <p className="font-bold flex items-center gap-1.5 text-secondary">
+                            <Trash2 className="w-3.5 h-3.5" /> Disposal Guide:
+                          </p>
+                          <p className="text-muted-foreground leading-relaxed">{detectedItem.disposalMethod}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : isScanning ? (
                   <div className="space-y-3">

@@ -3,7 +3,7 @@
  * @fileOverview Smart Waste Analysis AI Flow.
  * 
  * This flow identifies waste items, classifies them into categories, 
- * and provides disposal instructions based on an image input.
+ * provides a description, and gives disposal instructions based on an image input.
  */
 
 import { ai } from '@/ai/genkit';
@@ -17,6 +17,7 @@ const SmartWasteOutputSchema = z.object({
   isWaste: z.boolean().describe("Whether the item in the image is classified as waste."),
   wasteType: z.enum(['Dry', 'Wet', 'E-waste', 'Hazardous', 'Recyclable', 'Unknown']).describe("The classification of the waste."),
   itemName: z.string().describe("Common name of the item identified."),
+  description: z.string().describe("A brief but informative description of the identified product or item."),
   disposalMethod: z.string().describe("Step-by-step instructions on how to dispose of this specific item in Madurai."),
   confidence: z.number().describe("Confidence score of the identification (0-1)."),
 });
@@ -27,17 +28,18 @@ const smartWastePrompt = ai.definePrompt({
   name: 'smartWastePrompt',
   input: { schema: SmartWasteInputSchema },
   output: { schema: SmartWasteOutputSchema },
-  prompt: `You are a highly advanced Industrial Waste Classification AI, trained on over 1 million images of urban debris and household waste. 
+  prompt: `You are a highly advanced Industrial Waste Classification AI.
 
 Analyze the provided image and determine:
 1. If the object is waste.
 2. The specific type of waste (Dry, Wet, E-waste, etc.).
 3. The common name of the item.
-4. The correct disposal method following Madurai's municipal guidelines (e.g., segregating organic waste for composting, recycling plastics, or taking electronics to authorized collection points).
+4. A detailed description of the scanned product, including its material and typical usage.
+5. The correct disposal method following Madurai's municipal guidelines.
 
 Image: {{media url=imageDataUri}}
 
-Provide a detailed and accurate classification.`,
+Provide a detailed and accurate classification with a helpful description of the product.`,
 });
 
 export const smartWasteAnalysisFlow = ai.defineFlow(
