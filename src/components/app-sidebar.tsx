@@ -15,11 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
-  AlertCircle,
   Cpu,
-  Home,
-  Map as MapIcon,
-  ClipboardList,
   UserCircle
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
@@ -76,33 +72,6 @@ export function AppSidebar() {
 
       <SidebarContent className="px-4">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/"} tooltip="Home">
-              <Link href="/">
-                <Home className="w-5 h-5" />
-                <span className="font-bold">Home</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/map"} tooltip="Map">
-              <Link href="/map">
-                <MapIcon className="w-5 h-5" />
-                <span className="font-bold">City Map</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/status"} tooltip="Reports">
-              <Link href="/status">
-                <ClipboardList className="w-5 h-5" />
-                <span className="font-bold">My Reports</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/smart-segregate"} tooltip="AI Bin">
               <Link href="/smart-segregate" className="group">
