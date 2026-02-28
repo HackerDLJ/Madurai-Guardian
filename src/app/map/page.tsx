@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -27,7 +28,6 @@ export default function CityMap() {
   const db = useFirestore();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
-  // Functional Map: Fetch real incidents from global collection
   const incidentsQuery = useMemoFirebase(() => {
     if (!db) return null;
     return query(collection(db, "incidentReports"), orderBy("submittedAt", "desc"));
@@ -37,10 +37,10 @@ export default function CityMap() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Resolved': return '#34A853'; // Google Green
-      case 'In Progress': return '#FBBC05'; // Google Yellow
-      case 'Acknowledged': return '#4285F4'; // Google Blue
-      default: return '#EA4335'; // Google Red (Submitted)
+      case 'Resolved': return '#34A853'; 
+      case 'In Progress': return '#FBBC05'; 
+      case 'Acknowledged': return '#4285F4'; 
+      default: return '#EA4335'; 
     }
   };
 
@@ -65,7 +65,6 @@ export default function CityMap() {
         </div>
       </header>
 
-      {/* Map Integration */}
       <div className="relative flex-1 w-full bg-muted rounded-[40px] overflow-hidden shadow-inner border-4 border-card">
         {apiKey && !mapError ? (
           <APIProvider apiKey={apiKey}>
@@ -124,22 +123,21 @@ export default function CityMap() {
             <div className="space-y-4 max-w-sm">
               <p className="font-bold text-xl">Maps API Activation Required</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                The Google Maps JavaScript API is not yet activated.
+                The Google Maps JavaScript API is not yet activated for this project.
               </p>
               <div className="p-4 bg-white/90 rounded-2xl border border-primary/20 text-left space-y-3 shadow-xl">
-                <p className="text-[10px] font-bold uppercase text-primary">Action Needed:</p>
+                <p className="text-[10px] font-bold uppercase text-primary">Steps to Fix:</p>
                 <ol className="text-[10px] space-y-2 list-decimal list-inside text-muted-foreground leading-relaxed">
-                  <li>Visit the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
-                  <li>Ensure project <code className="bg-muted px-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</code> is active</li>
-                  <li>Search for <strong>"Maps JavaScript API"</strong> and click <strong>ENABLE</strong></li>
-                  <li>Refresh this page once complete</li>
+                  <li>Open the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
+                  <li>Select your project: <code className="bg-muted px-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</code></li>
+                  <li>Search for <strong>"Maps JavaScript API"</strong></li>
+                  <li>Click the <strong>ENABLE</strong> button</li>
                 </ol>
               </div>
             </div>
           </div>
         )}
 
-        {/* Floating Map Controls */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
           <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-primary shadow-lg hover:bg-white/90 border-none">
             <Navigation className="w-6 h-6" />
@@ -149,7 +147,6 @@ export default function CityMap() {
           </Button>
         </div>
 
-        {/* Earth Engine Overlay Info */}
         <div className="absolute bottom-24 left-6 right-6 z-10">
           <Card className="p-4 rounded-[32px] bg-white/90 backdrop-blur shadow-xl border-none">
             <div className="flex items-center justify-between">
