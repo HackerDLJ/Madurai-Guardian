@@ -7,10 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
   Waves, 
-  Droplets, 
   AlertCircle, 
   Activity, 
-  Zap, 
   Navigation, 
   ShieldAlert,
   CloudRain,
@@ -18,7 +16,7 @@ import {
   RefreshCcw,
   Network,
   ArrowDownCircle,
-  ThermometerSnowflake
+  Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchDrainageRealtimeData, type DrainageDataOutput } from "@/ai/flows/drainage-data-flow";
@@ -43,7 +41,7 @@ export default function DrainageMonitoringPage() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(() => loadData(true), 45000); 
+    const interval = setInterval(() => loadData(true), 45000); // Polling every 45s
     return () => clearInterval(interval);
   }, []);
 
@@ -117,7 +115,7 @@ export default function DrainageMonitoringPage() {
         {/* Predictive Flood Zones */}
         <Card className="m3-card border-none shadow-lg lg:col-span-3 p-6 space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="font-bold text-lg font-headline flex items-center gap-2">
+            <h3 className="text-lg font-bold font-headline flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-destructive" /> AI Flood Prediction
             </h3>
             <Badge className="bg-destructive/10 text-destructive border-none">High Confidence</Badge>
