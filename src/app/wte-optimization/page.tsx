@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -122,7 +121,7 @@ export default function WteOptimizationPage() {
         
         {/* Plant Efficiency and Feedstock - LEFT COLUMN */}
         <div className="lg:col-span-4 space-y-6">
-          <Card className="m3-card border-none shadow-xl p-0 bg-slate-950 text-slate-50 relative overflow-hidden group min-h-[420px] flex flex-col">
+          <Card className="m3-card border-none shadow-xl p-0 bg-primary/90 text-primary-foreground relative overflow-hidden group min-h-[420px] flex flex-col">
              <div className="p-8 pb-0 space-y-2 relative z-10">
                 <div className="flex items-center justify-between">
                   <Badge className="bg-white/10 text-white border-none text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
@@ -130,7 +129,7 @@ export default function WteOptimizationPage() {
                   </Badge>
                   <ShieldCheck className="w-5 h-5 text-secondary" />
                 </div>
-                <h3 className="text-2xl font-bold font-headline text-slate-50">Operational Core</h3>
+                <h3 className="text-2xl font-bold font-headline text-white">Operational Core</h3>
              </div>
 
              <div className="flex-1 relative flex items-center justify-center -mt-8">
@@ -147,14 +146,14 @@ export default function WteOptimizationPage() {
                         dataKey="value"
                         stroke="none"
                       >
-                        <Cell fill="hsl(var(--primary))" />
+                        <Cell fill="hsl(var(--accent))" />
                         <Cell fill="rgba(255,255,255,0.05)" />
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-6xl font-bold tracking-tighter text-slate-50">{data.efficiencyIndex}%</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Load Index</span>
+                    <span className="text-6xl font-bold tracking-tighter text-white">{data.efficiencyIndex}%</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">Load Index</span>
                   </div>
                 </div>
                 <Zap className="absolute -top-10 -right-10 w-48 h-48 opacity-5 rotate-12 transition-transform group-hover:scale-110" />
@@ -163,18 +162,18 @@ export default function WteOptimizationPage() {
              <div className="p-8 pt-0 space-y-6 relative z-10">
                 <div className="grid grid-cols-2 gap-4">
                    <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Input</p>
-                      <p className="text-xl font-bold text-slate-50">{data.totalThroughput} <span className="text-xs opacity-40 font-normal">t/d</span></p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Total Input</p>
+                      <p className="text-xl font-bold text-white">{data.totalThroughput} <span className="text-xs opacity-40 font-normal">t/d</span></p>
                    </div>
                    <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Target</p>
-                      <p className="text-xl font-bold text-slate-50">95 <span className="text-xs opacity-40 font-normal">%</span></p>
+                      <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Target</p>
+                      <p className="text-xl font-bold text-white">95 <span className="text-xs opacity-40 font-normal">%</span></p>
                    </div>
                 </div>
                 <div className="space-y-2">
-                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
                      <span>Throughput Optimization</span>
-                     <span className="text-secondary">{data.efficiencyIndex >= 85 ? 'Optimized' : 'Normal'}</span>
+                     <span className="text-accent">{data.efficiencyIndex >= 85 ? 'Optimized' : 'Normal'}</span>
                    </div>
                    <Progress value={data.efficiencyIndex} className="h-1.5 bg-white/10" />
                 </div>
@@ -327,7 +326,7 @@ export default function WteOptimizationPage() {
                       <span className="text-lg font-bold text-primary/40">kWh</span>
                     </div>
                   </div>
-                  <div className="h-20 w-20 rounded-full border-[6px] border-primary/10 border-t-primary flex items-center justify-center bg-white shadow-inner">
+                  <div className="h-20 w-20 rounded-full border-[6px] border-primary/10 border-t-primary flex items-center justify-center bg-card shadow-inner">
                      <div className="text-center">
                         <span className="text-xs font-bold block text-foreground">{data.energyOutput.gridStability}%</span>
                         <span className="text-[7px] font-bold uppercase text-muted-foreground">Stability</span>
@@ -335,7 +334,7 @@ export default function WteOptimizationPage() {
                   </div>
                </div>
 
-               <div className="bg-white p-5 rounded-[24px] flex items-center gap-5 border border-primary/10 shadow-sm group hover:border-primary/30 transition-all cursor-default">
+               <div className="bg-card p-5 rounded-[24px] flex items-center gap-5 border border-primary/10 shadow-sm group hover:border-primary/30 transition-all cursor-default">
                   <div className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                     <ArrowUpRight className="w-6 h-6" />
                   </div>
@@ -348,7 +347,7 @@ export default function WteOptimizationPage() {
           </div>
 
           {/* AI Optimization Insights */}
-          <Card className="m3-card border-none shadow-2xl bg-slate-900 text-slate-50 p-10 relative overflow-hidden">
+          <Card className="m3-card border-none shadow-2xl bg-primary/95 text-primary-foreground p-10 relative overflow-hidden">
              <BrainCircuit className="absolute -bottom-16 -right-16 w-80 h-80 text-white/5 pointer-events-none" />
              
              <div className="relative z-10 space-y-10">
