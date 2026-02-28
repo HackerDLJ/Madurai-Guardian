@@ -153,8 +153,8 @@ export default function WteOptimizationPage() {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-6xl font-bold tracking-tighter">{data.efficiencyIndex}%</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Load Index</span>
+                    <span className="text-6xl font-bold tracking-tighter text-white">{data.efficiencyIndex}%</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Load Index</span>
                   </div>
                 </div>
                 <Zap className="absolute -top-10 -right-10 w-48 h-48 opacity-10 rotate-12 transition-transform group-hover:scale-110" />
@@ -164,17 +164,17 @@ export default function WteOptimizationPage() {
                 <div className="grid grid-cols-2 gap-4">
                    <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
                       <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Total Input</p>
-                      <p className="text-xl font-bold">{data.totalThroughput} <span className="text-xs opacity-40 font-normal">t/d</span></p>
+                      <p className="text-xl font-bold text-white">{data.totalThroughput} <span className="text-xs opacity-40 font-normal">t/d</span></p>
                    </div>
                    <div className="bg-white/5 p-4 rounded-3xl border border-white/5 shadow-inner">
                       <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Target</p>
-                      <p className="text-xl font-bold">95 <span className="text-xs opacity-40 font-normal">%</span></p>
+                      <p className="text-xl font-bold text-white">95 <span className="text-xs opacity-40 font-normal">%</span></p>
                    </div>
                 </div>
                 <div className="space-y-2">
                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
                      <span>Throughput Optimization</span>
-                     <span>{data.efficiencyIndex >= 85 ? 'Optimized' : 'Normal'}</span>
+                     <span className="text-secondary">{data.efficiencyIndex >= 85 ? 'Optimized' : 'Normal'}</span>
                    </div>
                    <Progress value={data.efficiencyIndex} className="h-1.5 bg-white/10" />
                 </div>
@@ -218,7 +218,7 @@ export default function WteOptimizationPage() {
                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                          <span className="text-muted-foreground">{item.type}</span>
                       </div>
-                      <span className="font-bold">{item.percentage}%</span>
+                      <span className="font-bold text-foreground">{item.percentage}%</span>
                     </div>
                   ))}
                </div>
@@ -260,7 +260,7 @@ export default function WteOptimizationPage() {
                       <Flame className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">Methane Yield</h4>
+                      <h4 className="font-bold text-lg text-foreground">Methane Yield</h4>
                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Anaerobic Bioreactors</p>
                     </div>
                   </div>
@@ -276,7 +276,7 @@ export default function WteOptimizationPage() {
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Current Rate</p>
                     <div className="flex items-baseline gap-1.5">
-                      <p className="text-4xl font-bold">{data.methaneProduction.currentYield.toLocaleString()}</p>
+                      <p className="text-4xl font-bold text-foreground">{data.methaneProduction.currentYield.toLocaleString()}</p>
                       <span className="text-sm font-bold text-muted-foreground">m³/hr</span>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ export default function WteOptimizationPage() {
                <div className="h-28 w-full pt-4">
                  <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={[{h: '12', v: 60}, {h: '13', v: 45}, {h: '14', v: 75}, {h: '15', v: 65}, {h: '16', v: 90}]}>
-                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                      <XAxis dataKey="h" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: 'hsl(var(--muted-foreground))'}} />
                      <Bar dataKey="v" fill="hsl(var(--accent))" radius={[6, 6, 0, 0]} />
                    </BarChart>
@@ -308,7 +308,7 @@ export default function WteOptimizationPage() {
                       <Lightbulb className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">Smart Grid Export</h4>
+                      <h4 className="font-bold text-lg text-foreground">Smart Grid Export</h4>
                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Municipal Lighting Load</p>
                     </div>
                   </div>
@@ -329,7 +329,7 @@ export default function WteOptimizationPage() {
                   </div>
                   <div className="h-20 w-20 rounded-full border-[6px] border-primary/10 border-t-primary flex items-center justify-center bg-white shadow-inner">
                      <div className="text-center">
-                        <span className="text-xs font-bold block">{data.energyOutput.gridStability}%</span>
+                        <span className="text-xs font-bold block text-foreground">{data.energyOutput.gridStability}%</span>
                         <span className="text-[7px] font-bold uppercase text-muted-foreground">Stability</span>
                      </div>
                   </div>
@@ -358,7 +358,7 @@ export default function WteOptimizationPage() {
                       <BrainCircuit className="w-7 h-7" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold font-headline">AI Optimization Engine</h3>
+                      <h3 className="text-2xl font-bold font-headline text-white">AI Optimization Engine</h3>
                       <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Autonomous Biogas Tuning Active</p>
                     </div>
                   </div>
