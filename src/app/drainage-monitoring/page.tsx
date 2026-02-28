@@ -6,6 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger, 
+  DialogFooter 
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { 
   Waves, 
   AlertCircle, 
   Activity, 
@@ -19,20 +30,35 @@ import {
   GitBranch,
   Trash2,
   ChevronRight,
-  Database
+  Database,
+  PlusCircle,
+  MapPin,
+  Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchDrainageRealtimeData, type DrainageDataOutput } from "@/ai/flows/drainage-data-flow";
-import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, query, orderBy, limit } from "firebase/firestore";
+import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { RelativeTime } from "@/components/relative-time";
+import { useToast } from "@/hooks/use-toast";
+
+const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
 
 export default function DrainageMonitoringPage() {
   const [data, setData] = useState<DrainageDataOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Quick Report State
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [reportDescription, setReportDescription] = useState("");
+  const [reportLocation, setReportLocation] = useState("Manual Entry");
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
+  const { user } = useUser();
   const db = useFirestore();
+  const { toast } = useToast();
 
   // Fetch real citizen reports to show the correlation source
   const reportsQuery = useMemoFirebase(() => {
@@ -60,6 +86,43 @@ export default function DrainageMonitoringPage() {
     const interval = setInterval(() => loadData(true), 120000); // Poll every 2 minutes
     return () => clearInterval(interval);
   }, []);
+
+  const handleManualReportSubmit = async () => {
+    if (!user || !db || !reportDescription) return;
+
+    setIsSubmittingReport(true);
+    
+    const reportData = {
+      userId: user.uid,
+      description: `Drainage/UGD Issue: ${reportDescription}`,
+      latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.01,
+      longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.01,
+      photoUrls: ["https://picsum.photos/seed/drainage_manual/800/600"], // Placeholder for manual reports
+      submittedAt: new Date().toISOString(),
+      status: "Submitted",
+      isVerified: true,
+      aiSuggestedCategory: "Drainage Blockage",
+      pointsAwarded: 25,
+    };
+
+    try {
+      addDocumentNonBlocking(collection(db, "incidentReports"), reportData);
+      toast({ 
+        title: "Report Submitted", 
+        description: "Your drainage issue report has been logged successfully." 
+      });
+      setIsReportDialogOpen(false);
+      setReportDescription("");
+    } catch (error) {
+      toast({ 
+        variant: "destructive", 
+        title: "Submission Failed", 
+        description: "Could not log the drainage issue." 
+      });
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -300,9 +363,58 @@ export default function DrainageMonitoringPage() {
              <h3 className="text-xl font-bold font-headline flex items-center gap-2">
                <AlertCircle className="w-5 h-5 text-amber-500" /> AI-Identified Blockages
              </h3>
-             <Button className="rounded-full bg-primary text-white font-bold gap-2 px-8 py-6 shadow-lg hover:scale-105 transition-all">
-               <Navigation className="w-5 h-5" /> Dispatch Hydro-Jetting Fleet
-             </Button>
+             <div className="flex gap-4">
+                <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="rounded-full border-primary text-primary font-bold gap-2 px-6 py-6 shadow-sm hover:bg-primary/5">
+                      <PlusCircle className="w-5 h-5" /> Report Manual Blockage
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px] rounded-[32px]">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold font-headline">Report Drainage Issue</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-6 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="location" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Location Landmark</Label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                          <Input 
+                            id="location" 
+                            className="pl-10 rounded-2xl h-12" 
+                            value={reportLocation} 
+                            onChange={(e) => setReportLocation(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="description" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Detailed Description</Label>
+                        <Textarea 
+                          id="description" 
+                          placeholder="e.g., Heavy overflow near South Masi St junction..." 
+                          className="rounded-2xl min-h-[120px]"
+                          value={reportDescription}
+                          onChange={(e) => setReportDescription(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button 
+                        onClick={handleManualReportSubmit} 
+                        disabled={isSubmittingReport || !reportDescription}
+                        className="w-full rounded-2xl h-14 bg-primary text-white font-bold gap-2 shadow-lg"
+                      >
+                        {isSubmittingReport ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                        Submit Field Report
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <Button className="rounded-full bg-primary text-white font-bold gap-2 px-8 py-6 shadow-lg hover:scale-105 transition-all">
+                  <Navigation className="w-5 h-5" /> Dispatch Hydro-Jetting Fleet
+                </Button>
+             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {data.activeBlockages.map((blockage, i) => (
