@@ -29,12 +29,20 @@ import {
   ArrowDownCircle,
   GitBranch,
   Trash2,
-  ChevronRight,
   Database,
   PlusCircle,
   MapPin,
-  Send
+  Send,
+  Layers,
+  Droplets
 } from "lucide-react";
+import { 
+  APIProvider, 
+  Map, 
+  AdvancedMarker, 
+  Pin, 
+  InfoWindow 
+} from "@vis.gl/react-google-maps";
 import { cn } from "@/lib/utils";
 import { fetchDrainageRealtimeData, type DrainageDataOutput } from "@/ai/flows/drainage-data-flow";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
@@ -44,11 +52,16 @@ import { RelativeTime } from "@/components/relative-time";
 import { useToast } from "@/hooks/use-toast";
 
 const MADURAI_CENTER = { lat: 9.9252, lng: 78.1198 };
+const STP_COORDINATES = [
+  { name: "Sakkimangalam", lat: 9.9147, lng: 78.1714 },
+  { name: "Avaniapuram", lat: 9.8821, lng: 78.1154 }
+];
 
 export default function DrainageMonitoringPage() {
   const [data, setData] = useState<DrainageDataOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<any>(null);
   
   // Quick Report State
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
@@ -59,6 +72,7 @@ export default function DrainageMonitoringPage() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
   // Fetch real citizen reports to show the correlation source
   const reportsQuery = useMemoFirebase(() => {
@@ -97,7 +111,7 @@ export default function DrainageMonitoringPage() {
       description: `Drainage/UGD Issue: ${reportDescription}`,
       latitude: MADURAI_CENTER.lat + (Math.random() - 0.5) * 0.01,
       longitude: MADURAI_CENTER.lng + (Math.random() - 0.5) * 0.01,
-      photoUrls: ["https://picsum.photos/seed/drainage_manual/800/600"], // Placeholder for manual reports
+      photoUrls: ["https://picsum.photos/seed/drainage_manual/800/600"],
       submittedAt: new Date().toISOString(),
       status: "Submitted",
       isVerified: true,
@@ -146,7 +160,7 @@ export default function DrainageMonitoringPage() {
             <h1 className="text-3xl font-bold font-headline tracking-tight">Blue-Green Resilience</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <span className={cn("w-2 h-2 rounded-full bg-green-500", isRefreshing && "animate-pulse")} />
-              AI Graph-Theoretic Modeling Active
+              Madurai District Drainage Map Active
             </p>
           </div>
         </div>
@@ -186,7 +200,7 @@ export default function DrainageMonitoringPage() {
           <div className="space-y-3">
             <Progress value={data.networkHealthIndex} className="h-2" />
             <p className="text-[10px] text-muted-foreground leading-relaxed">
-              Live analysis of hydraulic pressure vs. waste load.
+              Live analysis of district-wide hydraulic pressure vs. waste load.
             </p>
           </div>
         </Card>
@@ -197,7 +211,7 @@ export default function DrainageMonitoringPage() {
             <h3 className="text-lg font-bold font-headline flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-destructive" /> AI Flood Forecasting
             </h3>
-            <Badge className="bg-destructive/10 text-destructive border-none text-[10px] font-bold tracking-widest uppercase">Risk Map v2.4</Badge>
+            <Badge className="bg-destructive/10 text-destructive border-none text-[10px] font-bold tracking-widest uppercase">District Risk Map</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {data.floodPredictions.map((prediction, i) => (
@@ -225,57 +239,104 @@ export default function DrainageMonitoringPage() {
           </div>
         </Card>
 
-        {/* Network Topology Visualizer (Stylized Graph) */}
-        <Card className="lg:col-span-8 m3-card border-none shadow-xl bg-[#0F172A] text-white p-8 relative overflow-hidden min-h-[400px]">
-          <div className="relative z-10 flex flex-col h-full">
-             <div className="flex justify-between items-start mb-8">
-               <div className="space-y-1">
-                 <h3 className="text-xl font-bold font-headline flex items-center gap-2">
-                   <GitBranch className="w-5 h-5 text-blue-400" /> UGD Topology
-                 </h3>
-                 <p className="text-xs text-blue-300/60 uppercase tracking-widest font-bold">Flow Dependency Graph</p>
-               </div>
-               <Badge className="bg-blue-500/20 text-blue-400 border-blue-400/30">Live Nodes</Badge>
-             </div>
-
-             <div className="flex-1 relative flex items-center justify-center">
-                {/* Stylized SVG Network Graph */}
-                <svg className="w-full h-full max-w-[500px] opacity-40" viewBox="0 0 400 300">
-                  <circle cx="200" cy="150" r="40" fill="none" stroke="#4285F4" strokeWidth="2" />
-                  <circle cx="80" cy="80" r="30" fill="none" stroke="#4285F4" strokeWidth="2" />
-                  <circle cx="320" cy="80" r="30" fill="none" stroke="#4285F4" strokeWidth="2" />
-                  <circle cx="80" cy="220" r="30" fill="none" stroke="#4285F4" strokeWidth="2" />
-                  <circle cx="320" cy="220" r="30" fill="none" stroke="#4285F4" strokeWidth="2" />
-                  
-                  <line x1="110" y1="95" x2="170" y2="135" stroke="#4285F4" strokeWidth="1" strokeDasharray="4 2" />
-                  <line x1="290" y1="95" x2="230" y2="135" stroke="#4285F4" strokeWidth="1" strokeDasharray="4 2" />
-                  <line x1="110" y1="205" x2="170" y2="165" stroke="#4285F4" strokeWidth="1" strokeDasharray="4 2" />
-                  <line x1="290" y1="205" x2="230" y2="165" stroke="#4285F4" strokeWidth="1" strokeDasharray="4 2" />
-
-                  {/* Blockage Highlights */}
-                  {data.activeBlockages.map((_, i) => (
-                    <circle key={i} cx={80 + (i * 240)} cy={80 + (i % 2 * 140)} r="10" fill="#EA4335" className="animate-pulse" />
+        {/* Live Drainage Map */}
+        <Card className="lg:col-span-8 m3-card border-none shadow-xl bg-card p-0 relative overflow-hidden min-h-[500px]">
+          {apiKey ? (
+            <APIProvider apiKey={apiKey}>
+              <div className="absolute inset-0">
+                <Map
+                  defaultCenter={MADURAI_CENTER}
+                  defaultZoom={13}
+                  mapId="drainage_network_map"
+                  gestureHandling={'greedy'}
+                  disableDefaultUI={true}
+                >
+                  {/* STP Markers */}
+                  {STP_COORDINATES.map((stp, i) => (
+                    <AdvancedMarker
+                      key={`stp-${i}`}
+                      position={{ lat: stp.lat, lng: stp.lng }}
+                      onClick={() => setSelectedMarker({ ...stp, type: 'STP' })}
+                    >
+                      <Pin 
+                        background={'#4285F4'} 
+                        borderColor={'#FFFFFF'} 
+                        glyphColor={'#FFFFFF'} 
+                      />
+                    </AdvancedMarker>
                   ))}
-                </svg>
 
-                <div className="absolute inset-0 flex flex-col justify-between p-4">
-                  <div className="flex justify-between">
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">North Madurai</div>
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">East Zone</div>
+                  {/* Blockage Markers */}
+                  {data.activeBlockages.map((blockage, i) => (
+                    <AdvancedMarker
+                      key={`blockage-${i}`}
+                      position={blockage.coordinates}
+                      onClick={() => setSelectedMarker({ ...blockage, type: 'Blockage' })}
+                    >
+                      <Pin 
+                        background={'#EA4335'} 
+                        borderColor={'#FFFFFF'} 
+                        glyphColor={'#FFFFFF'} 
+                      />
+                    </AdvancedMarker>
+                  ))}
+
+                  {selectedMarker && (
+                    <InfoWindow
+                      position={selectedMarker.coordinates || { lat: selectedMarker.lat, lng: selectedMarker.lng }}
+                      onCloseClick={() => setSelectedMarker(null)}
+                    >
+                      <div className="p-3 max-w-[200px] space-y-2">
+                        <h4 className="font-bold text-sm text-foreground">
+                          {selectedMarker.name || selectedMarker.location}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          {selectedMarker.type === 'STP' ? 'Sewage Treatment Plant' : `Severity: ${selectedMarker.severity}`}
+                        </p>
+                        {selectedMarker.identifiedCause && (
+                          <p className="text-[10px] italic text-destructive font-medium mt-1">
+                            Cause: {selectedMarker.identifiedCause}
+                          </p>
+                        )}
+                      </div>
+                    </InfoWindow>
+                  )}
+                </Map>
+              </div>
+
+              {/* Floating Map Legend */}
+              <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                <Card className="p-4 rounded-2xl bg-white/90 backdrop-blur shadow-lg border-none space-y-2">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Drainage Legend</h4>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    <span className="text-[10px] font-bold">STP Node</span>
                   </div>
-                  <div className="flex items-center justify-center">
-                    <div className="text-[10px] bg-blue-600/20 p-4 rounded-full border border-blue-400 font-bold">CORE JUNCTION</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-destructive" />
+                    <span className="text-[10px] font-bold">Waste Blockage</span>
                   </div>
-                  <div className="flex justify-between">
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">Sakkimangalam</div>
-                    <div className="text-[10px] bg-blue-900/40 p-2 rounded-lg border border-blue-700/50">Avaniapuram</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-amber-500" />
+                    <span className="text-[10px] font-bold">High Flood Risk</span>
                   </div>
-                </div>
-             </div>
-          </div>
-          <div className="absolute bottom-6 left-8 right-8 flex justify-between items-center text-[10px] font-bold text-white/40 uppercase tracking-widest">
-            <span>Flow Latency: 4ms</span>
-            <span>Graph Stability: High</span>
+                </Card>
+              </div>
+            </APIProvider>
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4 bg-muted/50">
+              <Layers className="w-12 h-12 text-primary/40" />
+              <div>
+                <p className="font-bold">Map Key Required</p>
+                <p className="text-xs text-muted-foreground">Provide Google Maps API Key to view live district drainage infrastructure.</p>
+              </div>
+            </div>
+          )}
+          
+          <div className="absolute bottom-6 right-8 flex items-center gap-3 z-10">
+             <Button size="sm" variant="outline" className="rounded-full bg-white/80 backdrop-blur border-none shadow-md h-9 gap-2 text-[10px] font-bold uppercase">
+               <Layers className="w-3 h-3" /> Toggle Topology
+             </Button>
           </div>
         </Card>
 
