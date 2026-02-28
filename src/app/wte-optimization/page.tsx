@@ -10,7 +10,6 @@ import {
   Flame, 
   Droplets, 
   Leaf, 
-  BarChart3, 
   Activity, 
   Loader2, 
   RefreshCcw,
@@ -18,7 +17,10 @@ import {
   Factory,
   TrendingUp,
   BrainCircuit,
-  Info
+  Info,
+  ArrowUpRight,
+  ZapOff,
+  Gauge
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
@@ -29,7 +31,9 @@ import {
   Tooltip,
   BarChart,
   Bar,
-  XAxis
+  XAxis,
+  YAxis,
+  CartesianGrid
 } from 'recharts';
 import { fetchWteRealtimeData, type WteDataOutput } from "@/ai/flows/wte-data-flow";
 
@@ -76,25 +80,29 @@ export default function WteOptimizationPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-20">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary shadow-inner">
-            <Factory className="w-7 h-7" />
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-[22px] bg-primary/10 flex items-center justify-center text-primary shadow-inner border border-primary/20">
+            <Factory className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold font-headline tracking-tight">Waste-to-Energy Optimization</h1>
+            <h1 className="text-3xl font-bold font-headline tracking-tight">WtE Energy Optimization</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-2">
               <span className={cn("w-2 h-2 rounded-full bg-green-500", isRefreshing && "animate-pulse")} />
-              Madurai Smart-Grid: {data.energyOutput.streetlightsPowered} Streetlights Active
+              Madurai Smart-Grid: {data.energyOutput.streetlightsPowered.toLocaleString()} streetlights active
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex flex-col items-end px-4 border-r border-border/50">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Grid Stability</span>
+            <span className="text-sm font-bold text-secondary">{data.energyOutput.gridStability}% Stable</span>
+          </div>
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
             onClick={() => loadData(true)}
             disabled={isRefreshing}
-            className="rounded-full gap-2 hover:bg-white"
+            className="rounded-full gap-2 h-10 px-5 font-bold border-primary/20 hover:bg-primary/5 transition-all"
           >
             <RefreshCcw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
             Sync AI Predictions
@@ -104,52 +112,71 @@ export default function WteOptimizationPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Main Stats Column */}
+        {/* Plant Efficiency and Feedstock - LEFT COLUMN */}
         <div className="lg:col-span-4 space-y-6">
-          <Card className="m3-card border-none shadow-lg p-6 bg-primary text-primary-foreground relative overflow-hidden">
-             <Zap className="absolute -top-6 -right-6 w-32 h-32 opacity-10 rotate-12" />
-             <div className="space-y-6 relative z-10">
+          <Card className="m3-card border-none shadow-xl p-8 bg-[#1E1B4B] text-white relative overflow-hidden group">
+             <Zap className="absolute -top-10 -right-10 w-48 h-48 opacity-10 rotate-12 transition-transform group-hover:scale-110" />
+             <div className="space-y-8 relative z-10">
                <div className="flex items-center justify-between">
-                 <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">Plant Efficiency Index</p>
-                 <Activity className="w-4 h-4 opacity-70" />
+                 <Badge className="bg-white/20 text-white border-none text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
+                   PLANT EFFICIENCY
+                 </Badge>
+                 <Activity className="w-5 h-5 opacity-70" />
                </div>
-               <div className="flex items-baseline gap-2">
-                 <h2 className="text-6xl font-bold">{data.efficiencyIndex}%</h2>
-                 <Badge variant="secondary" className="bg-white/20 text-white border-none text-[8px] font-bold">OPTIMAL</Badge>
+               
+               <div className="space-y-2">
+                 <div className="flex items-baseline gap-2">
+                   <h2 className="text-7xl font-bold tracking-tighter">{data.efficiencyIndex}</h2>
+                   <span className="text-2xl font-bold opacity-60">%</span>
+                 </div>
+                 <p className="text-xs font-medium text-white/60">Calculated from {data.totalThroughput} daily metric tons</p>
                </div>
-               <Progress value={data.efficiencyIndex} className="h-2 bg-white/20" />
-               <p className="text-[10px] opacity-70 italic">*Real-time throughput: {data.totalThroughput} tons/day</p>
+
+               <div className="space-y-4">
+                 <Progress value={data.efficiencyIndex} className="h-2.5 bg-white/10" />
+                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter text-white/40">
+                   <span>Input Load</span>
+                   <span>Conversion Target 95%</span>
+                 </div>
+               </div>
              </div>
           </Card>
 
-          <Card className="m3-card border-none shadow-lg p-6 space-y-6">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-              <Droplets className="w-4 h-4 text-blue-500" /> Feedstock Analysis
-            </h3>
-            <div className="flex items-center gap-8">
-               <div className="h-32 w-32">
+          <Card className="m3-card border-none shadow-lg p-6 space-y-6 bg-card transition-all hover:shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                <Gauge className="w-4 h-4 text-blue-500" /> Feedstock Composition
+              </h3>
+              <Info className="w-4 h-4 text-muted-foreground/30" />
+            </div>
+
+            <div className="flex items-center gap-6">
+               <div className="h-32 w-32 shrink-0">
                  <ResponsiveContainer width="100%" height="100%">
                    <PieChart>
                      <Pie
                        data={data.feedstock.composition}
                        innerRadius={30}
                        outerRadius={50}
-                       paddingAngle={5}
+                       paddingAngle={6}
                        dataKey="percentage"
+                       stroke="none"
                      >
                        {data.feedstock.composition.map((entry, index) => (
                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                        ))}
                      </Pie>
-                     <Tooltip />
+                     <Tooltip 
+                       contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}
+                     />
                    </PieChart>
                  </ResponsiveContainer>
                </div>
-               <div className="space-y-2 flex-1">
+               <div className="space-y-2.5 flex-1">
                   {data.feedstock.composition.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between text-xs">
+                    <div key={i} className="flex items-center justify-between text-[11px] font-medium">
                       <div className="flex items-center gap-2">
-                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                          <span className="text-muted-foreground">{item.type}</span>
                       </div>
                       <span className="font-bold">{item.percentage}%</span>
@@ -157,112 +184,175 @@ export default function WteOptimizationPage() {
                   ))}
                </div>
             </div>
-            <div className="pt-4 border-t border-muted">
-               <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] font-bold uppercase text-muted-foreground">Moisture Level</span>
-                  <span className="text-xs font-bold text-blue-500">{data.feedstock.moistureContent}%</span>
+
+            <div className="pt-6 border-t border-border/50">
+               <div className="flex justify-between items-center mb-3">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Moisture Balance</span>
+                    <p className="text-[9px] text-muted-foreground italic">Target Range: 60-70%</p>
+                  </div>
+                  <span className={cn(
+                    "text-lg font-bold",
+                    data.feedstock.moistureContent > 70 ? "text-destructive" : "text-blue-500"
+                  )}>
+                    {data.feedstock.moistureContent}%
+                  </span>
                </div>
-               <Progress value={data.feedstock.moistureContent} className="h-1.5 bg-blue-100" />
+               <Progress 
+                value={data.feedstock.moistureContent} 
+                className={cn(
+                  "h-1.5",
+                  data.feedstock.moistureContent > 70 ? "bg-destructive/20" : "bg-blue-100"
+                )} 
+               />
             </div>
           </Card>
         </div>
 
-        {/* Methane & Grid Column */}
+        {/* Methane & Grid Analytics - RIGHT COLUMN */}
         <div className="lg:col-span-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="m3-card border-none shadow-lg p-6 bg-orange-50 space-y-6">
+            
+            {/* Methane Production Card */}
+            <Card className="m3-card border-none shadow-lg p-8 bg-orange-50/50 space-y-8 group">
                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
-                      <Flame className="w-5 h-5" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center shadow-sm">
+                      <Flame className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold">Methane Production</h4>
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Anaerobic Digestors</p>
+                      <h4 className="font-bold text-lg">Methane Yield</h4>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Anaerobic Bioreactors</p>
                     </div>
                   </div>
                   <Badge className={cn(
-                    "border-none text-[10px] font-bold px-3 py-1",
+                    "border-none text-[10px] font-bold px-4 py-1.5 rounded-full",
                     data.methaneProduction.status === 'Optimal' ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"
                   )}>
                     {data.methaneProduction.status}
                   </Badge>
                </div>
-               <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-[10px] font-bold text-muted-foreground mb-1 uppercase">Current Rate</p>
-                    <p className="text-2xl font-bold">{data.methaneProduction.currentYield} <span className="text-xs font-medium">m³/hr</span></p>
+
+               <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Current Rate</p>
+                    <div className="flex items-baseline gap-1.5">
+                      <p className="text-4xl font-bold">{data.methaneProduction.currentYield.toLocaleString()}</p>
+                      <span className="text-sm font-bold text-muted-foreground">m³/hr</span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-muted-foreground mb-1 uppercase">24h Forecast</p>
-                    <p className="text-2xl font-bold">{data.methaneProduction.predictedYield24h.toLocaleString()} <span className="text-xs font-medium">m³</span></p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">24h Forecast</p>
+                    <div className="flex items-baseline gap-1.5">
+                      <p className="text-4xl font-bold text-orange-600">{(data.methaneProduction.predictedYield24h / 1000).toFixed(1)}k</p>
+                      <span className="text-sm font-bold text-muted-foreground">m³</span>
+                    </div>
                   </div>
                </div>
-               <div className="h-24 w-full pt-4">
+
+               <div className="h-28 w-full pt-4">
                  <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={[{v: 60}, {v: 45}, {v: 75}, {v: 65}, {v: 90}]}>
-                     <Bar dataKey="v" fill="#F97316" radius={[4, 4, 0, 0]} />
+                   <BarChart data={[{h: '12', v: 60}, {h: '13', v: 45}, {h: '14', v: 75}, {h: '15', v: 65}, {h: '16', v: 90}]}>
+                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                     <XAxis dataKey="h" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#9ca3af'}} />
+                     <Bar dataKey="v" fill="#F97316" radius={[6, 6, 0, 0]} />
                    </BarChart>
                  </ResponsiveContainer>
                </div>
             </Card>
 
-            <Card className="m3-card border-none shadow-lg p-6 bg-blue-50 space-y-6">
+            {/* Smart Grid Integration Card */}
+            <Card className="m3-card border-none shadow-lg p-8 bg-blue-50/50 space-y-8">
                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
-                      <Lightbulb className="w-5 h-5" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shadow-sm">
+                      <Lightbulb className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold">Smart Grid Output</h4>
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Public Lighting Load</p>
+                      <h4 className="font-bold text-lg">Smart Grid Export</h4>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Municipal Lighting Load</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="border-blue-200 text-blue-600 text-[10px] font-bold">
-                    {data.energyOutput.gridStability}% Stable
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="border-blue-200 text-blue-600 text-[10px] font-bold px-3">
+                      ONLINE
+                    </Badge>
+                  </div>
                </div>
-               <div className="flex items-center gap-6">
+
+               <div className="flex items-center gap-8">
                   <div className="flex-1 space-y-1">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Power Generated</p>
-                    <h4 className="text-3xl font-bold">{data.energyOutput.kwhGenerated.toLocaleString()} <span className="text-xs font-medium text-muted-foreground">kWh</span></h4>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Power Exported Today</p>
+                    <div className="flex items-baseline gap-2">
+                      <h4 className="text-5xl font-bold text-blue-700">{data.energyOutput.kwhGenerated.toLocaleString()}</h4>
+                      <span className="text-lg font-bold text-blue-300">kWh</span>
+                    </div>
                   </div>
-                  <div className="h-16 w-16 rounded-full border-4 border-blue-200 border-t-blue-600 flex items-center justify-center">
-                     <span className="text-sm font-bold">{data.energyOutput.gridStability}%</span>
+                  <div className="h-20 w-20 rounded-full border-[6px] border-blue-100 border-t-blue-600 flex items-center justify-center bg-white shadow-inner">
+                     <div className="text-center">
+                        <span className="text-xs font-bold block">{data.energyOutput.gridStability}%</span>
+                        <span className="text-[7px] font-bold uppercase text-muted-foreground">Stability</span>
+                     </div>
                   </div>
                </div>
-               <div className="bg-white/50 p-4 rounded-2xl flex items-center gap-4 border border-blue-100 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5" />
+
+               <div className="bg-white p-5 rounded-[24px] flex items-center gap-5 border border-blue-100 shadow-sm group hover:border-blue-300 transition-all cursor-default">
+                  <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                    <ArrowUpRight className="w-6 h-6" />
                   </div>
-                  <div>
-                    <p className="text-[11px] font-bold">Smart Grid Utilization</p>
-                    <p className="text-[9px] text-muted-foreground">Powering 4,200 Ward 42 streetlights.</p>
+                  <div className="space-y-0.5">
+                    <p className="text-[11px] font-bold text-blue-800">Operational Highlight</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">Actively powering {data.energyOutput.streetlightsPowered.toLocaleString()} Ward 42 streetlights.</p>
                   </div>
                </div>
             </Card>
           </div>
 
-          <Card className="m3-card border-none shadow-xl bg-indigo-900 text-white p-8 relative overflow-hidden">
-             <BrainCircuit className="absolute -bottom-10 -right-10 w-64 h-64 text-white/5" />
-             <div className="relative z-10 space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white">
-                    <BrainCircuit className="w-6 h-6" />
+          {/* AI Optimization Insights */}
+          <Card className="m3-card border-none shadow-2xl bg-[#0F172A] text-white p-10 relative overflow-hidden">
+             <BrainCircuit className="absolute -bottom-16 -right-16 w-80 h-80 text-white/5 pointer-events-none" />
+             
+             <div className="relative z-10 space-y-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white border border-white/20">
+                      <BrainCircuit className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold font-headline">AI Optimization Engine</h3>
+                      <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Autonomous Biogas Tuning Active</p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold font-headline">AI Optimization Engine</h3>
+                  <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse [animation-delay:0.2s]" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse [animation-delay:0.4s]" />
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                    {data.optimizationTips.map((tip, i) => (
-                     <div key={i} className="flex gap-4 group cursor-default">
-                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:bg-accent group-hover:text-accent-foreground transition-all">
-                          <Info className="w-4 h-4" />
+                     <div key={i} className="flex gap-5 group cursor-default p-4 rounded-3xl hover:bg-white/5 transition-all">
+                        <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-accent group-hover:text-accent-foreground transition-all shadow-lg border border-white/5">
+                          <Info className="w-5 h-5" />
                         </div>
-                        <p className="text-sm text-white/80 leading-relaxed group-hover:text-white transition-colors">
-                          {tip}
-                        </p>
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] font-bold text-accent uppercase tracking-widest">Protocol Tip {i + 1}</p>
+                          <p className="text-sm text-white/70 leading-relaxed group-hover:text-white transition-colors">
+                            {tip}
+                          </p>
+                        </div>
                      </div>
                    ))}
+                </div>
+                
+                <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <p className="text-[10px] text-white/30 font-medium italic">
+                    *Tuning model: v4.2 High-Throughput Anaerobic Analysis
+                  </p>
+                  <Button variant="ghost" className="text-accent hover:text-accent hover:bg-accent/10 rounded-full font-bold text-xs gap-2">
+                    Review Historical Performance <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Button>
                 </div>
              </div>
           </Card>
