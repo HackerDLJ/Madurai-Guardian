@@ -1,14 +1,13 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Bell, Settings, Menu } from "lucide-react";
+import { Search, Bell, Settings } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/firebase";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 
 const topNavPills = [
   { label: "Dashboard", href: "/" },
@@ -32,6 +31,16 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-40 w-full bg-background/5 backdrop-blur-lg px-8 py-6 flex items-center justify-between border-b border-white/10 transition-all duration-500">
       <div className="flex items-center gap-6">
+        {/* Un-collapsed Branding */}
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current">
+              <path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" />
+            </svg>
+          </div>
+          <span className="hidden sm:block text-lg font-bold tracking-tight text-foreground whitespace-nowrap">Madurai Guardian</span>
+        </Link>
+
         {mounted && state === "collapsed" && (
           <SidebarTrigger className="rounded-xl bg-white/30 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/50 transition-all duration-300 shadow-sm" />
         )}

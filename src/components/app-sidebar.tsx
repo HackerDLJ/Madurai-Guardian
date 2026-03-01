@@ -9,7 +9,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
 import { Card } from "@/components/ui/card";
@@ -59,25 +58,14 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r-0 bg-background/30 backdrop-blur-2xl transition-all duration-500 ease-in-out">
       <SidebarHeader className="p-4">
-        <div className="flex items-center justify-between mb-4 group/header">
-          {!isCollapsed && (
-            <Link href="/" className="flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-500">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current">
-                  <path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" />
-                </svg>
-              </div>
-              <span className="text-lg font-bold tracking-tight text-foreground whitespace-nowrap">Madurai Guardian</span>
-            </Link>
-          )}
-          
+        <div className="flex items-center justify-between mb-4">
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={toggleSidebar}
             className={cn(
               "rounded-xl hover:bg-primary/10 hover:text-primary transition-all duration-300",
-              isCollapsed ? "mx-auto w-10 h-10" : "w-8 h-8"
+              isCollapsed ? "mx-auto w-10 h-10" : "ml-auto w-8 h-8"
             )}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
