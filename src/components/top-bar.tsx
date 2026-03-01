@@ -26,12 +26,14 @@ export function TopBar() {
     setMounted(true);
   }, []);
 
+  // To prevent hydration mismatch, we ensure the rendered HTML 
+  // structure and container classes are identical on server and client initial render.
   return (
     <header className="sticky top-0 z-40 w-full bg-background/50 backdrop-blur px-8 py-4 flex items-center justify-between">
       <div className="m3-pill-nav bg-white shadow-sm px-2 min-h-[44px] flex items-center">
         {topNavPills.map((pill) => {
-          // In Next.js 15, usePathname is safe for hydration, 
-          // but we still wrap the active class logic carefully.
+          // On server, mounted is false. On client initial render, mounted is false.
+          // This ensures the initial client render matches the server HTML exactly.
           const isActive = mounted && (pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href)));
           
           return (
