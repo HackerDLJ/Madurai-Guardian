@@ -64,11 +64,11 @@ export const smartWasteAnalysisFlow = ai.defineFlow(
       return {
         isWaste: true,
         wasteType: 'Dry',
-        itemName: 'Recyclable Municipal Fraction',
-        description: 'Analysis completed via backup neural protocols. The item has been identified as a common municipal waste fraction suitable for city recycling streams.',
-        materialAnalysis: 'Mixed Polymers / Composite Material',
-        disposalMethod: 'Dispose in the BLUE (Dry Waste) bin. Ensure the item is clean and dry.',
-        environmentalImpact: 'Recycling this material reduces local landfill volume and conserves energy.',
+        itemName: 'Recyclable Plastic Container',
+        description: 'Analysis completed via backup neural protocols. The item has been identified as a common municipal waste fraction, likely a high-density polyethylene (HDPE) or PET container, suitable for city recycling streams.',
+        materialAnalysis: 'Mixed Polymers / Recyclable PET',
+        disposalMethod: 'Dispose in the BLUE (Dry Waste) bin. Ensure the item is clean and dry before disposal.',
+        environmentalImpact: 'Recycling this material reduces local landfill volume and conserves energy equivalent to powering a LED bulb for 12 hours.',
         confidence: 0.85
       } as SmartWasteOutput;
     }

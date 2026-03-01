@@ -30,7 +30,8 @@ export function TopBar() {
     <header className="sticky top-0 z-40 w-full bg-background/50 backdrop-blur px-8 py-4 flex items-center justify-between">
       <div className="m3-pill-nav bg-white shadow-sm px-2 min-h-[44px] flex items-center">
         {topNavPills.map((pill) => {
-          // Calculate active state only after mounting to prevent hydration mismatch
+          // Stable calculation: On server and first client render, isActive is always false.
+          // This prevents hydration mismatches.
           const isActive = mounted && (pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href)));
           
           return (
