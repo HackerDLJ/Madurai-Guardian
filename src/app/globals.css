@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -73,24 +74,25 @@
 
 /* Liquid Glass UI Core */
 .liquid-glass {
-  @apply bg-white/50 dark:bg-black/40 backdrop-blur-[40px] border border-white/40 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.05)] dark:shadow-[0_8px_48px_0_rgba(0,0,0,0.4)];
+  @apply bg-white/60 dark:bg-black/50 backdrop-blur-[40px] border border-white/40 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.08)] dark:shadow-[0_8px_48px_0_rgba(0,0,0,0.5)];
 }
 
 .m3-card {
   @apply liquid-glass rounded-[48px] p-8 transition-all duration-700;
+  transition-property: all;
   transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .m3-card:hover {
-  @apply shadow-[0_24px_64px_-12px_rgba(0,0,0,0.1)] scale-[1.01];
+  @apply shadow-[0_24px_64px_-12px_rgba(0,0,0,0.15)] scale-[1.01];
 }
 
 .m3-pill-nav {
-  @apply bg-white/20 dark:bg-white/5 backdrop-blur-3xl flex items-center gap-1 p-1 rounded-full border border-white/20 shadow-inner;
+  @apply bg-white/30 dark:bg-white/10 backdrop-blur-3xl flex items-center gap-1 p-1 rounded-full border border-white/30 shadow-inner;
 }
 
 .m3-pill-item {
-  @apply px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground/60 hover:text-foreground;
+  @apply px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground/80 hover:text-foreground;
 }
 
 .m3-pill-item.active {
