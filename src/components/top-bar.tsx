@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,6 +6,7 @@ import Link from "next/link";
 import { useUser } from "@/firebase";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 const topNavPills = [
   { label: "Dashboard", href: "/" },
@@ -20,13 +20,16 @@ const topNavPills = [
 export function TopBar() {
   const { user } = useUser();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/50 backdrop-blur px-8 py-4 flex items-center justify-between">
       <div className="m3-pill-nav bg-white shadow-sm px-2 min-h-[44px] flex items-center">
-        {topNavPills.map((pill) => {
-          // Pathname is available on both server and client in Next.js 15 App Router,
-          // allowing for hydration-safe active state calculation.
+        {mounted && topNavPills.map((pill) => {
           const isActive = pathname === pill.href || (pill.href !== "/" && pathname.startsWith(pill.href));
           
           return (

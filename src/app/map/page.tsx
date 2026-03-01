@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -115,22 +114,21 @@ export default function CityMap() {
             </Map>
             
             {/* API Error Fallback Instruction Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-muted/20 pointer-events-none">
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-muted/20 pointer-events-none z-50">
               <div className="p-8 bg-white/95 rounded-[40px] border border-primary/20 shadow-2xl space-y-4 max-w-sm pointer-events-auto">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto">
                   <Layers className="w-8 h-8" />
                 </div>
                 <h2 className="font-bold text-xl text-foreground">Maps API Activation Required</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  The Google Maps JavaScript API is not yet activated. Please enable it to view the city reports.
+                  The Google Maps JavaScript API is not yet activated for project <strong>{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</strong>.
                 </p>
                 <div className="p-4 bg-primary/5 rounded-2xl text-left space-y-3">
                   <p className="text-[10px] font-bold uppercase text-primary tracking-widest">Configuration Steps:</p>
                   <ol className="text-[10px] space-y-2 list-decimal list-inside text-muted-foreground leading-relaxed">
                     <li>Go to the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Google Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
-                    <li>Select project: <code className="bg-muted px-1 rounded">{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</code></li>
                     <li>Search for <strong>"Maps JavaScript API"</strong></li>
-                    <li>Click <strong>ENABLE</strong></li>
+                    <li>Click <strong>ENABLE</strong> to activate the map views.</li>
                   </ol>
                 </div>
               </div>
@@ -146,34 +144,12 @@ export default function CityMap() {
         )}
 
         <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-primary shadow-lg hover:bg-white/90 border-none">
+          <button className="w-12 h-12 rounded-2xl bg-white text-primary shadow-lg hover:bg-white/90 flex items-center justify-center">
             <Navigation className="w-6 h-6" />
-          </Button>
-          <Button size="icon" className="w-12 h-12 rounded-2xl bg-white text-secondary shadow-lg hover:bg-white/90 border-none">
+          </button>
+          <button className="w-12 h-12 rounded-2xl bg-white text-secondary shadow-lg hover:bg-white/90 flex items-center justify-center">
             <Info className="w-6 h-6" />
-          </Button>
-        </div>
-
-        <div className="absolute bottom-24 left-6 right-6 z-10">
-          <Card className="p-4 rounded-[32px] bg-white/90 backdrop-blur shadow-xl border-none">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-600">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase text-muted-foreground">Earth Engine Status</p>
-                  <p className="text-sm font-semibold">Live Analysis {incidents ? `(${incidents.length} points)` : 'Ready'}</p>
-                </div>
-              </div>
-              <Tabs defaultValue="all" className="w-auto">
-                <TabsList className="bg-muted/50 rounded-full p-1 h-10">
-                  <TabsTrigger value="all" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-4 text-xs">Hybrid</TabsTrigger>
-                  <TabsTrigger value="infra" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white px-4 text-xs">Heatmap</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-          </Card>
+          </button>
         </div>
       </div>
     </div>
