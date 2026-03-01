@@ -371,7 +371,7 @@ export default function Dashboard() {
 
             <div className="pt-10 flex items-center gap-2 text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest">
               <Globe className="w-4 h-4" />
-              Building for a better Tamil Nadu • 2024
+              Building for a better Tamil Nadu • 2026
             </div>
           </div>
         </Card>
@@ -379,4 +379,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
