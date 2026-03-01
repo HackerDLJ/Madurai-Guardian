@@ -40,7 +40,7 @@ export function TopBar() {
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-black tracking-tighter text-foreground leading-none">Madurai Guardian</span>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mt-1.5 opacity-80">iOS 26 Liquid UI</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mt-1.5 opacity-80">Liquid Glass Architecture</span>
           </div>
         </Link>
 

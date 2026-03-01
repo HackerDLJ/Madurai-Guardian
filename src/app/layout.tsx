@@ -15,7 +15,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: 'Madurai Guardian | iOS 26',
+  title: 'Madurai Guardian',
   description: 'AI-powered citizen-centric urban cleanliness ecosystem for Madurai.',
 };
 
@@ -31,7 +31,7 @@ export default function RootLayout({
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />
             <SidebarInset className="flex flex-col bg-background/0 relative overflow-hidden">
-              {/* Dynamic iOS 26 Ambient Glows */}
+              {/* Dynamic Ambient Glows */}
               <div className="fixed top-[-20%] left-[-10%] w-[80%] h-[80%] bg-primary/10 rounded-full blur-[160px] pointer-events-none animate-pulse duration-[12s]" />
               <div className="fixed bottom-[-15%] right-[-20%] w-[70%] h-[70%] bg-secondary/10 rounded-full blur-[160px] pointer-events-none animate-pulse duration-[10s]" />
               <div className="fixed top-[40%] right-[10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[140px] pointer-events-none" />
