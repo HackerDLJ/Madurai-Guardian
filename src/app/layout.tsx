@@ -10,7 +10,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 const roboto = Roboto({ 
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
+  weight: ['300', '400', '500', '700', '900'],
   variable: '--font-roboto',
 });
 
@@ -30,9 +30,14 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />
-            <SidebarInset className="flex flex-col bg-background">
+            <SidebarInset className="flex flex-col bg-background/0 relative overflow-hidden">
+              {/* Background Glows for Liquid Glass Effect */}
+              <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+              <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
+              <div className="fixed top-[30%] right-[10%] w-[30%] h-[30%] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
+              
               <TopBar />
-              <main className="flex-1 px-8 pb-12 pt-4">
+              <main className="flex-1 px-10 pb-20 pt-8 max-w-7xl mx-auto w-full relative z-10">
                 {children}
               </main>
             </SidebarInset>
