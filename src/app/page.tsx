@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -17,7 +18,15 @@ import {
   AlertCircle,
   Search,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Linkedin,
+  Github,
+  Twitter,
+  Instagram,
+  Send,
+  MessageSquare,
+  Globe,
+  ExternalLink
 } from "lucide-react";
 import Image from "next/image";
 import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from "@/firebase";
@@ -44,6 +53,15 @@ const efficiencyData = [
   { name: 'S', value: 40 },
 ];
 
+const socialLinks = [
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/luke-jebasundar-46805a364", icon: <Linkedin className="w-5 h-5" />, color: "hover:bg-blue-600 hover:text-white" },
+  { label: "GitHub", href: "https://github.com/HackerDLJ", icon: <Github className="w-5 h-5" />, color: "hover:bg-gray-800 hover:text-white" },
+  { label: "X", href: "https://x.com/DLJ25961186", icon: <Twitter className="w-5 h-5" />, color: "hover:bg-black hover:text-white" },
+  { label: "Telegram", href: "https://t.me/LukeDLJ", icon: <Send className="w-5 h-5" />, color: "hover:bg-blue-400 hover:text-white" },
+  { label: "Instagram", href: "https://www.instagram.com/lukedlj", icon: <Instagram className="w-5 h-5" />, color: "hover:bg-pink-600 hover:text-white" },
+  { label: "Discord", href: "https://discord.com/users/869597257295609886", icon: <MessageSquare className="w-5 h-5" />, color: "hover:bg-indigo-600 hover:text-white" },
+];
+
 export default function Dashboard() {
   const { user } = useUser();
   const db = useFirestore();
@@ -68,7 +86,7 @@ export default function Dashboard() {
   const level = profile?.level || 1;
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-1000">
+    <div className="space-y-12 animate-in fade-in duration-1000 pb-20">
       <header className="md:hidden space-y-6">
         <div className="relative group">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
@@ -79,6 +97,7 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {/* Hero Section */}
       <section>
         <Card className="rounded-[64px] liquid-glass p-16 flex flex-col md:flex-row justify-between items-center relative overflow-hidden group border-white/40">
           <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
@@ -129,6 +148,7 @@ export default function Dashboard() {
         </Card>
       </section>
 
+      {/* Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
         <Card className="m3-card group border-white/30">
           <div className="flex justify-between items-start mb-8">
@@ -238,7 +258,8 @@ export default function Dashboard() {
         </Card>
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 pb-16">
+      {/* Map & Feed Section */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <Card className="p-0 overflow-hidden flex flex-col border-none shadow-[0_48px_100px_rgba(0,0,0,0.2)] relative group rounded-[64px]">
           <div className="p-10 flex justify-between items-center bg-white/10 backdrop-blur-[60px] z-20 border-b border-white/10">
             <h3 className="font-black text-3xl tracking-tight text-foreground">Intelligence Map</h3>
@@ -311,6 +332,51 @@ export default function Dashboard() {
           </div>
         </Card>
       </section>
+
+      {/* About the Developer Section */}
+      <section className="pt-12">
+        <Card className="rounded-[64px] liquid-glass p-16 relative overflow-hidden group border-white/40 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+          <div className="relative z-10 flex flex-col items-center text-center space-y-8">
+            <div className="space-y-4">
+              <Badge className="bg-accent/20 text-accent border-none px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-[0.2em] shadow-lg">Architect & Innovator</Badge>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground uppercase">About the Developer</h2>
+            </div>
+            
+            <div className="max-w-4xl space-y-6">
+              <h3 className="text-3xl font-bold text-primary">LUKE JEBASUNDAR D</h3>
+              <p className="text-xl text-muted-foreground/80 font-medium leading-relaxed italic">
+                "I’m a first‑year Computer Science Engineering student from Tirunelveli, Tamil Nadu, deeply passionate about AI, blockchain, and full‑stack development. I love building DeFi and AI‑driven applications and regularly participate in hackathons to create accessible tech solutions for rural and underserved communities. Alongside coding, I enjoy music production, poetry, Art and designing engaging presentations. I’m currently strengthening my skills in React Native, Supabase, and decentralized systems while working toward a future that blends innovation, finance, and social impact."
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 w-full pt-8">
+              {socialLinks.map((link) => (
+                <Button 
+                  key={link.label}
+                  asChild
+                  variant="outline"
+                  className={cn(
+                    "rounded-[28px] h-16 bg-white/5 border-white/10 backdrop-blur-xl shadow-lg transition-all duration-500 group/btn",
+                    link.color
+                  )}
+                >
+                  <a href={link.href} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-1">
+                    {link.icon}
+                    <span className="text-[9px] font-black uppercase tracking-widest">{link.label}</span>
+                  </a>
+                </Button>
+              ))}
+            </div>
+
+            <div className="pt-10 flex items-center gap-2 text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest">
+              <Globe className="w-4 h-4" />
+              Building for a better Tamil Nadu • 2024
+            </div>
+          </div>
+        </Card>
+      </section>
     </div>
   );
 }
+
