@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, MapPin, Navigation, Info, Layers, Loader2, ExternalLink } from "lucide-center";
+import { Search, Filter, MapPin, Navigation, Info, Layers, Loader2, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { 
   APIProvider, 

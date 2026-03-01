@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -33,8 +32,6 @@ import {
   CartesianGrid
 } from 'recharts';
 import { fetchWteRealtimeData, type WteDataOutput } from "@/ai/flows/wte-data-flow";
-
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--destructive))'];
 
 export default function WteOptimizationPage() {
   const [data, setData] = useState<WteDataOutput | null>(null);
@@ -195,7 +192,7 @@ export default function WteOptimizationPage() {
                        stroke="none"
                      >
                        {data.feedstock.composition.map((entry, index) => (
-                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                         <Cell key={`cell-${index}`} fill={index === 0 ? 'hsl(var(--primary))' : index === 1 ? 'hsl(var(--secondary))' : 'hsl(var(--accent))'} />
                        ))}
                      </Pie>
                      <Tooltip 
@@ -208,7 +205,7 @@ export default function WteOptimizationPage() {
                   {data.feedstock.composition.map((item, i) => (
                     <div key={i} className="flex items-center justify-between text-[11px] font-medium">
                       <div className="flex items-center gap-2">
-                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: i === 0 ? 'hsl(var(--primary))' : i === 1 ? 'hsl(var(--secondary))' : 'hsl(var(--accent))' }} />
                          <span className="text-muted-foreground">{item.type}</span>
                       </div>
                       <span className="font-bold text-foreground">{item.percentage}%</span>
