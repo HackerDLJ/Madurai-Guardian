@@ -1,12 +1,12 @@
+
 "use client";
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, MapPin, Navigation, Info, Layers, Loader2, ExternalLink } from "lucide-react";
+import { Search, Filter, MapPin, Navigation, Info, Layers, Loader2, ExternalLink } from "lucide-center";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   APIProvider, 
   Map, 
@@ -113,22 +113,22 @@ export default function CityMap() {
               )}
             </Map>
             
-            {/* API Error Fallback Instruction Overlay */}
+            {/* API Setup Instructions Overlay */}
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-muted/20 pointer-events-none z-50">
               <div className="p-8 bg-white/95 rounded-[40px] border border-primary/20 shadow-2xl space-y-4 max-w-sm pointer-events-auto">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto">
                   <Layers className="w-8 h-8" />
                 </div>
-                <h2 className="font-bold text-xl text-foreground">Maps API Activation Required</h2>
+                <h2 className="font-bold text-xl text-foreground">Maps API Setup Required</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   The Google Maps JavaScript API is not yet activated for project <strong>{process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}</strong>.
                 </p>
                 <div className="p-4 bg-primary/5 rounded-2xl text-left space-y-3">
-                  <p className="text-[10px] font-bold uppercase text-primary tracking-widest">Configuration Steps:</p>
+                  <p className="text-[10px] font-bold uppercase text-primary tracking-widest">Enable Steps:</p>
                   <ol className="text-[10px] space-y-2 list-decimal list-inside text-muted-foreground leading-relaxed">
-                    <li>Go to the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Google Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
+                    <li>Visit the <a href="https://console.cloud.google.com/google/maps-apis/api-list" target="_blank" className="text-primary underline font-bold inline-flex items-center gap-1">Cloud Console <ExternalLink className="w-3 h-3" /></a></li>
                     <li>Search for <strong>"Maps JavaScript API"</strong></li>
-                    <li>Click <strong>ENABLE</strong> to activate the map views.</li>
+                    <li>Click <strong>ENABLE</strong> to activate the city maps.</li>
                   </ol>
                 </div>
               </div>
