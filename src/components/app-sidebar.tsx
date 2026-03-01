@@ -23,7 +23,8 @@ import {
   Waves,
   Zap,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from "lucide-react";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { doc } from "firebase/firestore";
@@ -56,57 +57,57 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0 bg-background/30 backdrop-blur-2xl transition-all duration-500 ease-in-out">
-      <SidebarHeader className="p-4">
-        <div className="flex items-center justify-between mb-4">
+    <Sidebar collapsible="icon" className="border-r-0 bg-transparent transition-all duration-700 ease-in-out">
+      <SidebarHeader className="p-6">
+        <div className="flex items-center justify-between mb-8">
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={toggleSidebar}
             className={cn(
-              "rounded-xl hover:bg-primary/10 hover:text-primary transition-all duration-300",
-              isCollapsed ? "mx-auto w-10 h-10" : "ml-auto w-8 h-8"
+              "rounded-2xl bg-white/5 hover:bg-primary/20 hover:text-primary transition-all duration-500 shadow-xl",
+              isCollapsed ? "mx-auto w-12 h-12" : "ml-auto w-10 h-10"
             )}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+            {isCollapsed ? <ChevronRight className="w-6 h-6" /> : <ChevronLeft className="w-6 h-6" />}
           </Button>
         </div>
 
         <Card className={cn(
-          "rounded-[24px] border-none bg-white/40 backdrop-blur-md p-3 shadow-sm flex items-center transition-all duration-500",
-          isCollapsed ? "justify-center p-1.5" : "gap-3"
+          "rounded-[32px] border-none bg-white/5 backdrop-blur-3xl p-4 shadow-2xl flex items-center transition-all duration-700 ease-in-out",
+          isCollapsed ? "justify-center p-2" : "gap-4"
         )}>
           <Avatar className={cn(
-            "rounded-2xl bg-primary/10 text-primary border-2 border-white/50 transition-all",
-            isCollapsed ? "w-8 h-8" : "w-11 h-11"
+            "rounded-[20px] bg-primary/10 text-primary border-2 border-white/10 transition-all duration-500",
+            isCollapsed ? "w-10 h-10" : "w-12 h-12"
           )}>
             <AvatarImage src={user?.photoURL || ""} />
-            <AvatarFallback className="rounded-2xl">
-               <UserCircle className="w-5 h-5" />
+            <AvatarFallback className="rounded-[20px] bg-primary/10">
+               <UserCircle className="w-6 h-6" />
             </AvatarFallback>
           </Avatar>
           {!isCollapsed && (
-            <div className="flex-1 overflow-hidden animate-in fade-in duration-700">
-              <h4 className="font-bold text-xs truncate text-foreground">{user?.displayName || profile?.displayName || "Guardian"}</h4>
-              <p className="text-[9px] text-muted-foreground uppercase font-black tracking-tighter">South Madurai</p>
+            <div className="flex-1 overflow-hidden animate-in fade-in slide-in-from-left-2 duration-700">
+              <h4 className="font-black text-sm truncate text-foreground">{user?.displayName || profile?.displayName || "Guardian"}</h4>
+              <Badge className="bg-primary/20 text-primary border-none text-[8px] px-2 h-4 font-black uppercase tracking-widest mt-1">Lvl {profile?.level || 1} Elite</Badge>
             </div>
           )}
         </Card>
 
-        <Link href="/report/new" className="mt-4">
+        <Link href="/report/new" className="mt-8">
           <Button className={cn(
-            "w-full rounded-2xl bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-[1.02] transition-all gap-2 h-11",
-            isCollapsed ? "px-0 justify-center" : "px-4"
+            "w-full rounded-[24px] bg-primary text-white font-black shadow-[0_16px_40px_rgba(66,133,244,0.4)] hover:shadow-[0_20px_48px_rgba(66,133,244,0.5)] hover:scale-[1.05] active:scale-95 transition-all duration-500 gap-3 h-14",
+            isCollapsed ? "px-0 justify-center" : "px-6"
           )}>
-            <Plus className="w-5 h-5" />
+            <Plus className="w-6 h-6" />
             {!isCollapsed && <span className="animate-in fade-in duration-500">New Report</span>}
           </Button>
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="px-3">
-        <SidebarMenu className="gap-1.5">
+      <SidebarContent className="px-4">
+        <SidebarMenu className="gap-3">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             
@@ -117,20 +118,20 @@ export function AppSidebar() {
                   isActive={isActive} 
                   tooltip={item.label}
                   className={cn(
-                    "rounded-2xl h-11 px-3.5 transition-all duration-300",
+                    "rounded-[24px] h-14 px-4 transition-all duration-500",
                     isActive 
-                      ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                      : "hover:bg-primary/5 hover:text-primary text-muted-foreground"
+                      ? "bg-primary text-white shadow-[0_12px_24px_rgba(66,133,244,0.3)]" 
+                      : "hover:bg-white/5 text-muted-foreground/80 hover:text-primary"
                   )}
                 >
-                  <Link href={item.href} className="group flex items-center gap-3">
+                  <Link href={item.href} className="group flex items-center gap-4">
                     <item.icon className={cn(
-                      "w-5 h-5 transition-transform duration-300 group-hover:scale-110",
-                      isActive ? "text-white" : "text-muted-foreground group-hover:text-primary"
+                      "w-6 h-6 transition-all duration-500",
+                      isActive ? "text-white scale-110" : "text-muted-foreground/50 group-hover:text-primary group-hover:scale-110"
                     )} />
                     {!isCollapsed && (
                       <span className={cn(
-                        "font-bold text-sm transition-all duration-300",
+                        "font-black text-sm transition-all duration-500",
                         isActive ? "text-white" : "text-foreground group-hover:text-primary"
                       )}>
                         {item.label}
@@ -138,10 +139,10 @@ export function AppSidebar() {
                     )}
                     {!isCollapsed && item.badge && (
                       <Badge className={cn(
-                        "ml-auto border-none text-[8px] px-1.5 h-4 font-black uppercase tracking-tighter",
+                        "ml-auto border-none text-[8px] px-2 h-5 font-black uppercase tracking-tighter shadow-sm",
                         isActive ? "bg-white/20 text-white" : 
-                        item.badge === "Live" ? "bg-green-500/10 text-green-600" : 
-                        "bg-primary/10 text-primary"
+                        item.badge === "Live" ? "bg-green-500/15 text-green-500" : 
+                        "bg-primary/15 text-primary"
                       )}>
                         {item.badge}
                       </Badge>
@@ -154,34 +155,37 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 mt-auto">
+      <SidebarFooter className="p-6 mt-auto">
         {!isCollapsed ? (
-          <Card className="rounded-[32px] bg-white/30 backdrop-blur-xl p-5 space-y-4 border border-white/40 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <Card className="rounded-[40px] bg-white/5 backdrop-blur-[40px] p-6 space-y-6 border border-white/10 shadow-3xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <div className="flex justify-between items-center">
-              <h5 className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Live Feed</h5>
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <h5 className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2">
+                <Sparkles className="w-3 h-3" /> Live Feed
+              </h5>
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.6)]" />
             </div>
-            <div className="space-y-4">
-              <div className="flex gap-3 items-start group cursor-default">
-                <div className="w-2 h-2 rounded-full bg-destructive mt-1.5 shadow-lg shadow-destructive/20" />
-                <div className="transition-transform group-hover:translate-x-1 duration-300">
-                  <p className="text-[11px] font-bold text-foreground leading-tight">Waste density warning</p>
-                  <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-tighter">Temple Zone • 2m ago</p>
+            <div className="space-y-5">
+              <div className="flex gap-4 items-start group cursor-default">
+                <div className="w-2.5 h-2.5 rounded-full bg-destructive mt-1.5 shadow-[0_0_12px_rgba(239,68,68,0.4)]" />
+                <div className="transition-all group-hover:translate-x-1 duration-500">
+                  <p className="text-xs font-black text-foreground leading-tight">Waste density spike</p>
+                  <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter mt-0.5">Temple Zone • 2m ago</p>
                 </div>
               </div>
-              <div className="flex gap-3 items-start group cursor-default">
-                <div className="w-2 h-2 rounded-full bg-accent mt-1.5 shadow-lg shadow-accent/20" />
-                <div className="transition-transform group-hover:translate-x-1 duration-300">
-                  <p className="text-[11px] font-bold text-foreground leading-tight">Bin overflow imminent</p>
-                  <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-tighter">West Masi • 15m ago</p>
+              <div className="flex gap-4 items-start group cursor-default">
+                <div className="w-2.5 h-2.5 rounded-full bg-accent mt-1.5 shadow-[0_0_12px_rgba(251,188,5,0.4)]" />
+                <div className="transition-all group-hover:translate-x-1 duration-500">
+                  <p className="text-xs font-black text-foreground leading-tight">Bin critical load</p>
+                  <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter mt-0.5">West Masi • 15m ago</p>
                 </div>
               </div>
             </div>
           </Card>
         ) : (
-          <div className="flex flex-col items-center gap-4 py-4">
-            <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-            <div className="w-2 h-2 rounded-full bg-accent animate-pulse delay-150" />
+          <div className="flex flex-col items-center gap-6 py-6 opacity-30">
+            <div className="w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
+            <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse delay-150" />
+            <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse delay-300" />
           </div>
         )}
       </SidebarFooter>

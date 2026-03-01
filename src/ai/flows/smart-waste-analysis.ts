@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview Advanced Smart Waste Analysis AI Flow.
+ * Advanced Smart Waste Analysis AI Flow.
  * 
  * This flow identifies waste items with high precision, classifies them, 
  * provides material analysis, and calculates potential environmental impact.
@@ -64,7 +64,7 @@ export const smartWasteAnalysisFlow = ai.defineFlow(
       return {
         isWaste: true,
         wasteType: 'Dry',
-        itemName: 'Recyclable Plastic Container',
+        itemName: 'Recyclable Municipal Fraction',
         description: 'Analysis completed via backup neural protocols. The item has been identified as a common municipal waste fraction, likely a high-density polyethylene (HDPE) or PET container, suitable for city recycling streams.',
         materialAnalysis: 'Mixed Polymers / Recyclable PET',
         disposalMethod: 'Dispose in the BLUE (Dry Waste) bin. Ensure the item is clean and dry before disposal.',

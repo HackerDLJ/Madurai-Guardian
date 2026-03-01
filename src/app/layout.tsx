@@ -15,7 +15,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: 'Madurai Guardian',
+  title: 'Madurai Guardian | iOS 26',
   description: 'AI-powered citizen-centric urban cleanliness ecosystem for Madurai.',
 };
 
@@ -25,19 +25,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={cn(roboto.variable, "font-body antialiased bg-background text-foreground min-h-screen")}>
+    <html lang="en" className="dark">
+      <body className={cn(roboto.variable, "font-body antialiased bg-background text-foreground min-h-screen selection:bg-primary/30")}>
         <FirebaseClientProvider>
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />
             <SidebarInset className="flex flex-col bg-background/0 relative overflow-hidden">
-              {/* Background Glows for Liquid Glass Effect */}
-              <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
-              <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
-              <div className="fixed top-[30%] right-[10%] w-[30%] h-[30%] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
+              {/* Dynamic iOS 26 Ambient Glows */}
+              <div className="fixed top-[-20%] left-[-10%] w-[80%] h-[80%] bg-primary/10 rounded-full blur-[160px] pointer-events-none animate-pulse duration-[12s]" />
+              <div className="fixed bottom-[-15%] right-[-20%] w-[70%] h-[70%] bg-secondary/10 rounded-full blur-[160px] pointer-events-none animate-pulse duration-[10s]" />
+              <div className="fixed top-[40%] right-[10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[140px] pointer-events-none" />
+              <div className="fixed bottom-[30%] left-[20%] w-[30%] h-[30%] bg-destructive/5 rounded-full blur-[140px] pointer-events-none" />
               
               <TopBar />
-              <main className="flex-1 px-10 pb-20 pt-8 max-w-7xl mx-auto w-full relative z-10">
+              <main className="flex-1 px-10 pb-20 pt-10 max-w-7xl mx-auto w-full relative z-10 transition-all duration-700 ease-in-out">
                 {children}
               </main>
             </SidebarInset>

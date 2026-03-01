@@ -30,73 +30,82 @@
     --input: 214 32% 91%;
     --ring: 217 89% 61%;
     
-    --radius: 2rem;
+    --radius: 2.5rem;
   }
 
   .dark {
-    --background: 222 47% 8%;
+    --background: 222 47% 4%;
     --foreground: 210 40% 98%;
-    --card: 222 47% 10%;
+    --card: 222 47% 6%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 8%;
+    --popover: 222 47% 4%;
     --popover-foreground: 210 40% 98%;
     --primary: 217 89% 61%;
     --primary-foreground: 222 47% 11%;
     --secondary: 141 62% 43%;
     --secondary-foreground: 222 47% 11%;
-    --muted: 222 47% 12%;
+    --muted: 222 47% 10%;
     --muted-foreground: 215 20% 65%;
     --accent: 45 97% 51%;
     --accent-foreground: 222 47% 11%;
     --destructive: 5 81% 56%;
     --destructive-foreground: 210 40% 98%;
-    --border: 222 47% 15%;
-    --input: 222 47% 15%;
+    --border: 222 47% 12%;
+    --input: 222 47% 12%;
     --ring: 217 89% 61%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border/40;
+    @apply border-border/20;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    @apply bg-background text-foreground font-body antialiased overflow-x-hidden;
     background-image: 
-      radial-gradient(at 0% 0%, hsla(217, 89%, 61%, 0.05) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(141, 62%, 43%, 0.05) 0, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(45, 97%, 51%, 0.05) 0, transparent 50%),
-      radial-gradient(at 0% 100%, hsla(5, 81%, 56%, 0.05) 0, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(217, 89%, 61%, 0.1) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(141, 62%, 43%, 0.1) 0, transparent 50%),
+      radial-gradient(at 50% 50%, hsla(45, 97%, 51%, 0.05) 0, transparent 70%),
+      radial-gradient(at 0% 100%, hsla(5, 81%, 56%, 0.1) 0, transparent 50%);
     background-attachment: fixed;
   }
 }
 
 .liquid-glass {
-  @apply bg-white/40 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+  @apply bg-white/20 backdrop-blur-[40px] border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.05)];
 }
 
 .dark .liquid-glass {
-  @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  @apply bg-black/20 backdrop-blur-[40px] border border-white/5 shadow-[0_8px_48px_0_rgba(0,0,0,0.4)];
 }
 
 .m3-card {
-  @apply liquid-glass rounded-[40px] p-6 transition-all duration-500 hover:shadow-[0_12px_48px_0_rgba(31,38,135,0.12)] hover:scale-[1.01] active:scale-[0.99];
+  @apply liquid-glass rounded-[48px] p-8 transition-all duration-700;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.m3-card:hover {
+  @apply shadow-[0_24px_64px_-12px_rgba(0,0,0,0.1)] scale-[1.01];
+}
+
+.m3-card:active {
+  @apply scale-[0.98];
 }
 
 .m3-pill-nav {
-  @apply liquid-glass flex items-center gap-1 p-1 rounded-full;
+  @apply bg-white/10 backdrop-blur-3xl flex items-center gap-1 p-1.5 rounded-full border border-white/20 shadow-inner;
 }
 
 .m3-pill-item {
-  @apply px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300;
+  @apply px-7 py-2.5 rounded-full text-sm font-bold transition-all duration-500 text-muted-foreground/80;
 }
 
 .m3-pill-item.active {
-  @apply bg-primary text-white shadow-lg shadow-primary/20;
+  @apply bg-primary text-white shadow-[0_8px_20px_-4px_rgba(66,133,244,0.4)] scale-[1.05];
 }
 
 .m3-fab {
-  @apply fixed bottom-8 right-8 w-16 h-16 rounded-[24px] bg-primary text-primary-foreground flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 z-50;
+  @apply fixed bottom-10 right-10 w-20 h-20 rounded-[32px] bg-primary text-primary-foreground flex items-center justify-center shadow-[0_20px_50px_rgba(66,133,244,0.3)] transition-all duration-500 hover:scale-110 active:scale-90 z-50;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -109,14 +118,14 @@
 
 /* Glassy Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   @apply bg-transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/20 backdrop-blur-md rounded-full border-2 border-transparent bg-clip-content;
+  @apply bg-primary/20 backdrop-blur-md rounded-full border-2 border-transparent bg-clip-content;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-white/40;
+  @apply bg-primary/40;
 }
