@@ -33,7 +33,7 @@ export default function RootLayout({
           <FirebaseClientProvider>
             <SidebarProvider defaultOpen={true}>
               <AppSidebar />
-              <SidebarInset className="flex flex-col bg-background/0 relative overflow-hidden">
+              <SidebarInset className="flex flex-col bg-background/0 relative">
                 {/* Dynamic Ambient Glows - Theme Sensitive */}
                 <div className="fixed top-[-20%] left-[-10%] w-[80%] h-[80%] bg-primary/10 dark:bg-primary/15 rounded-full blur-[160px] pointer-events-none animate-pulse duration-[12s]" />
                 <div className="fixed bottom-[-15%] right-[-20%] w-[70%] h-[70%] bg-secondary/10 dark:bg-secondary/15 rounded-full blur-[160px] pointer-events-none animate-pulse duration-[10s]" />
