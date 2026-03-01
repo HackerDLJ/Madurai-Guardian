@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,7 +18,7 @@
     --secondary: 141 62% 43%; /* Google Green #34A853 */
     --secondary-foreground: 210 40% 98%;
     
-    --muted: 210 20% 96%;
+    --muted: 210 20% 94%;
     --muted-foreground: 215 16% 47%;
     
     --accent: 45 97% 51%; /* Google Yellow #FBBC05 */
@@ -71,12 +72,9 @@
   }
 }
 
+/* Liquid Glass UI Core */
 .liquid-glass {
-  @apply bg-white/20 backdrop-blur-[40px] border border-white/30 shadow-[0_8px_32px_0_rgba(31,38,135,0.05)];
-}
-
-.dark .liquid-glass {
-  @apply bg-black/20 backdrop-blur-[40px] border border-white/5 shadow-[0_8px_48px_0_rgba(0,0,0,0.4)];
+  @apply bg-white/40 dark:bg-black/20 backdrop-blur-[40px] border border-white/30 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.05)] dark:shadow-[0_8px_48px_0_rgba(0,0,0,0.4)];
 }
 
 .m3-card {
@@ -93,7 +91,7 @@
 }
 
 .m3-pill-nav {
-  @apply bg-white/5 backdrop-blur-3xl flex items-center gap-1 p-1 rounded-full border border-white/10 shadow-inner;
+  @apply bg-white/10 dark:bg-white/5 backdrop-blur-3xl flex items-center gap-1 p-1 rounded-full border border-white/10 shadow-inner;
 }
 
 .m3-pill-item {
@@ -130,7 +128,6 @@
   @apply bg-primary/40;
 }
 
-/* Sidebar Specific Alignments */
 [data-sidebar="sidebar"] {
   @apply transition-all duration-700;
 }
