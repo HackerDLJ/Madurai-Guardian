@@ -64,7 +64,7 @@
     @apply bg-background text-foreground font-body antialiased overflow-x-hidden;
     background-image: 
       radial-gradient(at 0% 0%, hsla(217, 89%, 61%, 0.1) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(141, 62%, 43%, 0.1) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(141, 62% , 43%, 0.1) 0, transparent 50%),
       radial-gradient(at 50% 50%, hsla(45, 97%, 51%, 0.05) 0, transparent 70%),
       radial-gradient(at 0% 100%, hsla(5, 81%, 56%, 0.1) 0, transparent 50%);
     background-attachment: fixed;
@@ -93,11 +93,11 @@
 }
 
 .m3-pill-nav {
-  @apply bg-white/10 backdrop-blur-3xl flex items-center gap-1 p-1.5 rounded-full border border-white/20 shadow-inner;
+  @apply bg-white/5 backdrop-blur-3xl flex items-center gap-1 p-1 rounded-full border border-white/10 shadow-inner;
 }
 
 .m3-pill-item {
-  @apply px-7 py-2.5 rounded-full text-sm font-bold transition-all duration-500 text-muted-foreground/80;
+  @apply px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 text-muted-foreground/60;
 }
 
 .m3-pill-item.active {
@@ -128,4 +128,9 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary/40;
+}
+
+/* Sidebar Specific Alignments */
+[data-sidebar="sidebar"] {
+  @apply transition-all duration-700;
 }
